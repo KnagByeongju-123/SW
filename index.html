@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShinWoo 특수합금 자재관리 DEMO v1.5</title>
+<title>ShinWoo 특수합금 자재관리 DEMO v1.6</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -63,9 +63,17 @@ main{padding:14px;max-width:960px;margin:0 auto;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
 @media(max-width:560px){.grid3{grid-template-columns:1fr 1fr;}}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;}
-.kpi .n{font-size:24px;font-weight:800;color:var(--navy);}
-.kpi .l{font-size:12px;color:var(--sub);margin-top:2px;}
+.kpi-wrap{margin-bottom:12px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;padding-bottom:4px;}
+.kpi-wrap::-webkit-scrollbar{height:5px;}
+.kpi-wrap::-webkit-scrollbar-thumb{background:#c3ceda;border-radius:3px;}
+.kpi-strip{display:grid;grid-template-rows:repeat(2,auto);grid-auto-flow:column;
+  grid-auto-columns:minmax(132px,1fr);gap:8px;}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 10px;
+  text-align:center;scroll-snap-align:start;}
+.kpi .n{font-size:21px;font-weight:800;color:var(--navy);line-height:1.15;}
+.kpi .l{font-size:11.5px;color:var(--sub);margin-top:1px;white-space:nowrap;}
+@media(min-width:620px){.kpi-strip{grid-auto-columns:1fr;}}
 .kpi.warn .n{color:var(--warn);}
 .kpi.ok .n{color:var(--ok);}
 
@@ -263,7 +271,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
     <div class="hd-logo">SHIN<span>WOO</span></div>
     <div class="hd-tag">Tech Innovation Co., Ltd.</div>
   </div>
-  <div class="hd-sub">특수합금 자재관리 시스템 <span class="demo-badge">DEMO v1.5</span></div>
+  <div class="hd-sub">특수합금 자재관리 시스템 <span class="demo-badge">DEMO v1.6</span></div>
 </header>
 
 <nav>
@@ -281,13 +289,15 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 
 <!-- ========== 대시보드 ========== -->
 <div class="page on" id="pg-dash">
-  <div class="grid3">
-    <div class="kpi"><div class="n" id="k-item">-</div><div class="l">재고 품목</div></div>
-    <div class="kpi"><div class="n" id="k-heat">-</div><div class="l">보유 Heat No.</div></div>
-    <div class="kpi ok"><div class="n" id="k-ship">-</div><div class="l">출하 진행중</div></div>
-    <div class="kpi warn"><div class="n" id="k-mtc">-</div><div class="l">밀시트 미등록</div></div>
-    <div class="kpi"><div class="n" id="k-ord">-</div><div class="l">진행중 수주</div></div>
-    <div class="kpi warn"><div class="n" id="k-low">-</div><div class="l">잔량 부족</div></div>
+  <div class="kpi-wrap">
+    <div class="kpi-strip">
+      <div class="kpi"><div class="n" id="k-item">-</div><div class="l">재고 품목</div></div>
+      <div class="kpi"><div class="n" id="k-heat">-</div><div class="l">보유 Heat No.</div></div>
+      <div class="kpi ok"><div class="n" id="k-ship">-</div><div class="l">출하 진행중</div></div>
+      <div class="kpi warn"><div class="n" id="k-mtc">-</div><div class="l">밀시트 미등록</div></div>
+      <div class="kpi"><div class="n" id="k-ord">-</div><div class="l">진행중 수주</div></div>
+      <div class="kpi warn"><div class="n" id="k-low">-</div><div class="l">잔량 부족</div></div>
+    </div>
   </div>
 
   <div class="card">
@@ -603,7 +613,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 </main>
 
 <footer>
-  ShinWoo 특수합금 자재관리 DEMO v1.5 · Supabase 연동 (전용 프로젝트) · 데모용 가상 데이터
+  ShinWoo 특수합금 자재관리 DEMO v1.6 · Supabase 연동 (전용 프로젝트) · 데모용 가상 데이터
 </footer>
 
 
