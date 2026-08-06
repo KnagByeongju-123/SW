@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShinWoo 특수합금 자재관리 DEMO v1.6</title>
+<title>ShinWoo 특수합금 자재관리 DEMO v1.7</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -59,7 +59,6 @@ main{padding:14px;max-width:960px;margin:0 auto;}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
 .card h3{font-size:15px;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.sec-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--blue);text-transform:uppercase;margin-bottom:2px;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
 @media(max-width:560px){.grid3{grid-template-columns:1fr 1fr;}}
@@ -271,7 +270,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
     <div class="hd-logo">SHIN<span>WOO</span></div>
     <div class="hd-tag">Tech Innovation Co., Ltd.</div>
   </div>
-  <div class="hd-sub">특수합금 자재관리 시스템 <span class="demo-badge">DEMO v1.6</span></div>
+  <div class="hd-sub">특수합금 자재관리 시스템 <span class="demo-badge">DEMO v1.7</span></div>
 </header>
 
 <nav>
@@ -301,13 +300,11 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   </div>
 
   <div class="card">
-    <div class="sec-eyebrow">Shipping Schedule</div>
     <h3>출하 예정</h3>
     <div id="dash-ship"></div>
   </div>
 
   <div class="card">
-    <div class="sec-eyebrow">Alert</div>
     <h3>밀시트 미등록 자재</h3>
     <div id="dash-mtc"></div>
   </div>
@@ -316,7 +313,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 <!-- ========== 재고 ========== -->
 <div class="page" id="pg-stock">
   <div class="card">
-    <div class="sec-eyebrow">Inventory</div>
     <h3>재고 조회 <span class="badge b-blue">Heat No. 단위</span></h3>
     <div class="search-bar">
       <input id="q-stock" placeholder="합금·형상·Heat No. 검색  예) 625, PIPE, 2K48" oninput="renderStock()">
@@ -334,7 +330,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 <!-- ========== 수주·출하 ========== -->
 <div class="page" id="pg-order">
   <div class="card">
-    <div class="sec-eyebrow">Sales Order</div>
     <h3>수주 현황</h3>
     <div class="tbl-wrap">
       <table class="tbl">
@@ -345,7 +340,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   </div>
 
   <div class="card">
-    <div class="sec-eyebrow">New Order</div>
     <h3>신규 수주 등록</h3>
     <label>거래처</label>
     <select id="f-cust">
@@ -367,7 +361,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 <!-- ========== 밀시트 ========== -->
 <div class="page" id="pg-mtc">
   <div class="card">
-    <div class="sec-eyebrow">Mill Test Certificate</div>
     <h3>밀시트 관리 <span class="badge b-blue">Heat No. 연동</span></h3>
     <p style="font-size:12.5px;color:var(--sub);margin-bottom:10px;">
       Heat No.에 성적서를 연결해두면 출하 시 자동으로 매칭됩니다. 미등록 자재는 출하 단계에서 경고가 표시됩니다.
@@ -384,7 +377,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 <!-- ========== 거래명세서 ========== -->
 <div class="page" id="pg-doc">
   <div class="card no-print">
-    <div class="sec-eyebrow">Document</div>
     <h3>거래명세서 출력</h3>
     <label>출하 완료 건 선택</label>
     <select id="f-doc" onchange="renderInvoice()"></select>
@@ -409,7 +401,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   <!-- ---------- 카메라 스캔 ---------- -->
   <div class="sub on" id="sub-scan">
     <div class="card">
-      <div class="sec-eyebrow">Scan</div>
       <h3>자재 QR 스캔</h3>
       <div id="reader"></div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
@@ -424,7 +415,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   <!-- ---------- 라벨 출력 ---------- -->
   <div class="sub" id="sub-label">
     <div class="card no-print">
-      <div class="sec-eyebrow">Label</div>
       <h3>QR 라벨 출력</h3>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
         <button class="btn btn-o btn-sm" onclick="pickAll(true)">전체 선택</button>
@@ -458,7 +448,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   <!-- ---------- 절단 등록 ---------- -->
   <div class="sub on" id="sub-cutnew">
     <div class="card">
-      <div class="sec-eyebrow">Cutting</div>
       <h3>절단 출고 등록</h3>
       <div id="msg-cut" class="msg"></div>
       <label>원장 선택</label>
@@ -482,7 +471,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   <!-- ---------- 잔재 현황 ---------- -->
   <div class="sub" id="sub-remnant">
     <div class="card">
-      <div class="sec-eyebrow">Remnant</div>
       <h3>잔재 현황 <span class="badge b-warn" id="rem-cnt">0건</span></h3>
       <p style="font-size:12.5px;color:var(--sub);margin-bottom:10px;">
         입고수량 대비 잔량이 적은 순으로 표시됩니다. 잔재는 별도 관리번호로 태그를 붙여 창고에서 식별합니다.
@@ -494,7 +482,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   <!-- ---------- 절단 이력 ---------- -->
   <div class="sub" id="sub-cutlog">
     <div class="card">
-      <div class="sec-eyebrow">History</div>
       <h3>절단 이력</h3>
       <div class="search-bar"><input id="q-cut" placeholder="Heat No.·수주번호·작업자 검색" oninput="renderCutLog()"></div>
       <div class="cut-sum" id="cut-sum">
@@ -522,7 +509,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   <!-- ---------- PIN 관리 ---------- -->
   <div class="sub on" id="sub-pin">
     <div class="card">
-      <div class="sec-eyebrow">User</div>
       <h3>사용자 등록</h3>
       <div id="msg-pin" class="msg"></div>
       <div class="grid2">
@@ -539,7 +525,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
     </div>
 
     <div class="card">
-      <div class="sec-eyebrow">Users</div>
       <h3>등록 사용자 <span class="badge b-blue" id="pin-cnt">0명</span></h3>
       <div class="search-bar"><input id="q-user" placeholder="성명·부서 검색" oninput="renderUsers()"></div>
       <div class="tbl-wrap">
@@ -554,7 +539,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   <!-- ---------- 소재 마스터 ---------- -->
   <div class="sub" id="sub-mat">
     <div class="card">
-      <div class="sec-eyebrow">Material</div>
       <h3>소재 등록</h3>
       <div id="msg-mat" class="msg"></div>
       <div class="grid2">
@@ -597,7 +581,6 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
     </div>
 
     <div class="card">
-      <div class="sec-eyebrow">Materials</div>
       <h3>등록 소재 <span class="badge b-blue" id="mat-cnt">0건</span></h3>
       <div class="search-bar"><input id="q-mat" placeholder="합금·Heat No. 검색" oninput="renderMatList()"></div>
       <div class="tbl-wrap">
@@ -613,7 +596,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 </main>
 
 <footer>
-  ShinWoo 특수합금 자재관리 DEMO v1.6 · Supabase 연동 (전용 프로젝트) · 데모용 가상 데이터
+  ShinWoo 특수합금 자재관리 DEMO v1.7 · Supabase 연동 (전용 프로젝트) · 데모용 가상 데이터
 </footer>
 
 
@@ -831,7 +814,7 @@ function cutHistoryHtml(s2){
       '<td style="font-size:11.5px;color:var(--sub);">'+esc(c.order_no||c.worker||'-')+'</td></tr>';
   }
   if(!rows)return '<p style="margin-top:12px;font-size:12px;color:var(--sub);">절단 이력이 없습니다.</p>';
-  return '<div style="margin-top:14px;"><div class="sec-eyebrow">Cutting History</div>'+
+  return '<div style="margin-top:14px;">'+
     '<div class="tbl-wrap" style="margin-top:4px;"><table class="tbl">'+
     '<thead><tr><th>일자</th><th>출고</th><th>잔량</th><th>연계</th></tr></thead>'+
     '<tbody>'+rows+'</tbody></table></div></div>';
