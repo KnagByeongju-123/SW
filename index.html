@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShinWoo 특수합금 자재관리 DEMO v1.8</title>
+<title>ShinWoo 특수합금 자재관리 DEMO v1.9</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -252,6 +252,35 @@ body.locked{overflow:hidden;}
 .lbl-rem{font-size:9px;font-weight:800;color:#8a5a10;background:#fff3e0;border:1px solid #e5c48f;
   border-radius:3px;padding:0 4px;display:inline-block;margin-top:2px;}
 
+
+/* ===== 게시판 ===== */
+.bd-item{border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px;
+  background:#fff;cursor:pointer;}
+.bd-item:active{background:var(--blue-soft);}
+.bd-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;}
+.bd-title{font-size:14.5px;font-weight:700;color:var(--navy);flex:1;min-width:0;}
+.bd-meta{font-size:11.5px;color:var(--sub);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.bd-clip{font-size:11.5px;color:var(--blue);font-weight:700;}
+.cat{display:inline-block;padding:1px 8px;border-radius:5px;font-size:11px;font-weight:700;
+  background:var(--navy);color:#fff;}
+.cat.오류{background:#b3382c;}
+.cat.문의{background:#5b6b7b;}
+.cat.개선{background:#157245;}
+.bs0{background:#eceff2;color:#5b6b7b;}
+.bs1{background:#e5edf8;color:#1f5fa8;}
+.bs2{background:#e0f2e8;color:#157245;}
+.bs3{background:#fbeddb;color:#a9670c;}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;margin-top:10px;}
+.thumbs img{width:100%;height:90px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer;}
+.bd-body{font-size:13.5px;white-space:pre-wrap;word-break:break-word;margin-top:6px;line-height:1.7;}
+.fpick{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px;}
+.fpick .btn{flex-shrink:0;}
+.fnames{font-size:11.5px;color:var(--sub);}
+.imgview{position:fixed;inset:0;background:rgba(14,42,71,.88);z-index:400;display:none;
+  align-items:center;justify-content:center;padding:16px;}
+.imgview.on{display:flex;}
+.imgview img{max-width:100%;max-height:100%;border-radius:10px;}
+
 footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26px;}
 
 @media print{
@@ -284,7 +313,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
     <div class="hd-logo">SHIN<span>WOO</span></div>
     <div class="hd-tag">Tech Innovation Co., Ltd.</div>
   </div>
-  <div class="hd-sub">특수합금 자재관리 시스템 <span class="demo-badge">DEMO v1.8</span></div>
+  <div class="hd-sub">특수합금 자재관리 시스템 <span class="demo-badge">DEMO v1.9</span></div>
 </header>
 
 <nav>
@@ -295,6 +324,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   <button data-pg="order" onclick="go(this)">수주·출하</button>
   <button data-pg="mtc" onclick="go(this)">밀시트</button>
   <button data-pg="doc" onclick="go(this)">거래명세서</button>
+  <button data-pg="board" onclick="go(this)">게시판</button>
   <button data-pg="master" onclick="go(this)">마스터</button>
 </nav>
 
@@ -513,6 +543,43 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   </div>
 </div>
 
+
+<!-- ========== 게시판 ========== -->
+<div class="page" id="pg-board">
+  <div class="card">
+    <h3>요청사항 등록</h3>
+    <div id="msg-bd" class="msg"></div>
+    <div class="grid2">
+      <div><label>분류</label>
+        <select id="b-cat"><option>요청</option><option>오류</option><option>문의</option><option>개선</option></select></div>
+      <div><label>작성자</label><select id="b-writer"></select></div>
+    </div>
+    <label>제목</label><input id="b-title" placeholder="예) 잔재 목록에 규격 표시 추가 요청">
+    <label>내용</label><textarea id="b-content" rows="4" placeholder="상황과 원하는 결과를 적어주세요"></textarea>
+    <label>PIN (본인 확인용, 숫자 4자리)</label><input id="b-pin" type="tel" maxlength="4" placeholder="0000">
+    <label>사진 첨부 (최대 4장)</label>
+    <div class="fpick">
+      <input type="file" id="b-files" accept="image/*" multiple style="display:none;" onchange="onPickFiles()">
+      <button class="btn btn-o btn-sm" onclick="document.getElementById('b-files').click()">사진 선택</button>
+      <span class="fnames" id="b-fnames">선택된 사진 없음</span>
+    </div>
+    <div class="thumbs" id="b-preview"></div>
+    <div style="margin-top:12px;"><button class="btn btn-p" id="btn-bd" onclick="saveBoard()">등록</button></div>
+    <p class="help">PIN은 본인 글을 수정·삭제할 때 사용합니다. 마스터 PIN으로는 모든 글을 관리할 수 있습니다.</p>
+  </div>
+
+  <div class="card">
+    <h3>요청 목록 <span class="badge b-blue" id="bd-cnt">0건</span></h3>
+    <div class="search-bar"><input id="q-bd" placeholder="제목·작성자·내용 검색" oninput="renderBoard()"></div>
+    <div class="subtab" style="margin-bottom:10px;">
+      <button class="on" data-f="all" onclick="filterBoard(this)">전체</button>
+      <button data-f="open" onclick="filterBoard(this)">미완료</button>
+      <button data-f="done" onclick="filterBoard(this)">완료</button>
+    </div>
+    <div id="bd-list"></div>
+  </div>
+</div>
+
 <!-- ========== 마스터 ========== -->
 <div class="page" id="pg-master">
   <div class="subtab">
@@ -610,7 +677,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 </main>
 
 <footer>
-  ShinWoo 특수합금 자재관리 DEMO v1.8 · Supabase 연동 (전용 프로젝트) · 데모용 가상 데이터
+  ShinWoo 특수합금 자재관리 DEMO v1.9 · Supabase 연동 (전용 프로젝트) · 데모용 가상 데이터
 </footer>
 
 
@@ -624,6 +691,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   <button class="ml-back" onclick="cancelMaster()">← 돌아가기</button>
 </div>
 
+<div class="imgview" id="imgview" onclick="this.classList.remove('on')"><img id="imgview-src" alt=""></div>
 <!-- 상세 모달 -->
 <div class="overlay" id="ov" onclick="if(event.target===this)closeModal()">
   <div class="modal">
@@ -669,11 +737,13 @@ function loadData(){
   return Promise.all([
     sb('sw_stock?select=*&order=id.asc'),
     sb('sw_order?select=*&order=id.asc'),
-    sb('sw_cut_log?select=*&order=id.desc')
+    sb('sw_cut_log?select=*&order=id.desc'),
+    sb('sw_board?select=*&order=id.desc')
   ]).then(function(r){
     STOCK=r[0]||[];
     ORDERS=r[1]||[];
     CUTS=r[2]||[];
+    BOARD=r[3]||[];
     STOCK_BY_ID={};
     for(var i=0;i<STOCK.length;i++)STOCK_BY_ID[STOCK[i].id]=STOCK[i];
     renderAll();
@@ -1264,6 +1334,7 @@ function renderUsers(){
     tb.appendChild(tr);
   }
   document.getElementById('pin-cnt').textContent=USERS.length+'명';
+  fillWriterSelect();
   if(!shown)tb.innerHTML='<tr><td colspan="5" style="color:var(--sub);text-align:center;">등록된 사용자가 없습니다.</td></tr>';
 }
 function addUser(){
@@ -1844,6 +1915,293 @@ function renderCutLog(){
   if(!cnt)tb.innerHTML='<tr><td colspan="5" style="color:var(--sub);text-align:center;">절단 이력이 없습니다.</td></tr>';
 }
 
+/* ================= 게시판 ================= */
+var BOARD=[], bdFilter='all', pickedFiles=[];
+var BD_STATUS=['접수','진행중','완료','보류'];
+var MAX_IMG_BYTES=30*1024, MAX_FILES=4;
+
+function loadBoard(){
+  return sb('sw_board?select=*&order=id.desc')
+  .then(function(r){BOARD=r||[];renderBoard();})
+  .catch(function(err){showMsg('msg-bd','게시판 로드 실패: '+err.message,'err');});
+}
+function kst(iso){
+  if(!iso)return '-';
+  var d=new Date(iso);
+  try{
+    return d.toLocaleString('ko-KR',{timeZone:'Asia/Seoul',year:'2-digit',month:'2-digit',
+      day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
+  }catch(e){
+    return String(d.getFullYear()).slice(2)+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+  }
+}
+function fillWriterSelect(){
+  var sel=document.getElementById('b-writer');
+  var prev=sel.value;
+  sel.innerHTML='';
+  for(var i=0;i<USERS.length;i++){
+    var o=document.createElement('option');
+    o.value=USERS[i].name;
+    o.textContent=USERS[i].name+(USERS[i].position?' '+USERS[i].position:'');
+    sel.appendChild(o);
+  }
+  if(!USERS.length){
+    var o2=document.createElement('option');
+    o2.value='';o2.textContent='마스터 탭에서 사용자를 먼저 등록하세요';
+    sel.appendChild(o2);
+  }else if(prev&&sel.querySelector('option[value="'+prev+'"]')){
+    sel.value=prev;
+  }
+}
+
+/* ---------- 이미지 압축 (30KB 이하) ---------- */
+function compressImage(file){
+  return new Promise(function(resolve,reject){
+    var fr=new FileReader();
+    fr.onerror=function(){reject(new Error('파일 읽기 실패'));};
+    fr.onload=function(){
+      var img=new Image();
+      img.onerror=function(){reject(new Error('이미지 형식이 아닙니다'));};
+      img.onload=function(){
+        var maxW=1000, q=0.72;
+        function draw(w,quality){
+          var cv=document.createElement('canvas');
+          var scale=Math.min(1,w/img.width);
+          cv.width=Math.round(img.width*scale);
+          cv.height=Math.round(img.height*scale);
+          var ctx=cv.getContext('2d');
+          ctx.fillStyle='#fff';
+          ctx.fillRect(0,0,cv.width,cv.height);
+          ctx.drawImage(img,0,0,cv.width,cv.height);
+          return cv.toDataURL('image/jpeg',quality);
+        }
+        var out=draw(maxW,q);
+        var guard=0;
+        while(out.length*0.75>MAX_IMG_BYTES&&guard<12){
+          guard++;
+          if(q>0.35)q-=0.1; else maxW=Math.round(maxW*0.8);
+          out=draw(maxW,q);
+        }
+        resolve({name:file.name,data:out,size:Math.round(out.length*0.75)});
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+function onPickFiles(){
+  var inp=document.getElementById('b-files');
+  var fs=Array.prototype.slice.call(inp.files||[]);
+  if(!fs.length)return;
+  if(pickedFiles.length+fs.length>MAX_FILES){
+    showMsg('msg-bd','사진은 최대 '+MAX_FILES+'장까지 첨부할 수 있습니다','err');
+    fs=fs.slice(0,MAX_FILES-pickedFiles.length);
+  }
+  if(!fs.length){inp.value='';return;}
+  document.getElementById('b-fnames').textContent='압축 중…';
+  var jobs=fs.map(function(f){return compressImage(f);});
+  Promise.all(jobs).then(function(list){
+    pickedFiles=pickedFiles.concat(list);
+    renderPreview();
+  }).catch(function(err){
+    showMsg('msg-bd','사진 처리 실패: '+err.message,'err');
+    renderPreview();
+  }).then(function(){inp.value='';});
+}
+function renderPreview(){
+  var box=document.getElementById('b-preview');
+  box.innerHTML='';
+  for(var i=0;i<pickedFiles.length;i++){
+    var wrap=document.createElement('div');
+    wrap.style.cssText='position:relative;';
+    var im=document.createElement('img');
+    im.src=pickedFiles[i].data;
+    var x=document.createElement('button');
+    x.textContent='✕';
+    x.style.cssText='position:absolute;top:3px;right:3px;width:22px;height:22px;border:none;'+
+      'border-radius:50%;background:rgba(14,42,71,.8);color:#fff;font-size:12px;cursor:pointer;';
+    (function(idx){
+      x.addEventListener('click',function(){pickedFiles.splice(idx,1);renderPreview();});
+    })(i);
+    wrap.appendChild(im);wrap.appendChild(x);
+    box.appendChild(wrap);
+  }
+  var total=0;
+  for(var j=0;j<pickedFiles.length;j++)total+=pickedFiles[j].size;
+  document.getElementById('b-fnames').textContent=
+    pickedFiles.length?pickedFiles.length+'장 · '+Math.round(total/1024)+'KB':'선택된 사진 없음';
+}
+
+/* ---------- 등록 ---------- */
+function saveBoard(){
+  var title=document.getElementById('b-title').value.trim();
+  var content=document.getElementById('b-content').value.trim();
+  var writer=document.getElementById('b-writer').value;
+  var pin=document.getElementById('b-pin').value.trim();
+  if(!writer){showMsg('msg-bd','작성자를 선택하세요','err');return;}
+  if(title.length<2){showMsg('msg-bd','제목을 입력하세요','err');return;}
+  if(!/^\d{4}$/.test(pin)){showMsg('msg-bd','PIN 4자리를 입력하세요','err');return;}
+  var btn=document.getElementById('btn-bd');
+  btn.disabled=true;
+  sha256hex(pin).then(function(h){
+    /* 등록된 사용자 PIN과 일치하는지 확인 */
+    var ok=false;
+    for(var i=0;i<USERS.length;i++){
+      if(USERS[i].name===writer&&USERS[i].pin_hash===h)ok=true;
+    }
+    if(!ok&&h!==MASTER_PIN_HASH)throw new Error('작성자 PIN이 일치하지 않습니다');
+    return sb('sw_board',{method:'POST',body:{
+      category:document.getElementById('b-cat').value,
+      title:title, content:content||null, writer:writer,
+      pin_hash:h, status:0, files:pickedFiles
+    }});
+  }).then(function(){
+    document.getElementById('b-title').value='';
+    document.getElementById('b-content').value='';
+    document.getElementById('b-pin').value='';
+    pickedFiles=[];renderPreview();
+    showMsg('msg-bd','✓ 등록되었습니다','ok');
+    return loadBoard();
+  }).catch(function(err){
+    showMsg('msg-bd',err.message,'err');
+  }).then(function(){btn.disabled=false;});
+}
+
+/* ---------- 목록 ---------- */
+function filterBoard(btn){
+  var bs=btn.parentNode.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');
+  bdFilter=btn.getAttribute('data-f');
+  renderBoard();
+}
+function renderBoard(){
+  var q=(document.getElementById('q-bd').value||'').toLowerCase();
+  var box=document.getElementById('bd-list');
+  box.innerHTML='';
+  var shown=0;
+  for(var i=0;i<BOARD.length;i++){
+    var b=BOARD[i];
+    if(bdFilter==='open'&&b.status===2)continue;
+    if(bdFilter==='done'&&b.status!==2)continue;
+    var hay=((b.title||'')+' '+(b.writer||'')+' '+(b.content||'')+' '+(b.category||'')).toLowerCase();
+    if(q&&hay.indexOf(q)<0)continue;
+    shown++;
+    var nf=(b.files&&b.files.length)||0;
+    var d=document.createElement('div');
+    d.className='bd-item';
+    d.innerHTML='<div class="bd-top">'+
+      '<span class="cat '+esc(b.category)+'">'+esc(b.category)+'</span>'+
+      '<span class="bd-title">'+esc(b.title)+'</span>'+
+      '<span class="badge bs'+b.status+'">'+BD_STATUS[b.status]+'</span></div>'+
+      '<div class="bd-meta"><span>'+esc(b.writer)+'</span><span>'+kst(b.created_at)+'</span>'+
+      (nf?'<span class="bd-clip">📎 '+nf+'</span>':'')+'</div>';
+    (function(item){
+      d.addEventListener('click',function(){openBoardDetail(item);});
+    })(b);
+    box.appendChild(d);
+  }
+  document.getElementById('bd-cnt').textContent=BOARD.length+'건';
+  if(!shown)box.innerHTML='<div style="color:var(--sub);font-size:13px;text-align:center;padding:14px 0;">해당하는 요청이 없습니다.</div>';
+}
+
+/* ---------- 상세 ---------- */
+function openBoardDetail(b){
+  var html='<div class="bd-meta" style="margin-bottom:8px;">'+
+    '<span class="cat '+esc(b.category)+'">'+esc(b.category)+'</span>'+
+    '<span class="badge bs'+b.status+'">'+BD_STATUS[b.status]+'</span>'+
+    '<span>'+esc(b.writer)+'</span><span>'+kst(b.created_at)+'</span>'+
+    (b.updated_at?'<span>(수정 '+kst(b.updated_at)+')</span>':'')+'</div>'+
+    '<div class="bd-body">'+esc(b.content||'(내용 없음)')+'</div>';
+  if(b.files&&b.files.length){
+    html+='<div class="thumbs" id="bd-thumbs"></div>';
+  }
+  html+='<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">'+
+    '<button class="btn btn-o btn-sm" id="bd-st">상태 변경</button>'+
+    '<button class="btn btn-o btn-sm" id="bd-edit">수정</button>'+
+    '<button class="btn btn-g btn-sm" id="bd-del">삭제</button></div>';
+  openModal(b.title,html);
+
+  if(b.files&&b.files.length){
+    var tb=document.getElementById('bd-thumbs');
+    for(var i=0;i<b.files.length;i++){
+      var im=document.createElement('img');
+      im.src=b.files[i].data;
+      im.alt=b.files[i].name||'';
+      (function(src){
+        im.addEventListener('click',function(){
+          document.getElementById('imgview-src').src=src;
+          document.getElementById('imgview').classList.add('on');
+        });
+      })(b.files[i].data);
+      tb.appendChild(im);
+    }
+  }
+  document.getElementById('bd-st').addEventListener('click',function(){changeBoardStatus(b);});
+  document.getElementById('bd-edit').addEventListener('click',function(){editBoard(b);});
+  document.getElementById('bd-del').addEventListener('click',function(){deleteBoard(b);});
+}
+function verifyOwner(b){
+  var pin=prompt('본인 확인 PIN 4자리 (마스터 PIN 가능)');
+  if(pin===null)return Promise.resolve(false);
+  return sha256hex(String(pin).trim()).then(function(h){
+    if(h===b.pin_hash||h===MASTER_PIN_HASH)return true;
+    alert('PIN이 일치하지 않습니다.');
+    return false;
+  });
+}
+function changeBoardStatus(b){
+  verifyOwner(b).then(function(ok){
+    if(!ok)return;
+    var next=(b.status+1)%BD_STATUS.length;
+    return sb('sw_board?id=eq.'+b.id,{method:'PATCH',body:{status:next,updated_at:new Date().toISOString()}})
+    .then(function(){
+      closeModal();
+      showMsg('msg-bd','상태를 '+BD_STATUS[next]+'(으)로 변경했습니다','ok');
+      return loadBoard();
+    });
+  }).catch(function(err){alert('변경 실패: '+err.message);});
+}
+function editBoard(b){
+  verifyOwner(b).then(function(ok){
+    if(!ok)return;
+    var catOpts='';
+    var cats=['요청','오류','문의','개선'];
+    for(var i=0;i<cats.length;i++)catOpts+='<option'+(b.category===cats[i]?' selected':'')+'>'+cats[i]+'</option>';
+    openModal('요청 수정',
+      '<label>분류</label><select id="eb-cat">'+catOpts+'</select>'+
+      '<label>제목</label><input id="eb-title" value="'+esc(b.title)+'">'+
+      '<label>내용</label><textarea id="eb-content" rows="5">'+esc(b.content||'')+'</textarea>'+
+      '<button class="btn btn-p" style="width:100%;margin-top:14px;" id="eb-save">저장</button>');
+    document.getElementById('eb-save').addEventListener('click',function(){
+      var t=document.getElementById('eb-title').value.trim();
+      if(t.length<2){alert('제목을 입력하세요');return;}
+      this.disabled=true;
+      sb('sw_board?id=eq.'+b.id,{method:'PATCH',body:{
+        category:document.getElementById('eb-cat').value,
+        title:t,
+        content:document.getElementById('eb-content').value.trim()||null,
+        updated_at:new Date().toISOString()
+      }}).then(function(){
+        closeModal();
+        showMsg('msg-bd','✓ 수정되었습니다','ok');
+        return loadBoard();
+      }).catch(function(err){alert('수정 실패: '+err.message);});
+    });
+  });
+}
+function deleteBoard(b){
+  verifyOwner(b).then(function(ok){
+    if(!ok)return;
+    if(!confirm('이 요청을 삭제할까요?'))return;
+    return sb('sw_board?id=eq.'+b.id,{method:'DELETE'}).then(function(){
+      closeModal();
+      showMsg('msg-bd','삭제되었습니다','ok');
+      return loadBoard();
+    });
+  }).catch(function(err){alert('삭제 실패: '+err.message);});
+}
+
 function renderAll(){
   renderDash();
   renderStock();
@@ -1855,12 +2213,14 @@ function renderAll(){
   renderCutForm();
   renderRemnant();
   renderCutLog();
+  renderBoard();
 }
 fillDeptSelect();
 loadData().then(function(){
   return loadUsers();
 }).then(function(){
   renderCutForm();
+  fillWriterSelect();
 });
 </script>
 </body>
