@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShinWoo 특수합금 자재관리 DEMO v1.9</title>
+<title>ShinWoo 특수합금 자재관리 DEMO v2.0</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -281,6 +281,24 @@ body.locked{overflow:hidden;}
 .imgview.on{display:flex;}
 .imgview img{max-width:100%;max-height:100%;border-radius:10px;}
 
+
+/* ===== 입고 ===== */
+.mode-sw{display:flex;gap:6px;margin-bottom:10px;}
+.mode-sw button{flex:1;padding:10px 6px;border:1.5px solid var(--line);background:#fff;color:var(--sub);
+  border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.mode-sw button.on{background:var(--blue-soft);color:var(--blue);border-color:var(--blue);}
+.rc-item{border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px;background:#fff;cursor:pointer;}
+.rc-item:active{background:var(--blue-soft);}
+.rc-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;}
+.rc-title{font-size:14px;font-weight:700;color:var(--navy);flex:1;min-width:0;}
+.rc-meta{font-size:11.5px;color:var(--sub);display:flex;gap:8px;flex-wrap:wrap;}
+.is0{background:#fbeddb;color:#a9670c;}
+.is1{background:#e0f2e8;color:#157245;}
+.is2{background:#f9e5e2;color:#b3382c;}
+.is3{background:#eceff2;color:#5b6b7b;}
+.chk{display:flex;align-items:center;gap:8px;margin:10px 0 2px;font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer;}
+.chk input{width:19px;height:19px;accent-color:var(--blue);flex-shrink:0;}
+
 footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26px;}
 
 @media print{
@@ -313,12 +331,13 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
     <div class="hd-logo">SHIN<span>WOO</span></div>
     <div class="hd-tag">Tech Innovation Co., Ltd.</div>
   </div>
-  <div class="hd-sub">특수합금 자재관리 시스템 <span class="demo-badge">DEMO v1.9</span></div>
+  <div class="hd-sub">특수합금 자재관리 시스템 <span class="demo-badge">DEMO v2.0</span></div>
 </header>
 
 <nav>
   <button class="on" data-pg="dash" onclick="go(this)">대시보드</button>
   <button data-pg="stock" onclick="go(this)">재고</button>
+  <button data-pg="recv" onclick="go(this)">입고</button>
   <button data-pg="qr" onclick="go(this)">QR</button>
   <button data-pg="cut" onclick="go(this)">절단·잔재</button>
   <button data-pg="order" onclick="go(this)">수주·출하</button>
@@ -340,6 +359,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
       <div class="kpi warn"><div class="n" id="k-mtc">-</div><div class="l">밀시트 미등록</div></div>
       <div class="kpi"><div class="n" id="k-ord">-</div><div class="l">진행중 수주</div></div>
       <div class="kpi warn"><div class="n" id="k-low">-</div><div class="l">잔량 부족</div></div>
+      <div class="kpi warn"><div class="n" id="k-recv">-</div><div class="l">검사 대기</div></div>
     </div>
   </div>
 
@@ -434,6 +454,99 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 </div>
 
 
+
+
+<!-- ========== 입고 ========== -->
+<div class="page" id="pg-recv">
+  <div class="subtab">
+    <button class="on" data-sub="recvnew" onclick="goRecvSub(this)">입고 등록</button>
+    <button data-sub="recvwait" onclick="goRecvSub(this)">검사 대기</button>
+    <button data-sub="recvlog" onclick="goRecvSub(this)">입고 이력</button>
+  </div>
+
+  <!-- ---------- 입고 등록 ---------- -->
+  <div class="sub on" id="sub-recvnew">
+    <div class="card">
+      <h3>입고 등록</h3>
+      <div id="msg-rc" class="msg"></div>
+      <div class="mode-sw">
+        <button class="on" data-m="new" onclick="setRecvMode(this)">신규 자재</button>
+        <button data-m="add" onclick="setRecvMode(this)">기존 자재 추가입고</button>
+      </div>
+
+      <!-- 기존 자재 선택 -->
+      <div id="rc-exist" style="display:none;">
+        <label>기존 자재 선택</label>
+        <select id="rc-stock" onchange="onRecvStockPick()"></select>
+        <div id="rc-stockinfo" style="margin-top:6px;"></div>
+      </div>
+
+      <!-- 신규 자재 입력 -->
+      <div id="rc-newfields">
+        <div class="grid2">
+          <div><label>합금</label><input id="rc-alloy" list="dl-alloy" placeholder="Inconel 625"></div>
+          <div><label>형상</label>
+            <select id="rc-form">
+              <option>Seamless Pipe</option><option>Welded Pipe</option><option>Seamless Tube</option><option>Welded Tube</option>
+              <option>Pipe Fitting</option><option>Flange</option><option>Round Bar</option>
+              <option>Sheet</option><option>Plate</option><option>Wire</option><option>Forging</option>
+            </select></div>
+        </div>
+        <label>규격</label><input id="rc-spec" placeholder='2" SCH40 x 6M'>
+        <div class="grid2">
+          <div><label>Heat No.</label><input id="rc-heat" placeholder="2K4867"></div>
+          <div><label>단위</label>
+            <select id="rc-unit"><option>EA</option><option>M</option><option>KG</option><option>SET</option></select></div>
+        </div>
+        <div class="grid2">
+          <div><label>제조밀</label><input id="rc-mill" list="dl-mill" placeholder="SMST"></div>
+          <div><label>적용규격</label><input id="rc-std" placeholder="ASTM B444"></div>
+        </div>
+      </div>
+
+      <label>입고 수량</label><input id="rc-qty" type="number" min="0" step="0.01" value="0">
+
+      <div class="grid2">
+        <div><label>공급처</label><input id="rc-supplier" placeholder="밀 또는 상사명"></div>
+        <div><label>입고일</label><input id="rc-date" type="date"></div>
+      </div>
+      <div class="grid2">
+        <div><label>P/O 번호</label><input id="rc-po" placeholder="PO-2026-081"></div>
+        <div><label>인보이스 번호</label><input id="rc-inv" placeholder="INV-8842"></div>
+      </div>
+      <label>입고 담당자</label><select id="rc-receiver"></select>
+      <label class="chk"><input type="checkbox" id="rc-mtc"> 밀시트(MTC) 확보함</label>
+      <label>메모</label><input id="rc-memo" placeholder="포장 상태, 특이사항 등">
+      <div style="margin-top:12px;"><button class="btn btn-p" id="btn-rc" onclick="saveReceipt()">입고 등록</button></div>
+      <p class="help">등록하면 <b>검사 대기</b> 상태가 됩니다. 수입검사에서 합격 처리해야 재고에 반영됩니다.</p>
+    </div>
+  </div>
+
+  <!-- ---------- 검사 대기 ---------- -->
+  <div class="sub" id="sub-recvwait">
+    <div class="card">
+      <h3>수입검사 대기 <span class="badge is0" id="rc-wait-cnt">0건</span></h3>
+      <p style="font-size:12.5px;color:var(--sub);margin-bottom:10px;">
+        치수·외관·밀시트 대조 후 합격 처리하면 재고에 반영됩니다. 불합격·보류 건은 재고에 잡히지 않습니다.
+      </p>
+      <div id="rc-wait"></div>
+    </div>
+  </div>
+
+  <!-- ---------- 입고 이력 ---------- -->
+  <div class="sub" id="sub-recvlog">
+    <div class="card">
+      <h3>입고 이력</h3>
+      <div class="search-bar"><input id="q-rc" placeholder="Heat No.·공급처·P/O 검색" oninput="renderRecvLog()"></div>
+      <div class="cut-sum">
+        <div><b id="rs-cnt">0</b><span>입고 건수</span></div>
+        <div><b id="rs-ok">0</b><span>합격</span></div>
+        <div><b id="rs-ng">0</b><span>불합격·보류</span></div>
+      </div>
+      <div id="rc-log"></div>
+    </div>
+  </div>
+</div>
 
 <!-- ========== QR ========== -->
 <div class="page" id="pg-qr">
@@ -620,7 +733,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
   <!-- ---------- 소재 마스터 ---------- -->
   <div class="sub" id="sub-mat">
     <div class="card">
-      <h3>소재 등록</h3>
+      <h3>소재 등록 · 수정</h3>
       <div id="msg-mat" class="msg"></div>
       <div class="grid2">
         <div><label>합금</label>
@@ -663,6 +776,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 
     <div class="card">
       <h3>등록 소재 <span class="badge b-blue" id="mat-cnt">0건</span></h3>
+      <p style="font-size:12px;color:var(--sub);margin-bottom:8px;">신규 자재는 <b>입고 탭</b>에서 등록하는 것이 정상 절차입니다. 여기서는 오타 정정 등 예외 처리만 하세요.</p>
       <div class="search-bar"><input id="q-mat" placeholder="합금·Heat No. 검색" oninput="renderMatList()"></div>
       <div class="tbl-wrap">
         <table class="tbl">
@@ -677,7 +791,7 @@ footer{text-align:center;font-size:11.5px;color:var(--sub);padding:18px 10px 26p
 </main>
 
 <footer>
-  ShinWoo 특수합금 자재관리 DEMO v1.9 · Supabase 연동 (전용 프로젝트) · 데모용 가상 데이터
+  ShinWoo 특수합금 자재관리 DEMO v2.0 · Supabase 연동 (전용 프로젝트) · 데모용 가상 데이터
 </footer>
 
 
@@ -738,12 +852,14 @@ function loadData(){
     sb('sw_stock?select=*&order=id.asc'),
     sb('sw_order?select=*&order=id.asc'),
     sb('sw_cut_log?select=*&order=id.desc'),
-    sb('sw_board?select=*&order=id.desc')
+    sb('sw_board?select=*&order=id.desc'),
+    sb('sw_receipt?select=*&order=id.desc')
   ]).then(function(r){
     STOCK=r[0]||[];
     ORDERS=r[1]||[];
     CUTS=r[2]||[];
     BOARD=r[3]||[];
+    RECV=r[4]||[];
     STOCK_BY_ID={};
     for(var i=0;i<STOCK.length;i++)STOCK_BY_ID[STOCK[i].id]=STOCK[i];
     renderAll();
@@ -826,6 +942,9 @@ function renderDash(){
   document.getElementById('k-mtc').textContent=noMtc;
   document.getElementById('k-ord').textContent=live;
   document.getElementById('k-low').textContent=low;
+  var waitn=0;
+  for(var w=0;w<RECV.length;w++)if(RECV[w].insp_status===0)waitn++;
+  document.getElementById('k-recv').textContent=waitn;
 
   var box=document.getElementById('dash-ship');
   box.innerHTML='';
@@ -1335,6 +1454,8 @@ function renderUsers(){
   }
   document.getElementById('pin-cnt').textContent=USERS.length+'명';
   fillWriterSelect();
+  renderCutForm();
+  renderRecvForm();
   if(!shown)tb.innerHTML='<tr><td colspan="5" style="color:var(--sub);text-align:center;">등록된 사용자가 없습니다.</td></tr>';
 }
 function addUser(){
@@ -2202,6 +2323,295 @@ function deleteBoard(b){
   }).catch(function(err){alert('삭제 실패: '+err.message);});
 }
 
+
+/* ================= 입고 · 수입검사 ================= */
+var RECV=[], recvMode='new';
+var INSP=['검사대기','합격','불합격','보류'];
+
+function goRecvSub(btn){
+  var bs=btn.parentNode.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');
+  var subs=document.querySelectorAll('#pg-recv .sub');
+  for(var j=0;j<subs.length;j++)subs[j].classList.remove('on');
+  document.getElementById('sub-'+btn.getAttribute('data-sub')).classList.add('on');
+}
+function setRecvMode(btn){
+  var bs=btn.parentNode.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');
+  recvMode=btn.getAttribute('data-m');
+  document.getElementById('rc-exist').style.display=(recvMode==='add')?'':'none';
+  document.getElementById('rc-newfields').style.display=(recvMode==='add')?'none':'';
+  onRecvStockPick();
+}
+function renderRecvForm(){
+  var sel=document.getElementById('rc-stock');
+  var prev=sel.value;
+  sel.innerHTML='';
+  for(var i=0;i<STOCK.length;i++){
+    var o=document.createElement('option');
+    o.value=STOCK[i].id;
+    o.textContent=STOCK[i].alloy+' '+STOCK[i].form+' ('+STOCK[i].heat_no+') 현재 '+STOCK[i].qty+STOCK[i].unit;
+    sel.appendChild(o);
+  }
+  if(!STOCK.length){
+    var o2=document.createElement('option');
+    o2.value='';o2.textContent='등록된 자재가 없습니다';
+    sel.appendChild(o2);
+  }else if(prev&&sel.querySelector('option[value="'+prev+'"]')){sel.value=prev;}
+
+  var rv=document.getElementById('rc-receiver');
+  var pv=rv.value;
+  rv.innerHTML='<option value="">미지정</option>';
+  for(var k=0;k<USERS.length;k++){
+    var u=document.createElement('option');
+    u.value=USERS[k].name;
+    u.textContent=USERS[k].name+(USERS[k].position?' '+USERS[k].position:'');
+    rv.appendChild(u);
+  }
+  if(pv&&rv.querySelector('option[value="'+pv+'"]'))rv.value=pv;
+
+  var dt=document.getElementById('rc-date');
+  if(!dt.value){
+    var d=new Date();
+    dt.value=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+  }
+  onRecvStockPick();
+}
+function onRecvStockPick(){
+  var box=document.getElementById('rc-stockinfo');
+  if(recvMode!=='add'){box.innerHTML='';return;}
+  var v=document.getElementById('rc-stock').value;
+  var s2=v?STOCK_BY_ID[v]:null;
+  if(!s2){box.innerHTML='';return;}
+  box.innerHTML='<div style="font-size:12.5px;color:var(--sub);">'+esc(s2.spec)+
+    ' · <span class="heat">'+esc(s2.heat_no)+'</span> · 현재 잔량 <b style="color:var(--navy);">'+
+    esc(s2.qty)+' '+esc(s2.unit)+'</b> / 누적 입고 '+esc(s2.total)+' '+esc(s2.unit)+'</div>';
+}
+function saveReceipt(){
+  var qty=parseFloat(document.getElementById('rc-qty').value)||0;
+  if(qty<=0){showMsg('msg-rc','입고 수량을 입력하세요','err');return;}
+  var body={
+    qty:qty,
+    supplier:document.getElementById('rc-supplier').value.trim()||null,
+    po_no:document.getElementById('rc-po').value.trim()||null,
+    invoice_no:document.getElementById('rc-inv').value.trim()||null,
+    recv_date:document.getElementById('rc-date').value||null,
+    receiver:document.getElementById('rc-receiver').value||null,
+    has_mtc:document.getElementById('rc-mtc').checked,
+    memo:document.getElementById('rc-memo').value.trim()||null,
+    insp_status:0
+  };
+  if(recvMode==='add'){
+    var v=document.getElementById('rc-stock').value;
+    var s2=v?STOCK_BY_ID[v]:null;
+    if(!s2){showMsg('msg-rc','기존 자재를 선택하세요','err');return;}
+    body.stock_id=s2.id;
+    body.alloy=s2.alloy; body.form=s2.form; body.spec=s2.spec;
+    body.heat_no=s2.heat_no; body.unit=s2.unit;
+    body.mill=s2.mill; body.std=s2.std;
+  }else{
+    var alloy=document.getElementById('rc-alloy').value.trim();
+    var spec=document.getElementById('rc-spec').value.trim();
+    var heat=document.getElementById('rc-heat').value.trim().toUpperCase();
+    if(!alloy){showMsg('msg-rc','합금을 입력하세요','err');return;}
+    if(!spec){showMsg('msg-rc','규격을 입력하세요','err');return;}
+    if(!heat){showMsg('msg-rc','Heat No.를 입력하세요','err');return;}
+    var form=document.getElementById('rc-form').value;
+    for(var i=0;i<STOCK.length;i++){
+      var t=STOCK[i];
+      if(t.heat_no===heat&&t.alloy===alloy&&t.form===form&&t.spec===spec){
+        showMsg('msg-rc','이미 등록된 자재입니다. [기존 자재 추가입고]를 사용하세요','err');return;
+      }
+    }
+    body.stock_id=null;
+    body.alloy=alloy; body.form=form; body.spec=spec; body.heat_no=heat;
+    body.unit=document.getElementById('rc-unit').value;
+    body.mill=document.getElementById('rc-mill').value.trim()||null;
+    body.std=document.getElementById('rc-std').value.trim()||null;
+  }
+  var btn=document.getElementById('btn-rc');
+  btn.disabled=true;
+  sb('sw_receipt',{method:'POST',body:body})
+  .then(function(){
+    document.getElementById('rc-qty').value=0;
+    document.getElementById('rc-memo').value='';
+    if(recvMode==='new'){
+      document.getElementById('rc-alloy').value='';
+      document.getElementById('rc-spec').value='';
+      document.getElementById('rc-heat').value='';
+      document.getElementById('rc-mill').value='';
+      document.getElementById('rc-std').value='';
+    }
+    showMsg('msg-rc','✓ 입고 등록 완료 · 검사 대기 상태입니다','ok');
+    return loadData();
+  })
+  .catch(function(err){showMsg('msg-rc','등록 실패: '+err.message,'err');})
+  .then(function(){btn.disabled=false;});
+}
+
+/* ---------- 검사 대기 ---------- */
+function renderRecvWait(){
+  var box=document.getElementById('rc-wait');
+  box.innerHTML='';
+  var n=0;
+  for(var i=0;i<RECV.length;i++){
+    var r=RECV[i];
+    if(r.insp_status!==0)continue;
+    n++;
+    var d=document.createElement('div');
+    d.className='rc-item';
+    d.innerHTML='<div class="rc-top">'+
+      '<span class="rc-title">'+esc(r.alloy)+' '+esc(r.form)+'</span>'+
+      '<span class="badge is0">검사대기</span></div>'+
+      '<div class="rc-meta"><span class="heat">'+esc(r.heat_no)+'</span>'+
+      '<span>'+esc(r.qty)+' '+esc(r.unit)+'</span>'+
+      '<span>'+esc(r.supplier||'공급처 미기재')+'</span>'+
+      '<span>'+esc(r.recv_date||'-')+'</span>'+
+      (r.has_mtc?'<span style="color:var(--ok);font-weight:700;">MTC 확보</span>':'<span style="color:var(--danger);font-weight:700;">MTC 없음</span>')+
+      '</div>';
+    (function(item){d.addEventListener('click',function(){openInspect(item);});})(r);
+    box.appendChild(d);
+  }
+  document.getElementById('rc-wait-cnt').textContent=n+'건';
+  if(!n)box.innerHTML='<div style="color:var(--ok);font-size:13px;text-align:center;padding:14px 0;">검사 대기 중인 입고 건이 없습니다 ✓</div>';
+}
+function openInspect(r){
+  var isNew=!r.stock_id;
+  openModal('수입검사 · '+r.heat_no,
+    '<dl class="dl">'+
+    '<dt>자재</dt><dd>'+esc(r.alloy)+' '+esc(r.form)+'</dd>'+
+    '<dt>규격</dt><dd class="mono">'+esc(r.spec)+'</dd>'+
+    '<dt>Heat No.</dt><dd><span class="heat">'+esc(r.heat_no)+'</span></dd>'+
+    '<dt>입고수량</dt><dd><b>'+esc(r.qty)+' '+esc(r.unit)+'</b></dd>'+
+    '<dt>공급처</dt><dd>'+esc(r.supplier||'-')+'</dd>'+
+    '<dt>P/O · INV</dt><dd>'+esc(r.po_no||'-')+' · '+esc(r.invoice_no||'-')+'</dd>'+
+    '<dt>입고일</dt><dd>'+esc(r.recv_date||'-')+'</dd>'+
+    '<dt>담당자</dt><dd>'+esc(r.receiver||'-')+'</dd>'+
+    '<dt>밀시트</dt><dd>'+(r.has_mtc?'<span class="badge b-ok">확보</span>':'<span class="badge b-danger">미확보</span>')+'</dd>'+
+    (r.memo?'<dt>메모</dt><dd>'+esc(r.memo)+'</dd>':'')+
+    '</dl>'+
+    (isNew?'<p style="margin-top:10px;font-size:12.5px;color:var(--blue);font-weight:600;">신규 자재입니다. 합격 시 소재 마스터에 자동 등록됩니다.</p>':
+           '<p style="margin-top:10px;font-size:12.5px;color:var(--sub);">기존 자재에 수량이 합산됩니다.</p>')+
+    (!r.has_mtc?'<p style="margin-top:6px;font-size:12.5px;color:var(--danger);font-weight:600;">⚠ 밀시트 미확보 상태입니다. 합격 처리해도 밀시트 미등록 경고가 유지됩니다.</p>':'')+
+    '<label>검사자</label><select id="ip-user"></select>'+
+    '<label>검사 메모</label><input id="ip-memo" placeholder="치수·외관 확인 결과">'+
+    '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">'+
+    '<button class="btn btn-p btn-sm" id="ip-ok">합격 · 재고반영</button>'+
+    '<button class="btn btn-o btn-sm" id="ip-hold">보류</button>'+
+    '<button class="btn btn-g btn-sm" id="ip-ng">불합격</button></div>');
+
+  var sel=document.getElementById('ip-user');
+  sel.innerHTML='<option value="">미지정</option>';
+  for(var i=0;i<USERS.length;i++){
+    var o=document.createElement('option');
+    o.value=USERS[i].name;
+    o.textContent=USERS[i].name+(USERS[i].position?' '+USERS[i].position:'');
+    sel.appendChild(o);
+  }
+  document.getElementById('ip-ok').addEventListener('click',function(){inspect(r,1,this);});
+  document.getElementById('ip-hold').addEventListener('click',function(){inspect(r,3,this);});
+  document.getElementById('ip-ng').addEventListener('click',function(){inspect(r,2,this);});
+}
+function inspect(r,st,btn){
+  btn.disabled=true;
+  var patch={
+    insp_status:st,
+    inspector:document.getElementById('ip-user').value||null,
+    insp_memo:document.getElementById('ip-memo').value.trim()||null,
+    insp_date:new Date().toISOString()
+  };
+  var chain;
+  if(st!==1){
+    chain=sb('sw_receipt?id=eq.'+r.id,{method:'PATCH',body:patch});
+  }else if(r.stock_id){
+    /* 기존 자재: 수량 합산 */
+    var s2=STOCK_BY_ID[r.stock_id];
+    if(!s2){alert('연결된 자재를 찾을 수 없습니다.');btn.disabled=false;return;}
+    var nq=Math.round((Number(s2.qty)+Number(r.qty))*100)/100;
+    var nt=Math.round((Number(s2.total)+Number(r.qty))*100)/100;
+    var body={qty:nq,total:nt};
+    if(r.has_mtc)body.mtc=true;
+    chain=sb('sw_stock?id=eq.'+s2.id,{method:'PATCH',body:body})
+      .then(function(){return sb('sw_receipt?id=eq.'+r.id,{method:'PATCH',body:patch});});
+  }else{
+    /* 신규 자재: 소재 마스터 생성 후 연결 */
+    chain=sb('sw_stock',{method:'POST',body:{
+      alloy:r.alloy, form:r.form, spec:r.spec, heat_no:r.heat_no,
+      qty:r.qty, total:r.qty, unit:r.unit,
+      mill:r.mill, std:r.std, mtc:!!r.has_mtc
+    }}).then(function(res){
+      var newId=(res&&res[0]&&res[0].id)||null;
+      patch.stock_id=newId;
+      return sb('sw_receipt?id=eq.'+r.id,{method:'PATCH',body:patch});
+    });
+  }
+  chain.then(function(){
+    closeModal();
+    showMsg('msg-rc',st===1?'✓ 합격 처리 · 재고에 반영되었습니다':(st===2?'불합격 처리되었습니다':'보류 처리되었습니다'),st===1?'ok':'err');
+    return loadData();
+  }).catch(function(err){
+    alert('처리 실패: '+err.message);
+    btn.disabled=false;
+  });
+}
+
+/* ---------- 입고 이력 ---------- */
+function renderRecvLog(){
+  var q=(document.getElementById('q-rc').value||'').toLowerCase();
+  var box=document.getElementById('rc-log');
+  box.innerHTML='';
+  var cnt=0,ok=0,ng=0,shown=0;
+  for(var i=0;i<RECV.length;i++){
+    var r=RECV[i];
+    cnt++;
+    if(r.insp_status===1)ok++;
+    if(r.insp_status===2||r.insp_status===3)ng++;
+    var hay=((r.heat_no||'')+' '+(r.supplier||'')+' '+(r.po_no||'')+' '+(r.alloy||'')+' '+(r.invoice_no||'')).toLowerCase();
+    if(q&&hay.indexOf(q)<0)continue;
+    shown++;
+    var d=document.createElement('div');
+    d.className='rc-item';
+    d.innerHTML='<div class="rc-top">'+
+      '<span class="rc-title">'+esc(r.alloy)+' '+esc(r.form)+'</span>'+
+      '<span class="badge is'+r.insp_status+'">'+INSP[r.insp_status]+'</span></div>'+
+      '<div class="rc-meta"><span class="heat">'+esc(r.heat_no)+'</span>'+
+      '<span>+'+esc(r.qty)+' '+esc(r.unit)+'</span>'+
+      '<span>'+esc(r.recv_date||'-')+'</span>'+
+      (r.supplier?'<span>'+esc(r.supplier)+'</span>':'')+
+      (r.po_no?'<span class="mono">'+esc(r.po_no)+'</span>':'')+
+      (r.inspector?'<span style="color:var(--blue);">'+esc(r.inspector)+'</span>':'')+'</div>';
+    (function(item){
+      d.addEventListener('click',function(){
+        if(item.insp_status===0)openInspect(item);
+        else showRecvDetail(item);
+      });
+    })(r);
+    box.appendChild(d);
+  }
+  document.getElementById('rs-cnt').textContent=cnt;
+  document.getElementById('rs-ok').textContent=ok;
+  document.getElementById('rs-ng').textContent=ng;
+  if(!shown)box.innerHTML='<div style="color:var(--sub);font-size:13px;text-align:center;padding:14px 0;">입고 이력이 없습니다.</div>';
+}
+function showRecvDetail(r){
+  openModal(r.alloy+' · '+r.heat_no,
+    '<dl class="dl">'+
+    '<dt>검사결과</dt><dd><span class="badge is'+r.insp_status+'">'+INSP[r.insp_status]+'</span></dd>'+
+    '<dt>규격</dt><dd class="mono">'+esc(r.spec)+'</dd>'+
+    '<dt>입고수량</dt><dd>'+esc(r.qty)+' '+esc(r.unit)+'</dd>'+
+    '<dt>공급처</dt><dd>'+esc(r.supplier||'-')+'</dd>'+
+    '<dt>P/O · INV</dt><dd>'+esc(r.po_no||'-')+' · '+esc(r.invoice_no||'-')+'</dd>'+
+    '<dt>입고일</dt><dd>'+esc(r.recv_date||'-')+'</dd>'+
+    '<dt>담당자</dt><dd>'+esc(r.receiver||'-')+'</dd>'+
+    '<dt>검사자</dt><dd>'+esc(r.inspector||'-')+'</dd>'+
+    (r.insp_memo?'<dt>검사메모</dt><dd>'+esc(r.insp_memo)+'</dd>':'')+
+    (r.memo?'<dt>메모</dt><dd>'+esc(r.memo)+'</dd>':'')+
+    '</dl>'+
+    (r.insp_status===1?'<button class="btn btn-o" style="width:100%;margin-top:14px;" onclick="closeModal();selectTab(\'qr\');">QR 라벨 출력하러 가기</button>':''));
+}
+
 function renderAll(){
   renderDash();
   renderStock();
@@ -2214,12 +2624,16 @@ function renderAll(){
   renderRemnant();
   renderCutLog();
   renderBoard();
+  renderRecvForm();
+  renderRecvWait();
+  renderRecvLog();
 }
 fillDeptSelect();
 loadData().then(function(){
   return loadUsers();
 }).then(function(){
   renderCutForm();
+  renderRecvForm();
   fillWriterSelect();
 });
 </script>
