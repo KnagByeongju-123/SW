@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="theme-color" content="#0f1117">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShinWoo 특수합금 자재관리 DEMO v2.9</title>
+<title>ShinWoo 특수합금 자재관리 DEMO v3.1</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
@@ -23,6 +23,8 @@
   --navy:#2b2312;
   --deep:#0b0d14;
   --gold:#e2b04a;
+  --goldbg:rgba(226,176,74,.12);
+  --goldbd:rgba(226,176,74,.4);
   --gold-deep:#c08c2c;
   --gold-lt:#f6d365;
   --amber:#f2a03c;
@@ -37,33 +39,37 @@
 html{scroll-behavior:smooth;}
 body{
   font-family:'Pretendard Variable','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-  background:
-    radial-gradient(90% 40% at 50% 0%,rgba(192,140,44,.12),rgba(192,140,44,0) 60%),
-    var(--bg);
+  background:var(--bg);
   color:var(--ink);font-size:15px;line-height:1.55;
   padding-bottom:calc(96px + env(safe-area-inset-bottom));
 }
 .mono{font-family:'Rajdhani','Consolas',monospace;letter-spacing:.02em;font-weight:600;}
 
-/* ===== 상단 앱바 ===== */
+/* ===== 상단 앱바 (HC_Smart 스타일) ===== */
 header{
-  background:
-    linear-gradient(115deg,rgba(255,255,255,.045) 0%,rgba(255,255,255,0) 32%,rgba(255,255,255,.06) 33%,rgba(255,255,255,0) 60%),
-    linear-gradient(135deg,#0c0e15 0%,#151721 60%,#262012 100%);
-  color:#fff;padding:14px 18px 13px;
-  position:sticky;top:0;z-index:60;
-  border-bottom:1px solid rgba(246,211,101,.09);
-  box-shadow:0 2px 18px rgba(0,0,0,.42);
+  position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(180deg,#181b26,#0f1117ee);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);padding:11px 16px;color:#fff;
 }
-.hd-top{display:flex;align-items:center;gap:10px;}
-.hd-logo{font-size:18px;font-weight:800;letter-spacing:.07em;}
-.hd-logo span{color:var(--gold-lt);}
-.hd-tag{font-size:10px;color:#a3a9bd;letter-spacing:.14em;text-transform:uppercase;margin-top:1px;}
-.hd-sub{margin-left:auto;text-align:right;}
+header .hleft{display:flex;align-items:center;gap:12px;min-width:0;flex:1;}
+header .hright{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto;}
+.hmb{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  cursor:pointer;flex-shrink:0;padding:0;}
+.hmb i{width:16px;height:2px;border-radius:1px;background:var(--gold);display:block;}
+.hmb:active{background:var(--goldbg);}
+.htitle{font-size:17px;font-weight:900;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gold-txt{background:linear-gradient(120deg,var(--gold-lt),var(--gold),#fda085,var(--gold-lt));
+  background-size:250% auto;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite;}
+@keyframes shimmer{to{background-position:250% center;}}
+.ubadge{font-size:11px;font-weight:800;color:var(--gold);border:1px solid var(--goldbd);
+  background:var(--goldbg);padding:4px 10px;border-radius:20px;cursor:pointer;white-space:nowrap;}
 .demo-badge{
-  display:inline-block;padding:2px 10px;border-radius:11px;
-  background:rgba(242,160,60,.13);border:1px solid rgba(242,160,60,.5);
-  color:#ffc97e;font-size:10.5px;font-weight:700;letter-spacing:.03em;
+  display:inline-block;padding:3px 10px;border-radius:11px;
+  background:var(--goldbg);border:1px solid var(--goldbd);
+  color:var(--gold-lt);font-size:10.5px;font-weight:700;letter-spacing:.03em;
 }
 
 /* ===== 히어로 ===== */
@@ -373,28 +379,55 @@ body.locked{overflow:hidden;}
   font-size:17px;cursor:pointer;border-radius:8px;}
 .dr-x:active{background:#272c3a;}
 .sheet-grid{display:flex;flex-direction:column;gap:2px;padding:4px 10px;}
-.sheet-grid button{border:none;background:none;border-radius:12px;
+.sheet-grid button{border:none;background:none;border-radius:10px;
   padding:12px 12px;cursor:pointer;font-family:inherit;width:100%;text-align:left;
-  display:flex;flex-direction:row;align-items:center;gap:12px;
-  font-size:14px;font-weight:700;color:var(--ink);}
-.sheet-grid button:active{background:#272c3a;}
-.sheet-grid button svg{width:22px;height:22px;flex:none;stroke:#bcc2d3;fill:none;stroke-width:1.8;
-  stroke-linecap:round;stroke-linejoin:round;}
-.sheet-grid button.on{background:rgba(226,176,74,.13);color:var(--gold-lt);}
-.sheet-grid button.on svg{stroke:var(--gold-lt);}
+  display:flex;flex-direction:row;align-items:center;gap:11px;
+  font-size:14px;font-weight:700;color:var(--sub);}
+.sheet-grid button .ic{font-size:16px;width:22px;text-align:center;flex:none;}
+.sheet-grid button:active{background:rgba(255,255,255,.05);color:var(--ink);}
+.sheet-grid button.on{background:var(--goldbg);color:var(--gold);}
+.sheet-foot{margin-top:14px;font-size:10.5px;color:var(--sub);opacity:.6;padding:10px 18px calc(10px + env(safe-area-inset-bottom));line-height:1.5;}
 
 /* ===== QR 스캔 플로팅 버튼 ===== */
 .qr-float{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:150;
   border:none;background:none;cursor:pointer;font-family:inherit;
   display:flex;flex-direction:column;align-items:center;gap:4px;
-  font-size:10.5px;font-weight:800;color:var(--amber);}
+  font-size:10.5px;font-weight:800;color:var(--gold);}
 .qr-float .fab{width:58px;height:58px;border-radius:50%;
-  background:linear-gradient(160deg,var(--amber),var(--amber-deep));
+  background:linear-gradient(135deg,var(--gold-lt),var(--gold));
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 6px 18px rgba(224,138,30,.5),0 0 0 5px var(--bg);}
+  box-shadow:0 6px 18px rgba(226,176,74,.45),0 0 0 5px var(--bg);}
 .qr-float .fab svg{width:27px;height:27px;stroke:#111319;fill:none;stroke-width:2.1;
   stroke-linecap:round;stroke-linejoin:round;}
-.qr-float:active .fab{box-shadow:0 6px 18px rgba(224,138,30,.65),0 0 0 5px var(--bg),0 0 0 7px rgba(242,160,60,.45);}
+.qr-float:active .fab{box-shadow:0 6px 18px rgba(226,176,74,.6),0 0 0 5px var(--bg),0 0 0 7px rgba(226,176,74,.45);}
+
+/* ===== PIN 로그인 게이트 (HC_Smart 스타일) ===== */
+#login{position:fixed;inset:0;background:var(--bg);z-index:800;display:flex;
+  align-items:center;justify-content:center;padding:20px;}
+#login.off{display:none;}
+#login::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 30%,rgba(226,176,74,.16),transparent 55%);}
+.lgbox{text-align:center;width:100%;max-width:320px;position:relative;z-index:1;}
+.lglogo{width:64px;height:64px;border-radius:50%;margin:0 auto 14px;
+  background:linear-gradient(135deg,var(--gold-lt),var(--gold));color:#241a05;
+  display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;
+  box-shadow:0 0 30px rgba(226,176,74,.35);}
+.lgtitle{font-size:30px;font-weight:900;color:var(--ink);letter-spacing:.04em;}
+.lgtitle em{font-style:normal;}
+.lgsub{font-size:11px;color:var(--sub);margin-top:4px;letter-spacing:2.5px;}
+.pinview{display:flex;gap:14px;justify-content:center;margin:30px 0 12px;}
+.pinview i{width:16px;height:16px;border-radius:50%;border:2px solid #4a5268;transition:.12s;}
+.pinview i.f{background:var(--gold);border-color:var(--gold);}
+.pinview.shake{animation:shk .4s;}
+@keyframes shk{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+.lgmsg{font-size:12.5px;color:var(--sub);min-height:18px;margin-bottom:18px;}
+.lgmsg.err{color:var(--danger);}
+.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.pinpad button{padding:16px 0;font-size:20px;font-weight:700;border:1.5px solid var(--line);
+  border-radius:14px;background:var(--card);color:var(--ink);cursor:pointer;
+  font-family:var(--num);transition:.1s;}
+.pinpad button:active{background:var(--gold);border-color:var(--gold);color:#241a05;}
+.pinpad .pfn{color:var(--sub);font-size:16px;}
 
 #loading{position:fixed;inset:0;background:rgba(11,13,19,.88);z-index:200;
   display:flex;align-items:center;justify-content:center;flex-direction:column;gap:11px;
@@ -466,7 +499,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
 @media print{
   @page{margin:10mm;}
   body{background:#fff !important;padding-bottom:0;color:#1e222d;}
-  header,footer,.no-print,#loading,.mlock,.overlay,.qr-float,.hd-menu,.sheet,.sheet-bg,.hero{display:none !important;}
+  header,footer,.no-print,#login,#loading,.mlock,.overlay,.qr-float,.hmb,.sheet,.sheet-bg,.hero{display:none !important;}
   main{padding:0;max-width:none;}
   .page{display:none !important;}
   body.pm-doc #pg-doc{display:block !important;}
@@ -497,14 +530,30 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
 
 <div id="loading"><div class="spin"></div>데이터 불러오는 중…</div>
 
-<header>
-  <div class="hd-top">
-    <button class="hd-menu" onclick="openSheet()" aria-label="메뉴 열기"><svg viewBox="0 0 24 24"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg></button>
-    <div>
-      <div class="hd-logo">SHIN<span>WOO</span> <span style="font-weight:600;font-size:13px;color:#c9dbee;">스마트 자재관리</span></div>
-      <div class="hd-tag">Special Alloy · Heat No. Traceability</div>
+<div id="login">
+  <div class="lgbox">
+    <div class="lglogo">SW</div>
+    <div class="lgtitle">SHIN<em class="gold-txt">WOO</em></div>
+    <div class="lgsub">SMART MATERIALS MANAGEMENT</div>
+    <div class="pinview" id="lg-view"><i></i><i></i><i></i><i></i></div>
+    <div class="lgmsg" id="lg-msg">PIN 4자리를 입력하세요 (초기 0000)</div>
+    <div class="pinpad">
+      <button onclick="pinKey(1)">1</button><button onclick="pinKey(2)">2</button><button onclick="pinKey(3)">3</button>
+      <button onclick="pinKey(4)">4</button><button onclick="pinKey(5)">5</button><button onclick="pinKey(6)">6</button>
+      <button onclick="pinKey(7)">7</button><button onclick="pinKey(8)">8</button><button onclick="pinKey(9)">9</button>
+      <button class="pfn" onclick="pinClear()">C</button><button onclick="pinKey(0)">0</button><button class="pfn" onclick="pinBack()">&#8592;</button>
     </div>
-    <div class="hd-sub"><span class="demo-badge">DEMO v2.9</span><button class="hd-help" onclick="selectTab('guide')" aria-label="사용안내"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.7-.9 1.3v.5"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/></svg></button></div>
+  </div>
+</div>
+
+<header>
+  <div class="hleft">
+    <button class="hmb" onclick="openSheet()" aria-label="메뉴 열기"><i></i><i></i><i></i></button>
+    <span class="htitle gold-txt" id="htitle">대시보드</span>
+  </div>
+  <div class="hright">
+    <span class="ubadge" id="ubadge" onclick="logout()" title="클릭 시 로그아웃" style="display:none;"></span>
+    <span class="demo-badge">DEMO v3.1</span>
   </div>
 </header>
 
@@ -1046,6 +1095,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   <div class="subtab">
     <button class="on" data-sub="pin" onclick="goSub(this)">PIN 관리</button>
     <button data-sub="mat" onclick="goSub(this)">소재 마스터</button>
+    <button data-sub="set" onclick="goSub(this)">설정</button>
   </div>
 
   <!-- ---------- PIN 관리 ---------- -->
@@ -1134,6 +1184,31 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       </div>
     </div>
   </div>
+
+  <!-- ---------- 설정 ---------- -->
+  <div class="sub" id="sub-set">
+    <div class="card">
+      <h3>마스터 PIN 변경 <span class="badge b-warn" id="set-mstate">-</span></h3>
+      <div id="msg-set" class="msg"></div>
+      <label>현재 마스터 PIN</label><input id="set-mcur" type="tel" maxlength="4" placeholder="0000">
+      <div class="grid2">
+        <div><label>새 마스터 PIN</label><input id="set-mnew" type="tel" maxlength="4" placeholder="0000"></div>
+        <div><label>새 PIN 확인</label><input id="set-mcf" type="tel" maxlength="4" placeholder="0000"></div>
+      </div>
+      <div style="margin-top:12px;"><button class="btn btn-p" onclick="changeMasterPin()">마스터 PIN 변경</button></div>
+      <p class="help">마스터 PIN은 시스템 진입, 마스터 페이지 잠금 해제, 게시판 관리자 권한에 사용됩니다. 초기값은 <b>0000</b>입니다.</p>
+    </div>
+
+    <div class="card">
+      <h3>일반 입장 PIN 변경 <span class="badge b-blue" id="set-dstate">-</span></h3>
+      <div class="grid2">
+        <div><label>새 일반 PIN</label><input id="set-dnew" type="tel" maxlength="4" placeholder="0000"></div>
+        <div><label>새 PIN 확인</label><input id="set-dcf" type="tel" maxlength="4" placeholder="0000"></div>
+      </div>
+      <div style="margin-top:12px;"><button class="btn btn-p" onclick="changeDefaultPin()">일반 PIN 변경</button></div>
+      <p class="help">일반 PIN은 개인 등록 없이 <b>공용으로 입장</b>할 때 쓰는 번호입니다. 초기값은 <b>0000</b>이며, 마스터 PIN과 같은 값이면 마스터로 인식되므로 다른 번호로 변경해 사용하세요.</p>
+    </div>
+  </div>
 </div>
 
 </main>
@@ -1149,26 +1224,28 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   <div class="dr-head">
     <div class="dr-logo">SW</div>
     <div><div class="dr-t">ShinWoo</div><div class="dr-s">스마트 자재관리</div></div>
-    <button class="dr-x" onclick="closeSheet()" aria-label="닫기">✕</button>
+    <button class="dr-x" onclick="closeSheet()" aria-label="닫기">&#10005;</button>
   </div>
   <div class="sheet-grid">
-    <button data-pg="dash" onclick="go(this)"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg><span>대시보드</span></button>
-    <button data-pg="stock" onclick="go(this)"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg><span>재고</span></button>
-    <button data-pg="recv" onclick="go(this)"><svg viewBox="0 0 24 24"><path d="M12 3v10m0 0l-3.5-3.5M12 13l3.5-3.5"/><path d="M4 13v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></svg><span>입고</span></button>
-    <button data-pg="qr" onclick="go(this)"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.2"/><path d="M13.5 13.5h3v3h-3zM20 13.5v3M16.5 20H20"/></svg><span>QR</span></button>
-    <button data-pg="cut" onclick="go(this)"><svg viewBox="0 0 24 24"><circle cx="6.5" cy="6.5" r="2.6"/><circle cx="6.5" cy="17.5" r="2.6"/><path d="M8.7 8.4L20 19M8.7 15.6L20 5"/></svg><span>절단·잔재</span></button>
-    <button data-pg="order" onclick="go(this)"><svg viewBox="0 0 24 24"><path d="M3.5 7h11v9h-11zM14.5 10h3.6l2.4 3v3h-6"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg><span>수주·출하</span></button>
-    <button data-pg="mtc" onclick="go(this)"><svg viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4.5M9.5 14.5l2 2 3.5-4"/></svg><span>밀시트</span></button>
-    <button data-pg="doc" onclick="go(this)"><svg viewBox="0 0 24 24"><path d="M6 3.5h12V21l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/><path d="M9 8.5h6M9 12h6M9 15.5h4"/></svg><span>거래명세서</span></button>
-    <button data-pg="board" onclick="go(this)"><svg viewBox="0 0 24 24"><path d="M4 5.5h16v11H9l-4 3.5v-3.5H4z"/><path d="M8 9.5h8M8 12.5h5"/></svg><span>게시판</span></button>
-    <button data-pg="master" onclick="go(this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v2.3M12 18.2v2.3M3.5 12h2.3M18.2 12h2.3M6 6l1.6 1.6M16.4 16.4L18 18M18 6l-1.6 1.6M7.6 16.4L6 18"/></svg><span>마스터</span></button>
-    <button data-pg="guide" onclick="go(this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.7-.9 1.3v.5"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/></svg><span>사용안내</span></button>
+    <button data-pg="dash" onclick="go(this)"><span class="ic">&#127968;</span><span>대시보드</span></button>
+    <button data-pg="stock" onclick="go(this)"><span class="ic">&#128230;</span><span>재고</span></button>
+    <button data-pg="recv" onclick="go(this)"><span class="ic">&#128229;</span><span>입고</span></button>
+    <button data-pg="qr" onclick="go(this)"><span class="ic">&#128307;</span><span>QR 스캔·라벨</span></button>
+    <button data-pg="cut" onclick="go(this)"><span class="ic">&#9986;&#65039;</span><span>절단·잔재</span></button>
+    <button data-pg="order" onclick="go(this)"><span class="ic">&#128666;</span><span>수주·출하</span></button>
+    <button data-pg="mtc" onclick="go(this)"><span class="ic">&#128196;</span><span>밀시트</span></button>
+    <button data-pg="doc" onclick="go(this)"><span class="ic">&#129534;</span><span>거래명세서</span></button>
+    <button data-pg="board" onclick="go(this)"><span class="ic">&#128203;</span><span>게시판</span></button>
+    <button data-pg="master" onclick="go(this)"><span class="ic">&#128274;</span><span>마스터</span></button>
+    <button data-pg="guide" onclick="go(this)"><span class="ic">&#10067;</span><span>사용안내</span></button>
+    <button onclick="logout()"><span class="ic">&#128682;</span><span>로그아웃</span></button>
   </div>
+  <div class="sheet-foot">신우 스마트 자재관리 시스템<br>ShinWoo Smart Materials System</div>
 </nav>
 
 
 <footer>
-  ShinWoo 특수합금 자재관리 DEMO v2.9 · Supabase 연동 (전용 프로젝트) · 데모용 가상 데이터
+  ShinWoo 특수합금 자재관리 DEMO v3.1 · Supabase 연동 (전용 프로젝트) · 데모용 가상 데이터
 </footer>
 
 
@@ -1249,10 +1326,16 @@ function showLoading(on){
 }
 
 /* ================= 공통 ================= */
+var PAGE_TITLES={dash:'대시보드',stock:'재고',recv:'입고',qr:'QR 스캔·라벨',cut:'절단·잔재',order:'수주·출하',mtc:'밀시트',doc:'거래명세서',board:'게시판',master:'마스터',guide:'사용안내'};
+function setTitle(pg){
+  var el=document.getElementById('htitle');
+  if(el)el.textContent=PAGE_TITLES[pg]||pg;
+}
 function go(btn){
   var pg=btn.getAttribute('data-pg');
   if(pg==='master'&&!isMasterAuthed()){prevTab=curTab;openMasterLock();return;}
   curTab=pg;
+  setTitle(pg);
   var tabs=document.querySelectorAll('nav button[data-pg]');
   for(var i=0;i<tabs.length;i++){
     tabs[i].classList.toggle('on',tabs[i].getAttribute('data-pg')===pg);
@@ -1737,8 +1820,95 @@ function renderInvoice(){
 
 /* ================= 마스터 인증 ================= */
 /* 마스터 PIN: 2580 */
-var MASTER_PIN_HASH='ed946f65d2c785d90e827c5ffd879ce3b49c68d4c88013074176a7e73bc58bcf';
+var PIN0000_HASH='9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0';
+var SYSPINS={};
+function getMasterHash(){return (SYSPINS.master&&SYSPINS.master.pin_hash)||PIN0000_HASH;}
+function getDefaultHash(){return (SYSPINS.def&&SYSPINS.def.pin_hash)||PIN0000_HASH;}
 var LK_AUTH='sw_master_auth', LK_FAIL='sw_master_fail';
+var LK_LOGIN='sw_login', LOGIN_TTL_HR=12;
+var lgPin='', usersReady=null;
+
+/* ===== 진입 PIN 로그인 (HC_Smart 스타일) ===== */
+function getLogin(){
+  try{
+    var v=JSON.parse(localStorage.getItem(LK_LOGIN)||'null');
+    return (v&&v.exp>Date.now())?v:null;
+  }catch(e){return null;}
+}
+function setLoginSession(o){
+  o.exp=Date.now()+LOGIN_TTL_HR*3600*1000;
+  localStorage.setItem(LK_LOGIN,JSON.stringify(o));
+}
+function updUbadge(){
+  var el=document.getElementById('ubadge'), v=getLogin();
+  if(!el)return;
+  if(v){el.textContent=v.master?'마스터':(v.name+(v.dept?' · '+v.dept:''));el.style.display='';}
+  else el.style.display='none';
+}
+function updLgView(){
+  var ds=document.querySelectorAll('#lg-view i');
+  for(var i=0;i<ds.length;i++)ds[i].classList.toggle('f',i<lgPin.length);
+}
+function pinKey(n){
+  if(lgPin.length>=4)return;
+  lgPin+=String(n);updLgView();
+  if(lgPin.length===4)setTimeout(tryEntryLogin,130);
+}
+function pinBack(){lgPin=lgPin.slice(0,-1);updLgView();}
+function pinClear(){lgPin='';updLgView();}
+function lgFail(t){
+  var m=document.getElementById('lg-msg');
+  m.textContent=t;m.classList.add('err');
+  var v=document.getElementById('lg-view');
+  v.classList.add('shake');
+  setTimeout(function(){v.classList.remove('shake');lgPin='';updLgView();},420);
+}
+function tryEntryLogin(){
+  var pin=lgPin;
+  (usersReady||Promise.resolve()).then(function(){
+    return sha256hex(pin);
+  }).then(function(h){
+    if(h===getMasterHash()){
+      setLoginSession({master:true,name:'마스터',dept:''});
+      setMasterAuth();
+      entryLoginOk();return;
+    }
+    if(h===getDefaultHash()){
+      setLoginSession({master:false,name:'기본 사용자',dept:''});
+      entryLoginOk();return;
+    }
+    var u=null;
+    for(var i=0;i<USERS.length;i++){
+      if(USERS[i].pin_hash===h){u=USERS[i];break;}
+    }
+    if(u){
+      setLoginSession({master:false,name:u.name||'',dept:u.dept||deptFromPin(pin)});
+      entryLoginOk();
+    }else{
+      lgFail('일치하는 PIN이 없습니다');
+    }
+  });
+}
+function entryLoginOk(){
+  var m=document.getElementById('lg-msg');
+  m.textContent='확인되었습니다';m.classList.remove('err');
+  updUbadge();
+  setTimeout(function(){
+    document.getElementById('login').classList.add('off');
+    lgPin='';updLgView();
+  },280);
+}
+function logout(){
+  if(!confirm('로그아웃할까요?'))return;
+  localStorage.removeItem(LK_LOGIN);
+  localStorage.removeItem(LK_AUTH);
+  closeSheet();
+  lgPin='';updLgView();
+  var m=document.getElementById('lg-msg');
+  m.textContent='PIN 4자리를 입력하세요 (초기 0000)';m.classList.remove('err');
+  updUbadge();
+  document.getElementById('login').classList.remove('off');
+}
 var AUTH_TTL_MIN=30, MAX_FAIL=5, LOCKOUT_SEC=60;
 var mPin='', curTab='dash', prevTab='dash', lockTimer=null;
 
@@ -1825,9 +1995,9 @@ function mPinPress(n){
 }
 function mPinDel(){if(!mPin)return;mPin=mPin.slice(0,-1);updDots();}
 function mPinDone(){
-  sha256hex(mPin).then(function(h){
+  (usersReady||Promise.resolve()).then(function(){return sha256hex(mPin);}).then(function(h){
     var hint=document.getElementById('ml-hint');
-    if(h===MASTER_PIN_HASH){
+    if(h===getMasterHash()){
       localStorage.removeItem(LK_FAIL);
       setMasterAuth();
       hint.textContent='인증 완료';
@@ -1878,8 +2048,72 @@ var USERS=[], editUser=null;
 
 function loadUsers(){
   return sb('sw_user_pin?select=*&order=name.asc')
-  .then(function(r){USERS=r||[];renderUsers();})
+  .then(function(r){
+    r=r||[];
+    SYSPINS={};
+    USERS=[];
+    for(var i=0;i<r.length;i++){
+      if(r[i].name==='__sys_master__')SYSPINS.master=r[i];
+      else if(r[i].name==='__sys_default__')SYSPINS.def=r[i];
+      else USERS.push(r[i]);
+    }
+    renderUsers();
+    renderPinState();
+  })
   .catch(function(err){showMsg('msg-pin','사용자 로드 실패: '+err.message,'err');});
+}
+
+/* ===== 시스템 PIN 설정 (마스터 › 설정) ===== */
+function renderPinState(){
+  var em=document.getElementById('set-mstate'), ed=document.getElementById('set-dstate');
+  if(em)em.textContent=SYSPINS.master?'변경됨 (현재: '+(SYSPINS.master.pin_plain||'****')+')':'초기값 0000';
+  if(ed)ed.textContent=SYSPINS.def?'변경됨 (현재: '+(SYSPINS.def.pin_plain||'****')+')':'초기값 0000';
+}
+function saveSysPin(kind,pin){
+  return sha256hex(pin).then(function(h){
+    var name=(kind==='master')?'__sys_master__':'__sys_default__';
+    var row=(kind==='master')?SYSPINS.master:SYSPINS.def;
+    var body={name:name,pin_hash:h,pin_plain:pin,dept:'시스템',position:null};
+    if(row&&row.id)return sb('sw_user_pin?id=eq.'+row.id,{method:'PATCH',body:body});
+    return sb('sw_user_pin',{method:'POST',body:body});
+  }).then(function(){return loadUsers();});
+}
+function changeMasterPin(){
+  var cur=document.getElementById('set-mcur').value.trim();
+  var np=document.getElementById('set-mnew').value.trim();
+  var cf=document.getElementById('set-mcf').value.trim();
+  if(!/^\d{4}$/.test(np)){showMsg('msg-set','새 마스터 PIN은 숫자 4자리입니다','err');return;}
+  if(np!==cf){showMsg('msg-set','새 PIN과 확인이 일치하지 않습니다','err');return;}
+  for(var i=0;i<USERS.length;i++){
+    if(USERS[i].pin_plain===np){showMsg('msg-set','사용자 PIN과 중복됩니다 ('+USERS[i].name+')','err');return;}
+  }
+  sha256hex(cur).then(function(h){
+    if(h!==getMasterHash()){showMsg('msg-set','현재 마스터 PIN이 일치하지 않습니다','err');return;}
+    if(SYSPINS.def&&SYSPINS.def.pin_plain===np){showMsg('msg-set','일반 PIN과 중복됩니다','err');return;}
+    saveSysPin('master',np).then(function(){
+      document.getElementById('set-mcur').value='';
+      document.getElementById('set-mnew').value='';
+      document.getElementById('set-mcf').value='';
+      showMsg('msg-set','✓ 마스터 PIN이 변경되었습니다','ok');
+    }).catch(function(err){showMsg('msg-set','변경 실패: '+err.message,'err');});
+  });
+}
+function changeDefaultPin(){
+  var np=document.getElementById('set-dnew').value.trim();
+  var cf=document.getElementById('set-dcf').value.trim();
+  if(!/^\d{4}$/.test(np)){showMsg('msg-set','새 일반 PIN은 숫자 4자리입니다','err');return;}
+  if(np!==cf){showMsg('msg-set','새 PIN과 확인이 일치하지 않습니다','err');return;}
+  for(var i=0;i<USERS.length;i++){
+    if(USERS[i].pin_plain===np){showMsg('msg-set','사용자 PIN과 중복됩니다 ('+USERS[i].name+')','err');return;}
+  }
+  sha256hex(np).then(function(h){
+    if(h===getMasterHash()){showMsg('msg-set','마스터 PIN과 중복됩니다','err');return;}
+    saveSysPin('def',np).then(function(){
+      document.getElementById('set-dnew').value='';
+      document.getElementById('set-dcf').value='';
+      showMsg('msg-set','✓ 일반 입장 PIN이 변경되었습니다','ok');
+    }).catch(function(err){showMsg('msg-set','변경 실패: '+err.message,'err');});
+  });
 }
 function fillDeptSelect(){
   var sel=document.getElementById('p-dept');
@@ -2647,7 +2881,7 @@ function saveBoard(){
     for(var i=0;i<USERS.length;i++){
       if(USERS[i].name===writer&&USERS[i].pin_hash===h)ok=true;
     }
-    if(!ok&&h!==MASTER_PIN_HASH)throw new Error('작성자 PIN이 일치하지 않습니다');
+    if(!ok&&h!==getMasterHash())throw new Error('작성자 PIN이 일치하지 않습니다');
     return sb('sw_board',{method:'POST',body:{
       category:document.getElementById('b-cat').value,
       title:title, content:content||null, writer:writer,
@@ -2743,7 +2977,7 @@ function verifyOwner(b){
   var pin=prompt('본인 확인 PIN 4자리 (마스터 PIN 가능)');
   if(pin===null)return Promise.resolve(false);
   return sha256hex(String(pin).trim()).then(function(h){
-    if(h===b.pin_hash||h===MASTER_PIN_HASH)return true;
+    if(h===b.pin_hash||h===getMasterHash())return true;
     alert('PIN이 일치하지 않습니다.');
     return false;
   });
@@ -3106,8 +3340,11 @@ function renderAll(){
   renderRecvLog();
 }
 fillDeptSelect();
+if(getLogin())document.getElementById('login').classList.add('off');
+updUbadge();
+usersReady=loadUsers();
 loadData().then(function(){
-  return loadUsers();
+  return usersReady;
 }).then(function(){
   renderCutForm();
   renderRecvForm();
