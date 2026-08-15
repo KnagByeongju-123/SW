@@ -775,6 +775,15 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <div id="dash-ship"></div>
   </div>
 
+  <div class="card no-print">
+    <h3>월말 정리 보고서</h3>
+    <p class="help" style="margin-bottom:10px;">한 달의 입고·출하·수금·비용·실사 조정을 A4 한 장으로 정리해 인쇄하거나 PDF로 저장합니다.</p>
+    <div style="display:flex;gap:8px;">
+      <input type="month" id="mr-mon" style="flex:1;">
+      <button class="btn btn-p" onclick="monthReport()">보고서 생성</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- ========== 재고 ========== -->
@@ -1360,6 +1369,33 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <p class="g-p"><b>엑셀 내려받기</b>로 통화·매입환율·오늘환율·매입단가·현재단가·재고금액·평가손익이 모두 포함된 CSV를 받을 수 있습니다.</p>
   </div>
 
+
+  <div class="card">
+    <div class="g-h2"><span class="g-no">5</span>&nbsp;<span style="font-size:13px;">＋</span> 재고 실사 조정 — 장부와 실물이 다를 때</div>
+    <p class="g-lead">재고조사에서 수량이 안 맞으면 입고·출하로 억지로 맞추지 마세요. <b>실사 조정</b>으로 처리해야 원인이 기록에 남습니다.</p>
+    <div class="hstep"><div class="hn mono">01</div><div class="hb">
+      <h3>어디서 하나</h3>
+      <p><b>소재</b> — 재고 상세(행을 탭)에서 <b>📋 실사 조정</b> 버튼<br><b>베어링·기타</b> — 품목을 펼치면 <b>📋 실사</b> 버튼</p>
+    </div></div>
+    <div class="hstep"><div class="hn mono">02</div><div class="hb">
+      <h3>실측 수량과 사유를 입력</h3>
+      <p>실제 세어본 수량을 넣으면 장부와의 <b>차이가 자동 계산</b>됩니다. 사유는 6가지 중 선택합니다.</p>
+      <ul>
+        <li><b>실사 차이</b> — 원인 불명의 수량 차이</li>
+        <li><b>파손·불량</b> — 사용 불가 판정분 차감</li>
+        <li><b>분실</b> — 소재 위치 확인 불가</li>
+        <li><b>오입력 정정</b> — 입고·출하 때 숫자를 잘못 넣은 경우</li>
+        <li><b>샘플 제공</b> — 고객사 테스트용 무상 제공분</li>
+        <li><b>기타</b> — 비고에 상세 기재</li>
+      </ul>
+    </div></div>
+    <div class="hstep"><div class="hn mono">03</div><div class="hb">
+      <h3>확정하면 이력이 영구히 남습니다</h3>
+      <p>장부 수량이 실측값으로 바뀌고, <b>조정 전/후 수량 · 차이 · 사유 · 조정자 · 일시</b>가 삭제되지 않는 이력으로 기록됩니다. 월말 보고서에 그 달의 조정 내역 전체가 표로 들어갑니다.</p>
+      <div class="gbox warn"><b>하지 말 것</b> — 차이를 없애려고 가짜 입고나 출하를 등록하면 매입·매출 숫자까지 오염됩니다. 반드시 실사 조정으로 처리하세요. 조정은 로그인한 본인 이름으로 기록됩니다.</div>
+    </div></div>
+  </div>
+
   <div class="card">
     <div class="g-h2"><span class="g-no">6</span> 수주 <span class="ftag">메뉴 › 수주</span></div>
     <div class="hstep"><div class="hn mono">01</div><div class="hb">
@@ -1538,6 +1574,17 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     </ul>
     <div class="g-h3">구분별 현황</div>
     <p class="g-p">소재 / 베어링 / 기타별로 품목 수 · 재고금액 · 진행 수주 · 부족을 한눈에 봅니다.</p>
+    <div class="g-h3">월말 정리 보고서</div>
+    <p class="g-p">대시보드 맨 아래에서 월을 고르고 <b>보고서 생성</b>을 누르면 A4 한 장으로 정리됩니다. PDF 저장·인쇄 모두 가능합니다.</p>
+    <ul>
+      <li><b>① 입고·매입</b> — 건수 · 물품대 · 부대비용 정산액 · <b>미정산 건수</b></li>
+      <li><b>② 출하·매출</b> — 건수 · 청구 합계 · 물품 매출 · 배송비(고객/당사) · 확정 환차손익</li>
+      <li><b>③ 수금·채권</b> — 이달 입금 · 미수 잔액 · 연체 건/금액</li>
+      <li><b>④ 재고 건전성</b> — 재고금액 · Heat No. 미상 · 밀시트 미등록 · 장기재고</li>
+      <li><b>⑤ 거래처 매출 TOP5</b></li>
+      <li><b>⑥ 실사 조정 내역</b> — 그 달의 조정 전체 (품목·차이·사유·조정자)</li>
+    </ul>
+    <div class="gbox"><b>월말 루틴에 넣으세요</b> — 부대비용 미정산과 실사 조정 내역이 한 장에 나오므로, 이 보고서를 뽑는 것 자체가 월말 점검입니다. 대표 보고용으로도 그대로 쓸 수 있습니다.</div>
   </div>
 
   <div class="card">
@@ -1580,7 +1627,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       <div class="navrow"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 12h5M12 9.5v5"/></svg>
         <div><b>주 1회</b><span>미수금 연체 점검 · 장기재고 확인 · 발주 ETA 갱신</span></div></div>
       <div class="navrow"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12h8M8 8.5h8M8 15.5h5"/></svg>
-        <div><b>월말</b><span>부대비용 미정산 건 정리 · 이달 배송비(당사) 확인 · Heat No. 미상 재고 정리</span></div></div>
+        <div><b>월말</b><span>재고 실사 → 차이 나면 실사 조정 → <b>월말 정리 보고서</b> 출력 (미정산·조정 내역이 한 장에)</span></div></div>
     </div>
   </div>
 
@@ -1594,6 +1641,8 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <div class="faq"><b>실제 마진이 계산과 다릅니다</b><span>부대비용 정산을 하지 않으면 추정률(10%)로만 계산됩니다. 입고 이력에서 실제 운임·관세를 입력하세요.</span></div>
     <div class="faq"><b>배송비를 고객에게 청구하는데 미수금이 물품값만 잡힙니다</b><span>출하 등록 때 배송비 부담을 <b>고객 청구</b>로 선택해야 청구금액에 포함됩니다. 이미 등록한 건은 수정이 안 되므로 다음 출하부터 주의하세요.</span></div>
     <div class="faq"><b>배송비를 나중에 알게 됐습니다 (용차비 청구서가 늦게 옴)</b><span>현재는 출하 등록 시점에만 입력됩니다. 금액을 모르면 예상액을 넣고 비고에 표기하거나, 확정 후 마스터 권한으로 데이터를 정정하세요. 사후 정산 기능은 개선 예정입니다.</span></div>
+    <div class="faq"><b>재고조사에서 수량이 안 맞습니다</b><span>재고 상세(소재) 또는 품목 펼침(부품)의 <b>실사 조정</b>으로 처리하세요. 실측값·사유·조정자가 이력으로 남습니다. 가짜 입고·출하로 맞추면 매입·매출이 오염됩니다.</span></div>
+    <div class="faq"><b>실사 조정을 잘못 확정했습니다</b><span>같은 품목에 다시 실사 조정을 하면 됩니다. 이전 조정도 이력에 그대로 남아 추적 가능합니다.</span></div>
     <div class="faq"><b>Heat No. 미상 재고는 어떻게 처리하나요</b><span>실물에서 각인·라벨·밀시트를 대조해 Heat No.를 찾은 뒤 재고 상세에서 입력하세요. 끝내 확인이 안 되는 자재는 추적 불가이므로 주요 고객사 납품에서 제외하는 것이 안전합니다.</span></div>
     <div class="faq"><b>출하완료 건을 잘못 등록했습니다</b><span>수주 이력에서 수정·삭제할 수 있지만 <b>차감된 재고는 자동 복원되지 않습니다.</b> 재고를 되돌리려면 입고로 별도 처리하세요.</span></div>
     <div class="faq"><b>QR을 찍었는데 등록되지 않은 코드라고 나옵니다</b><span>해당 Heat No.가 아직 재고에 없는 경우입니다. 입고를 먼저 완료한 뒤 라벨을 출력하세요.</span></div>
@@ -2072,6 +2121,8 @@ function renderDash(){
   document.getElementById('k-transit').textContent=fmt(tr);
   renderDashKinds(SH);
 
+  var mrEl=document.getElementById('mr-mon');
+  if(mrEl&&!mrEl.value)mrEl.value=todayStr().slice(0,7);
   var now=new Date();
   var days=['일','월','화','수','목','금','토'];
   document.getElementById('hero-date').textContent=
@@ -2367,7 +2418,9 @@ function showStockDetail(s){
     '<dt>입고수량</dt><dd>'+esc(s.total)+' '+esc(s.unit)+'</dd>'+
     '<dt>현재잔량</dt><dd><b>'+esc(s.qty)+' '+esc(s.unit)+'</b>'+lowWarn+'</dd>'+
     '<dt>밀시트</dt><dd>'+(s.mtc?'<span class="badge b-ok">등록 완료</span>':'<span class="badge b-danger">미등록</span>')+'</dd>'+
-    '</dl>'+cutHistoryHtml(s);
+    '</dl>'+
+    '<div style="margin-top:12px;"><button class="btn btn-o btn-sm" style="width:100%;" onclick="openAdjust(\'mat\','+s.id+')">📋 실사 조정 (수량 불일치 처리)</button></div>'+
+    cutHistoryHtml(s);
   openModal(s.alloy+' · '+s.heat_no,html);
 }
 /* ================= 수주·출하 ================= */
@@ -4772,6 +4825,7 @@ function renderParts(k){
         (t.memo?'<div class="prp" style="opacity:.8;">'+esc(t.memo)+'</div>':'')+
         '<div class="pract">'+
           '<button class="edit" onclick="editPart(\''+k+'\','+t.id+')">수정</button>'+
+          '<button class="edit" onclick="event.stopPropagation();openAdjust(\''+k+'\','+t.id+')">📋 실사</button>'+
           '<button class="del" onclick="askDeletePart(\''+k+'\','+t.id+')">삭제</button>'+
         '</div>'+
       '</div>';
@@ -6072,6 +6126,229 @@ function savePayTerm(id){
     .catch(function(e){ toast('저장 실패: '+e.message); });
 }
 
+
+/* ================= 월말 정리 보고서 ================= */
+function monthReport(){
+  var mEl=document.getElementById('mr-mon');
+  var mon=(mEl&&mEl.value)||todayStr().slice(0,7);        /* YYYY-MM */
+  var from=mon+'-01';
+  var d2=new Date(from); d2.setMonth(d2.getMonth()+1);
+  var to=d2.toISOString().slice(0,10);                    /* 다음 달 1일 (미포함) */
+  toast('보고서 생성 중…');
+  sb('sw_adjust?select=*&created_at=gte.'+from+'&created_at=lt.'+to+'&order=id.asc')
+    .catch(function(){return [];})
+    .then(function(adj){ buildMonthReport(mon,from,to,adj||[]); });
+}
+function buildMonthReport(mon,from,to,ADJ){
+  var inMonth=function(d){ d=String(d||'').slice(0,10); return d>=from&&d<to; };
+  /* ── 입고 ── */
+  var rcCnt=0,rcGoods=0,ohSum=0,ohMiss=0;
+  for(var i=0;i<RECV.length;i++){
+    var r=RECV[i];
+    if(!inMonth(r.recv_date||r.created_at))continue;
+    rcCnt++;
+    var cur=r.currency||'KRW', fx=Number(r.fx_buy)||1;
+    rcGoods+=Math.round(Number(r.qty||0)*Number(r.price||0)*(cur==='KRW'?1:fx));
+    var oh=landedTotal(r);
+    if(oh>0)ohSum+=oh; else ohMiss++;
+  }
+  /* ── 출하·매출·배송비·환차 ── */
+  var shCnt=0,sale=0,goods=0,dvUs=0,dvCust=0,fxpl=0;
+  var byCustS={};
+  for(var j=0;j<SHIPS.length;j++){
+    var sh=SHIPS[j];
+    if(!inMonth(sh.ship_date))continue;
+    shCnt++;
+    sale+=Number(sh.amount)||0;
+    goods+=Number(sh.amount_goods!=null?sh.amount_goods:sh.amount)||0;
+    var dv=Number(sh.cost_deliv)||0, by=sh.deliv_by||'당사';
+    if(by==='당사')dvUs+=dv; else if(by==='고객')dvCust+=dv;
+    fxpl+=Number(sh.fx_pl)||0;
+    var c=sh.customer||'미지정';
+    byCustS[c]=(byCustS[c]||0)+(Number(sh.amount)||0);
+  }
+  /* ── 수금·미수 ── */
+  var payIn=0,outTot=0,overCnt=0,overAmt=0;
+  for(var k2=0;k2<SHIPS.length;k2++){
+    var s2=SHIPS[k2];
+    if(inMonth(s2.paid_date))payIn+=Number(s2.paid_amt)||0;
+    var bal=shipBal(s2);
+    if(bal>0){ outTot+=bal; if(shipOverdue(s2)){overCnt++;overAmt+=bal;} }
+  }
+  /* ── 재고 스냅샷 ── */
+  var stVal=0,noHeat=0,noMtc=0,aged=0;
+  for(var a=0;a<STOCK.length;a++){
+    var st=STOCK[a],cu=st.currency||'KRW';
+    stVal+=Number(st.qty||0)*toKRW(st.price,cu,cu==='KRW'?1:(fxOf(cu)||Number(st.fx_buy)));
+    if(Number(st.qty)>0&&!hasHeat(st.heat_no))noHeat++;
+    if(!st.mtc)noMtc++;
+    if(Number(st.qty)>0&&agedDays(lastInMat(st.id))>=AGE_DANGER)aged++;
+  }
+  /* ── 실사 조정 ── */
+  var ajRows='',ajPlus=0,ajMinus=0;
+  for(var m=0;m<ADJ.length;m++){
+    var aj=ADJ[m],df=Number(aj.diff)||0;
+    if(df>0)ajPlus+=df; else ajMinus+=Math.abs(df);
+    ajRows+='<tr><td>'+esc(String(aj.created_at||'').slice(0,10))+'</td>'+
+      '<td>'+esc(aj.item_name||'')+(aj.heat_no?' <span style="font-family:Consolas,monospace;font-size:9px;">'+esc(aj.heat_no)+'</span>':'')+'</td>'+
+      '<td style="text-align:right;">'+fmt(aj.before_qty)+'</td>'+
+      '<td style="text-align:right;">'+fmt(aj.after_qty)+'</td>'+
+      '<td style="text-align:right;'+(df<0?'color:#a5321f;':'color:#146c43;')+'font-weight:700;">'+(df>0?'+':'')+fmt(df)+'</td>'+
+      '<td>'+esc(aj.reason||'')+'</td><td>'+esc(aj.user_name||'')+'</td></tr>';
+  }
+  /* ── 거래처 매출 TOP5 ── */
+  var top=Object.keys(byCustS).sort(function(x,y){return byCustS[y]-byCustS[x];}).slice(0,5);
+  var topRows='';
+  for(var t2=0;t2<top.length;t2++)
+    topRows+='<tr><td>'+(t2+1)+'</td><td>'+esc(top[t2])+'</td><td style="text-align:right;">'+fmt(Math.round(byCustS[top[t2]]))+'</td></tr>';
+
+  var TH='style="background:#f0eee6;border:1px solid #c6ccdb;font-size:9.5px;padding:4px 6px;"';
+  var TD='border:1px solid #c6ccdb;padding:4px 6px;font-size:10px;';
+  var row=function(l,v,hint){return '<tr><th>'+l+'</th><td style="text-align:right;font-family:Consolas,monospace;">'+v+'</td><td style="color:#777;font-size:9px;">'+(hint||'')+'</td></tr>';};
+  var html='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>월말보고 '+mon+'</title><style>'+
+    '@page{size:A4;margin:13mm}*{box-sizing:border-box}'+
+    'body{font-family:"Malgun Gothic","Pretendard",sans-serif;color:#1e222d;font-size:10.5px;margin:0}'+
+    '.hd{display:flex;align-items:flex-start;gap:10px;border-bottom:2.5px solid #2e2614;padding-bottom:8px;margin-bottom:10px}'+
+    '.hd h1{font-size:19px;letter-spacing:.2em;margin:0;flex:1;text-align:center}'+
+    '.co{font-size:9px;color:#555;text-align:right;line-height:1.5;white-space:nowrap}'+
+    '.sect{background:#f4f2ec;border-left:3px solid #2e2614;font-size:10.5px;font-weight:700;padding:4px 8px;margin:11px 0 5px}'+
+    'table{width:100%;border-collapse:collapse}'+
+    'th{background:#f0eee6;border:1px solid #c6ccdb;font-size:9.5px;padding:4px 7px;text-align:left;width:34mm;font-weight:600}'+
+    'td{'+TD+'}'+
+    '.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}'+
+    '.ft{margin-top:12px;border-top:1px solid #c6ccdb;padding-top:5px;font-size:8.5px;color:#777;display:flex;justify-content:space-between}'+
+    '</style></head><body>'+
+    '<div class="hd"><h1>월 말 정 리 보 고 서</h1>'+
+      '<div class="co"><b>ShinWoo Tech Innovation Co., Ltd.</b><br>대상 월 <b>'+mon+'</b><br>작성 '+todayStr()+' · '+esc(myName())+'</div></div>'+
+
+    '<div class="g2"><div>'+
+    '<div class="sect">① 입고 · 매입</div><table>'+
+      row('입고 건수',fmt(rcCnt)+' 건')+
+      row('물품대 합계','₩'+fmt(rcGoods),'매입환율 기준')+
+      row('부대비용 정산액','₩'+fmt(ohSum))+
+      row('부대비용 미정산',(ohMiss?'<b style="color:#a5321f;">'+ohMiss+' 건</b>':'0 건'),ohMiss?'정산 필요':'')+
+    '</table>'+
+    '<div class="sect">② 출하 · 매출</div><table>'+
+      row('출하 건수',fmt(shCnt)+' 건')+
+      row('매출(청구) 합계','₩'+fmt(Math.round(sale)),'고객청구 배송비 포함')+
+      row('물품 매출','₩'+fmt(Math.round(goods)))+
+      row('배송비 — 고객 청구','₩'+fmt(dvCust))+
+      row('배송비 — 당사 부담','₩'+fmt(dvUs),'비용')+
+      row('확정 환차손익',(fxpl>=0?'+':'−')+'₩'+fmt(Math.abs(Math.round(fxpl))))+
+    '</table>'+
+    '</div><div>'+
+    '<div class="sect">③ 수금 · 채권</div><table>'+
+      row('이달 입금','₩'+fmt(Math.round(payIn)),'입금일 기준')+
+      row('미수 잔액 (현재)','₩'+fmt(outTot))+
+      row('연체',(overCnt?'<b style="color:#a5321f;">'+overCnt+'건 · ₩'+fmt(overAmt)+'</b>':'없음'))+
+    '</table>'+
+    '<div class="sect">④ 재고 건전성 (보고서 생성 시점)</div><table>'+
+      row('소재 재고금액','₩'+fmt(Math.round(stVal)))+
+      row('Heat No. 미상',(noHeat?'<b style="color:#a5321f;">'+noHeat+' 건</b>':'0 건'),'추적 불가')+
+      row('밀시트 미등록',noMtc+' 건')+
+      row('장기재고(180일+)',aged+' 건')+
+    '</table>'+
+    '<div class="sect">⑤ 거래처 매출 TOP5</div>'+
+    '<table><tr><th style="width:8mm;">#</th><th style="width:auto;">거래처</th><th style="width:26mm;text-align:right;">매출(원)</th></tr>'+
+      (topRows||'<tr><td colspan="3" style="text-align:center;color:#999;">해당 월 출하 없음</td></tr>')+'</table>'+
+    '</div></div>'+
+
+    '<div class="sect">⑥ 재고 실사 조정 내역 <span style="font-weight:400;font-size:9px;color:#666;">증가 +'+fmt(ajPlus)+' / 감소 −'+fmt(ajMinus)+'</span></div>'+
+    '<table><tr><th '+TH+'>일자</th><th '+TH+'>품목</th><th '+TH+' style="text-align:right;">장부</th>'+
+      '<th '+TH+' style="text-align:right;">실측</th><th '+TH+' style="text-align:right;">차이</th>'+
+      '<th '+TH+'>사유</th><th '+TH+'>조정자</th></tr>'+
+      (ajRows||'<tr><td colspan="7" style="text-align:center;color:#146c43;">조정 내역 없음 — 장부와 실물 일치 ✓</td></tr>')+'</table>'+
+
+    '<div class="ft"><span>본 보고서는 시스템 기록 기준 자동 집계입니다 · 미수 잔액과 재고 건전성은 생성 시점 스냅샷입니다</span>'+
+      '<span>ShinWoo Smart Materials System</span></div>'+
+    '</body></html>';
+  savePdf(html,'월말보고서_'+mon);
+}
+
+/* ================= 재고 실사 조정 ================= */
+var ADJ_REASONS=['실사 차이','파손·불량','분실','오입력 정정','샘플 제공','기타'];
+function adjItem(kind,id){
+  if(kind==='mat'){ return STOCK_BY_ID[id]||null; }
+  for(var i=0;i<PARTS[kind].length;i++) if(String(PARTS[kind][i].id)===String(id)) return PARTS[kind][i];
+  return null;
+}
+function openAdjust(kind,id){
+  var it=adjItem(kind,id); if(!it)return;
+  var isMat=(kind==='mat');
+  var name=isMat?(it.alloy+' '+(it.form||'')):(it.name||'');
+  var cur=Number(isMat?it.qty:it.stock)||0;
+  var u=esc(it.unit||(isMat?'':'EA'));
+  var ro='';
+  for(var i=0;i<ADJ_REASONS.length;i++) ro+='<option>'+ADJ_REASONS[i]+'</option>';
+  var html=
+    '<dl class="dl" style="margin-bottom:10px;">'+
+      '<dt>품목</dt><dd><b>'+esc(name)+'</b>'+(isMat&&it.heat_no?' <span class="heat">'+esc(it.heat_no)+'</span>':'')+'</dd>'+
+      '<dt>장부 수량</dt><dd><b>'+fmt(cur)+u+'</b></dd>'+
+    '</dl>'+
+    '<label>실측 수량 (실제 세어본 값) *</label>'+
+    '<input id="aj-qty" type="number" min="0" step="0.01" value="'+cur+'" oninput="adjPv('+cur+',\''+u+'\')">'+
+    '<div class="costbox" id="aj-pv"></div>'+
+    '<label>사유 *</label><select id="aj-reason">'+ro+'</select>'+
+    '<label>비고</label><input id="aj-memo" placeholder="위치·상태·확인자 등">'+
+    '<p class="help" style="margin-top:8px;">조정 내역은 삭제되지 않는 이력으로 남고, 조정자('+esc(myName()||'미로그인')+')와 일시가 기록됩니다.</p>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;">'+
+      '<button class="btn btn-p" style="flex:1" onclick="saveAdjust(\''+kind+'\','+id+')">조정 확정</button>'+
+      '<button class="btn btn-g" onclick="closeModal()">취소</button>'+
+    '</div>';
+  openModal('재고 실사 조정', html);
+  adjPv(cur,u);
+}
+function adjPv(cur,u){
+  var box=document.getElementById('aj-pv'); if(!box)return;
+  var v=Number(document.getElementById('aj-qty').value||0);
+  var d=Math.round((v-cur)*100)/100;
+  box.innerHTML=
+    '<div class="cline"><span>장부 수량</span><b>'+fmt(cur)+u+'</b></div>'+
+    '<div class="cline"><span>실측 수량</span><b>'+fmt(v)+u+'</b></div>'+
+    '<div class="cline tot"><span>차이</span><b style="color:'+(d===0?'var(--ok)':(d>0?'var(--gold-lt)':'var(--danger)'))+'">'+
+      (d>0?'+':'')+fmt(d)+u+'</b></div>'+
+    (d===0?'<div class="cline sub2"><span style="color:var(--ok);">차이 없음 — 조정할 필요가 없습니다</span><b></b></div>':'');
+}
+function saveAdjust(kind,id){
+  var it=adjItem(kind,id); if(!it)return;
+  if(!myName())return toast('로그인 후 조정할 수 있습니다');
+  var isMat=(kind==='mat');
+  var cur=Number(isMat?it.qty:it.stock)||0;
+  var v=Number(document.getElementById('aj-qty').value);
+  if(isNaN(v)||v<0)return toast('실측 수량을 입력하세요');
+  var d=Math.round((v-cur)*100)/100;
+  if(d===0)return toast('장부와 실측이 같습니다 — 조정할 것이 없습니다');
+  var reason=document.getElementById('aj-reason').value;
+  var memo=(document.getElementById('aj-memo').value||'').trim()||null;
+  if(!confirm('장부 '+fmt(cur)+' → 실측 '+fmt(v)+' ('+(d>0?'+':'')+fmt(d)+')\n사유: '+reason+'\n\n조정을 확정할까요?'))return;
+  sb('sw_adjust',{method:'POST',body:{
+    kind:kind, item_id:it.id,
+    item_name:isMat?(it.alloy+' '+(it.form||'')):(it.name||''),
+    heat_no:isMat?(it.heat_no||null):null,
+    before_qty:cur, after_qty:v, diff:d,
+    reason:reason, memo:memo, user_name:myName()
+  }})
+  .then(function(){
+    if(isMat) return sb('sw_stock?id=eq.'+it.id,{method:'PATCH',body:{qty:v}});
+    return sb('sw_part?id=eq.'+it.id,{method:'PATCH',body:{stock:v}})
+      .then(function(){
+        return sb('sw_part_log',{method:'POST',body:{
+          kind:kind,item_id:it.id,item_name:it.name,
+          type:(d>0?'in':'out'),qty:Math.abs(d),
+          memo:'실사 조정 · '+reason+(memo?' · '+memo:'')}});
+      });
+  })
+  .then(function(){
+    closeModal();
+    toast('실사 조정 완료 · '+(d>0?'+':'')+fmt(d));
+    return loadData().then(function(){ if(!isMat&&typeof loadParts==='function')return loadParts(kind,true); });
+  })
+  .catch(function(e){
+    if(String(e.message).indexOf('PGRST205')>=0||String(e.message).indexOf('sw_adjust')>=0)
+      toast('sw_adjust 테이블이 없습니다 — Supabase에서 생성하세요');
+    else toast('조정 실패: '+e.message);
+  });
+}
 
 /* ================= 부대비용 실제 정산 (Landed Cost) ================= */
 function landedTotal(r){
