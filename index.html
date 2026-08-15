@@ -410,6 +410,20 @@ body.locked{overflow:hidden;}
 .lbl-mtc.ng{color:#a5321f;background:#fdecea;border:1px solid #efb0a6;}
 .lblbtn{flex-shrink:0;padding:4px 10px;border-radius:7px;border:1px solid var(--goldbd);
   background:var(--goldbg);color:var(--gold);font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;}
+.costbox{background:var(--card2);border:1px solid var(--line);border-radius:11px;
+  padding:9px 12px;margin:9px 0 2px;}
+.costbox:empty{display:none;}
+.cline{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  font-size:12px;color:var(--sub);padding:3.5px 0;}
+.cline b{font-family:var(--num);font-size:14px;color:var(--ink);font-weight:700;}
+.cline i{font-style:normal;opacity:.6;font-size:10.5px;}
+.cline.sub2{font-size:10.5px;opacity:.75;padding:1px 0;}
+.cline.sub2 b{font-size:12px;}
+.cline.tot{border-top:1px solid var(--line);margin-top:5px;padding-top:7px;color:var(--ink);font-weight:700;}
+.cline.tot b{color:var(--gold-lt);font-size:16px;}
+.cbtn{margin-left:8px;padding:5px 11px;border-radius:8px;border:1px solid var(--goldbd);
+  background:var(--goldbg);color:var(--gold);font-size:11.5px;font-weight:800;cursor:pointer;
+  font-family:inherit;flex-shrink:0;}
 .pick{display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer;}
 .pick:last-child{border-bottom:none;}
 .pick input{width:19px;height:19px;flex-shrink:0;accent-color:var(--gold);}
@@ -4674,6 +4688,13 @@ function ordShell(k){
       '</div>'+
       '<div id="o-info-'+k+'" class="krwpv"></div>'+
       '<div class="grid2">'+
+        '<div><label>부대비용률 (%) <span style="font-weight:600;color:var(--sub);">운임·관세·보관</span></label>'+
+          '<input id="o-oh-'+k+'" type="number" min="0" step="0.1" value="10" oninput="onOrdItem(\''+k+'\')"></div>'+
+        '<div><label>목표 마진율 (%)</label>'+
+          '<input id="o-mg-'+k+'" type="number" min="0" step="0.1" value="20" oninput="onOrdItem(\''+k+'\')"></div>'+
+      '</div>'+
+      '<div class="costbox" id="o-cost-'+k+'"></div>'+
+      '<div class="grid2">'+
         '<div><label>납기일</label><input id="o-due-'+k+'" type="date"></div>'+
         '<div><label>판매단가 (원)</label><input id="o-price-'+k+'" type="number" min="0" placeholder="0" oninput="onOrdItem(\''+k+'\')"></div>'+
       '</div>'+
@@ -4829,21 +4850,64 @@ function ordPick(k){
   if(k==='mat')return STOCK_BY_ID[v]||null;
   return partById(k,v);
 }
+/* 매입원가(취득원가) = 외화 매입단가 × 매입 시점 환율 */
+function ordCostKRW(it){
+  var cur=it.currency||'KRW', p=Number(it.price)||0;
+  if(!p) return { buy:0, now:0, cur:cur };
+  if(cur==='KRW') return { buy:p, now:p, cur:cur };
+  var buy=Number(it.fx_buy)||0, now=fxOf(cur)||buy;
+  return { buy:Math.round(p*buy), now:Math.round(p*now), cur:cur, fxBuy:buy, fxNow:now, fc:p };
+}
 function onOrdItem(k){
   var box=document.getElementById('o-info-'+k); if(!box)return;
   var it=ordPick(k);
-  if(!it){box.innerHTML='';return;}
+  var cb=document.getElementById('o-cost-'+k);
+  if(!it){ box.innerHTML=''; if(cb)cb.innerHTML=''; return; }
   var qty=Number(document.getElementById('o-qty-'+k).value||0);
   var price=Number(document.getElementById('o-price-'+k).value||0);
   var avail=Number(k==='mat'?it.qty:it.stock)||0;
+
   var h='가용 재고 <b>'+fmt(avail)+' '+esc(it.unit||'EA')+'</b>';
-  if(k!=='mat'||it.currency){
-    var cur=it.currency||'KRW';
-    if(Number(it.price)) h+=' · 매입단가 '+(cur==='KRW'?'₩'+fmt(it.price):money(it.price,cur)+' @'+fmt(Number(it.fx_buy)||0));
-  }
   if(qty&&price) h+=' · 수주금액 <b>₩'+fmt(Math.round(qty*price))+'</b>';
   if(qty>avail) h+=' <span style="color:var(--danger);font-weight:700;">· 재고 부족</span>';
   box.innerHTML=h;
+
+  if(!cb)return;
+  var C=ordCostKRW(it);
+  if(!C.buy){ cb.innerHTML='<span style="color:var(--sub);">매입단가가 등록되지 않아 원가를 계산할 수 없습니다. 재고에서 단가를 입력하세요.</span>'; return; }
+  var oh=Number(document.getElementById('o-oh-'+k).value||0);
+  var mg=Number(document.getElementById('o-mg-'+k).value||0);
+  var landed=Math.round(C.buy*(1+oh/100));
+  var sug=Math.round(landed*(1+mg/100));
+
+  var t='';
+  t+='<div class="cline"><span>매입단가 <i>(매입환율 기준)</i></span><b>₩'+fmt(C.buy)+'</b></div>';
+  if(C.cur!=='KRW')
+    t+='<div class="cline sub2"><span>'+esc(C.cur)+' '+money(C.fc,C.cur)+' × 매입환율 '+fmt(C.fxBuy)+'</span><span></span></div>';
+  t+='<div class="cline"><span>＋ 부대비용 '+oh+'%</span><b>₩'+fmt(landed)+'</b></div>';
+  t+='<div class="cline tot"><span>권장 판매단가 <i>(마진 '+mg+'%)</i></span><b>₩'+fmt(sug)+'</b>'+
+     '<button class="cbtn" onclick="applySuggest(\''+k+'\','+sug+')">적용</button></div>';
+
+  if(price>0){
+    var m=landed>0?((price-landed)/landed*100):0;
+    var col=m>=mg?'var(--ok)':(m>0?'var(--amber)':'var(--danger)');
+    t+='<div class="cline tot"><span>입력 단가 기준 실마진</span>'+
+       '<b style="color:'+col+'">'+m.toFixed(1)+'%</b></div>';
+    if(qty)
+      t+='<div class="cline sub2"><span>예상 매출총이익 ('+fmt(qty)+esc(it.unit||'')+')</span>'+
+         '<b style="color:'+col+'">₩'+fmt(Math.round((price-landed)*qty))+'</b></div>';
+  }
+  if(C.cur!=='KRW' && C.now && C.now!==C.buy){
+    var diff=C.now-C.buy;
+    t+='<div class="cline sub2"><span>참고 · 오늘 환율 재조달원가 (₩'+fmt(C.fxNow)+')</span>'+
+       '<b style="color:'+(diff>0?'var(--danger)':'var(--ok)')+'">₩'+fmt(C.now)+
+       ' ('+(diff>0?'+':'−')+fmt(Math.abs(diff))+')</b></div>';
+  }
+  cb.innerHTML=t;
+}
+function applySuggest(k,v){
+  document.getElementById('o-price-'+k).value=v;
+  onOrdItem(k);
 }
 function addOrderK(k){
   var it=ordPick(k);
