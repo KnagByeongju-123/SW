@@ -403,6 +403,13 @@ body.locked{overflow:hidden;}
   letter-spacing:.05em;margin-top:3px;border-top:1px dashed #ced4e1;padding-top:2px;}
 .lbl-rem{font-size:9px;font-weight:800;color:#8a5a10;background:#fff3e0;border:1px solid #ecc389;
   border-radius:3px;padding:0 4px;display:inline-block;margin-top:2px;}
+.lbl-qty{font-family:var(--num);font-size:15px;font-weight:800;color:#1e222d;margin-top:1px;}
+.lbl-sub{font-size:8.5px;color:#5e6577;line-height:1.4;word-break:break-all;}
+.lbl-mtc{font-size:8px;font-weight:800;border-radius:3px;padding:0 4px;display:inline-block;margin-top:2px;}
+.lbl-mtc.ok{color:#146c43;background:#e6f6ec;border:1px solid #a8d8bb;}
+.lbl-mtc.ng{color:#a5321f;background:#fdecea;border:1px solid #efb0a6;}
+.lblbtn{flex-shrink:0;padding:4px 10px;border-radius:7px;border:1px solid var(--goldbd);
+  background:var(--goldbg);color:var(--gold);font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;}
 .pick{display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer;}
 .pick:last-child{border-bottom:none;}
 .pick input{width:19px;height:19px;flex-shrink:0;accent-color:var(--gold);}
@@ -630,6 +637,12 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   body.pm-guide th{background:#2e2614 !important;color:#fff !important;}
   body.pm-guide td{border-color:#c6ccdb;color:#1e222d;}
   body.pm-label .label-card h3{display:none;}
+  body.pm-shiplbl #pg-ship{display:block !important;}
+  body.pm-shiplbl #pg-ship > .subtab,
+  body.pm-shiplbl #pg-ship > .sub{display:none !important;}
+  body.pm-shiplbl #shp-lblcard{display:block !important;border:none;padding:0;margin:0;box-shadow:none;background:#fff;}
+  body.pm-shiplbl .no-print{display:none !important;}
+  body.pm-shiplbl .lbl-sheet{grid-template-columns:repeat(3,1fr);gap:4mm;}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
 </style>
@@ -774,6 +787,16 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   <div class="sub on" id="sub-shp-mat"></div>
   <div class="sub"    id="sub-shp-bear"></div>
   <div class="sub"    id="sub-shp-etc"></div>
+
+  <!-- 출하 라벨 (인쇄 전용) -->
+  <div class="card label-card" id="shp-lblcard" style="display:none;">
+    <h3 class="no-print">출하 라벨 <span class="badge b-blue" id="shp-lblcnt">0매</span></h3>
+    <div class="lbl-sheet" id="shp-lblsheet"></div>
+    <div class="no-print" style="display:flex;gap:8px;margin-top:12px;">
+      <button class="btn btn-p" onclick="doPrintShipLabel()">인쇄</button>
+      <button class="btn btn-g" onclick="closeShipLabel()">닫기</button>
+    </div>
+  </div>
 </div>
 
 <!-- ========== 밀시트 ========== -->
@@ -2774,6 +2797,7 @@ function makeLabel(s2){
   return box;
 }
 function clearPrintMode(){
+  document.body.classList.remove('pm-shiplbl');
   document.body.classList.remove('pm-label');
   document.body.classList.remove('pm-doc');
   document.body.classList.remove('pm-guide');
@@ -4653,6 +4677,8 @@ function ordShell(k){
         '<div><label>납기일</label><input id="o-due-'+k+'" type="date"></div>'+
         '<div><label>판매단가 (원)</label><input id="o-price-'+k+'" type="number" min="0" placeholder="0" oninput="onOrdItem(\''+k+'\')"></div>'+
       '</div>'+
+      '<label>고객 P/O 번호 <span style="font-weight:600;color:var(--sub);">(출하 라벨에 병기)</span></label>'+
+      '<input id="o-po-'+k+'" placeholder="고객사 발주번호">'+
       '<div style="margin-top:12px;"><button class="btn btn-p" id="btn-ord-'+k+'" onclick="addOrderK(\''+k+'\')">수주 등록</button></div>'+
       '<p class="help">등록하면 <b>수주</b> 상태가 됩니다. 출하 메뉴에서 단계를 진행하세요.</p>'+
     '</div>'+
@@ -4831,12 +4857,14 @@ function addOrderK(k){
   if(!due)return ordMsg(k,'납기일을 입력하세요','err');
   var btn=document.getElementById('btn-ord-'+k);
   btn.disabled=true;
-  var body={ order_no:newOrderNo(), customer:cust, qty:qty, due_date:due, price:price, status:0, kind:k };
+  var body={ order_no:newOrderNo(), customer:cust, qty:qty, due_date:due, price:price, status:0, kind:k,
+             po_no:(document.getElementById('o-po-'+k).value||'').trim()||null };
   if(k==='mat')body.stock_id=it.id; else body.part_id=it.id;
   sb('sw_order',{method:'POST',body:body})
   .then(function(){
     document.getElementById('o-qty-'+k).value='';
     document.getElementById('o-price-'+k).value='';
+    document.getElementById('o-po-'+k).value='';
     document.getElementById('o-info-'+k).innerHTML='';
     ordMsg(k,'✓ 수주 등록 완료 · 출하 메뉴에서 진행하세요','ok');
     return loadData();
@@ -4921,11 +4949,12 @@ function renderShipK(k){
     var blob=[d.order_no,d.customer,ordItemName(d),ordItemSub(d)].join(' ').toLowerCase();
     if(q&&blob.indexOf(q)<0)continue;
     n++; tq+=Number(d.qty)||0; ta+=Number(d.qty||0)*Number(d.price||0);
-    dh+='<div class="prow" data-id="'+d.id+'">'+
-      '<span class="tp out">출하</span>'+
-      '<span class="nm2">'+esc(d.customer)+' · '+esc(ordItemName(d))+'</span>'+
-      '<span class="qt" style="color:var(--amber)">'+fmt(d.qty)+'</span>'+
-      '<span class="dt2">'+esc(d.due_date||'')+'</span></div>';
+    dh+='<div class="prow">'+
+      '<span class="tp out" data-id="'+d.id+'">출하</span>'+
+      '<span class="nm2" data-id="'+d.id+'">'+esc(d.customer)+' · '+esc(ordItemName(d))+'</span>'+
+      '<span class="qt" style="color:var(--amber)" data-id="'+d.id+'">'+fmt(d.qty)+'</span>'+
+      '<span class="dt2" data-id="'+d.id+'">'+esc(d.ship_date||d.due_date||'')+'</span>'+
+      '<button class="lblbtn" onclick="event.stopPropagation();openShipLabel('+d.id+')">라벨</button></div>';
   }
   dbox.innerHTML=dh||'<div class="pempty">완료된 출하가 없습니다.</div>';
   bindShipRows(dbox);
@@ -4959,7 +4988,8 @@ function showOrderDetail(o){
     ?'<p style="margin-top:10px;font-size:12.5px;color:var(--danger);font-weight:600;">⚠ 이 Heat No.는 밀시트가 미등록 상태입니다. 출하 전 등록이 필요합니다.</p>':'';
   var btn=o.status<3
     ?'<button class="btn btn-p" style="width:100%;margin-top:14px;" id="m-next">다음 단계 → '+ST_NAMES[o.status+1]+'</button>'
-    :'<p style="margin-top:12px;font-size:13px;color:var(--ok);font-weight:600;">출하 완료된 건입니다.</p>';
+    :'<p style="margin-top:12px;font-size:13px;color:var(--ok);font-weight:600;">출하 완료된 건입니다.</p>'+
+      '<button class="btn btn-o" style="width:100%;margin-top:10px;" onclick="closeModal();openShipLabel('+o.id+')">🏷 출하 라벨 출력</button>';
   var spec = k==='mat'
     ? '<dt>규격</dt><dd class="mono">'+esc(it.spec||'-')+'</dd>'+
       '<dt>Heat No.</dt><dd><span class="heat">'+esc(it.heat_no||'-')+'</span></dd>'
@@ -4984,7 +5014,9 @@ function showOrderDetail(o){
 }
 function advanceOrder(o,it){
   var next=o.status+1, k=ordKindOf(o);
-  sb('sw_order?id=eq.'+o.id,{method:'PATCH',body:{status:next}})
+  var opatch={status:next};
+  if(next===3)opatch.ship_date=todayStr();
+  sb('sw_order?id=eq.'+o.id,{method:'PATCH',body:opatch})
   .then(function(){
     if(next!==3)return;
     LAST_SHIP_PL=matShipPL(it,Number(o.qty));
@@ -5029,6 +5061,82 @@ function advanceOrder(o,it){
 }
 
 initOrderUI();
+
+
+/* ================= 출하 라벨 ================= */
+var SHP_LBL_ID=null;
+function openShipLabel(id){
+  var o=null;
+  for(var i=0;i<ORDERS.length;i++) if(ORDERS[i].id===id) o=ORDERS[i];
+  if(!o) return;
+  SHP_LBL_ID=id;
+  var n=prompt('출력할 라벨 매수를 입력하세요','1');
+  if(n===null) return;
+  var copies=Math.max(1,Math.min(50,parseInt(n,10)||1));
+  buildShipLabels(o,copies);
+  var card=document.getElementById('shp-lblcard');
+  card.style.display='';
+  if(card.scrollIntoView)card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeShipLabel(){
+  document.getElementById('shp-lblcard').style.display='none';
+  document.getElementById('shp-lblsheet').innerHTML='';
+  SHP_LBL_ID=null;
+}
+function buildShipLabels(o,copies){
+  var sheet=document.getElementById('shp-lblsheet');
+  sheet.innerHTML='';
+  for(var c=0;c<copies;c++) sheet.appendChild(makeShipLabel(o));
+  document.getElementById('shp-lblcnt').textContent=copies+'매';
+}
+function makeShipLabel(o){
+  var k=ordKindOf(o), it=ordItem(o);
+  /* LOT: 소재는 Heat No., 부품은 출하번호 */
+  var lot = (k==='mat') ? (it.heat_no||'-') : (o.order_no||'-');
+  var box=document.createElement('div');
+  box.className='lbl shplbl';
+  var qbox=document.createElement('div');
+  qbox.className='lbl-qr';
+  var info=document.createElement('div');
+  info.className='lbl-info';
+  var line2 = (k==='mat')
+    ? esc(it.form||'')
+    : esc(it.category||OKIND[k].label);
+  info.innerHTML=
+    '<div class="lbl-co">SHINWOO TECH INNOVATION</div>'+
+    '<div class="lbl-alloy">'+esc(k==='mat'?(it.alloy||'-'):(it.name||'-'))+'</div>'+
+    '<div class="lbl-form">'+line2+'</div>'+
+    '<div class="lbl-spec">'+esc(it.spec||'')+'</div>'+
+    '<div class="lbl-heat">LOT '+esc(lot)+'</div>'+
+    '<div class="lbl-qty">'+fmt(o.qty)+' '+esc(it.unit||'')+'</div>'+
+    '<div class="lbl-sub">'+esc(o.customer||'')+
+      (o.po_no?' · PO '+esc(o.po_no):'')+'</div>'+
+    '<div class="lbl-sub">'+esc(o.order_no||'')+' · 출하 '+esc(o.ship_date||todayStr())+'</div>'+
+    (k==='mat'
+      ? (it.mtc?'<div class="lbl-mtc ok">MTC 첨부</div>':'<div class="lbl-mtc ng">MTC 미첨부</div>')
+      : '')+
+    (k==='mat'&&typeof isRemnant==='function'&&isRemnant(it)
+      ? '<div class="lbl-rem">잔재 '+esc(it.heat_no)+'</div>' : '');
+  box.appendChild(qbox); box.appendChild(info);
+  try{
+    new QRCode(qbox,{
+      text:(k==='mat'? (QR_PREFIX+String(lot).toUpperCase()) : ('SW-SO:'+lot)),
+      width:148,height:148,
+      colorDark:'#241a05',colorLight:'#ffffff',
+      correctLevel:QRCode.CorrectLevel.M
+    });
+  }catch(e){ qbox.textContent='QR'; }
+  return box;
+}
+function doPrintShipLabel(){
+  if(!document.getElementById('shp-lblsheet').children.length){
+    alert('출력할 라벨이 없습니다.');return;
+  }
+  clearPrintMode();
+  document.body.classList.add('pm-shiplbl');
+  window.print();
+  setTimeout(function(){ document.body.classList.remove('pm-shiplbl'); },600);
+}
 
 /* renderAll 호환 래퍼 */
 function renderOrder(){
