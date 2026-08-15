@@ -878,6 +878,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <div class="kpi warn"><div class="n" id="pk-over">0</div><div class="l">연체 건</div></div>
     <div class="kpi ok"><div class="n" id="pk-in">0</div><div class="l">이달 입금(원)</div></div>
     <div class="kpi"><div class="n" id="pk-sale">0</div><div class="l">이달 매출(원)</div></div>
+    <div class="kpi warn"><div class="n" id="pk-deliv">0</div><div class="l">이달 배송비(당사)</div></div>
   </div></div>
 
   <div class="card">
@@ -1411,6 +1412,16 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       </ul>
     </div></div>
     <div class="hstep"><div class="hn mono">03</div><div class="hb">
+      <h3>배송비 입력 — 부담 주체가 핵심</h3>
+      <p>출하 등록 창에서 <b>배송비</b>와 <b>부담 주체</b>를 입력합니다. 5만 / 10만 / 15만 빠른 버튼이 있습니다.</p>
+      <ul>
+        <li><b>당사 부담</b> — 우리 비용입니다. 미수금에는 안 들어가고, 미수금 화면 <b>이달 배송비(당사)</b>에 합산됩니다.</li>
+        <li><b>고객 청구</b> — 물품금액에 배송비를 더한 <b>청구 총액</b>이 미수금(채권)으로 잡힙니다.</li>
+        <li><b>착불</b> — 기사·화물에 고객이 직접 지불. 금액은 기록만 하고 정산에서 제외합니다.</li>
+      </ul>
+      <div class="gbox warn"><b>구분을 틀리면</b> — 당사 부담을 고객 청구로 넣으면 받지도 못할 돈이 미수금에 잡혀 채권이 부풀고, 반대로 하면 청구할 돈을 안 받게 됩니다. 출하 시점에 운송 조건을 반드시 확인하세요.</div>
+    </div></div>
+    <div class="hstep"><div class="hn mono">04</div><div class="hb">
       <h3>출하 라벨 (LOT 라벨)</h3>
       <p>출하 이력의 <b>라벨</b> 버튼으로 매수를 정해 인쇄합니다. A4에 3열로 배치됩니다.</p>
       <div class="gbox">
@@ -1426,7 +1437,8 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <div class="g-h2"><span class="g-no">8</span> 미수금 · 수금 <span class="ftag">메뉴 › 미수금 · 수금</span></div>
     <p class="g-lead">유통업이 무너지는 가장 흔한 이유는 재고가 아니라 <b>못 받은 돈</b>입니다.</p>
     <div class="g-h3">KPI</div>
-    <div class="gbox">미수 잔액 · 미수 건수 · <b>연체 건</b> · 이달 입금 · 이달 매출</div>
+    <div class="gbox">미수 잔액 · 미수 건수 · <b>연체 건</b> · 이달 입금 · 이달 매출 · <b>이달 배송비(당사)</b></div>
+    <p class="g-p">카드의 <b>청구금액</b>은 물품금액에 <b>고객 청구 배송비를 더한</b> 금액입니다. 배송비가 있으면 카드에 금액과 부담 주체가 따로 표시됩니다.</p>
     <div class="g-h3">거래처별 미수 현황</div>
     <p class="g-p">잔액이 큰 순서로 정렬됩니다. 연체 건이 있으면 빨간 배지가 붙습니다.</p>
     <div class="g-h3">출하 건별 수금</div>
@@ -1440,7 +1452,57 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   </div>
 
   <div class="card">
-    <div class="g-h2"><span class="g-no">9</span> QR · 절단 · 밀시트 · 거래명세서</div>
+    <div class="g-h2"><span class="g-no">9</span> 비용 관리 — 실제 마진이 새는 두 구멍</div>
+    <p class="g-lead">물건값 말고도 돈이 두 번 나갑니다. <b>들어올 때</b>(수입 부대비용)와 <b>나갈 때</b>(국내 배송비). 둘 다 기록해야 실제 마진이 나옵니다.</p>
+
+    <div class="g-h3">① 들어올 때 — 수입 부대비용 (Landed Cost)</div>
+    <div class="hstep"><div class="hn mono">01</div><div class="hb">
+      <h3>입고 시점엔 물품대만 확정됩니다</h3>
+      <p>운임·관세 인보이스는 물건보다 <b>며칠~몇 주 늦게</b> 옵니다. 그래서 입고 등록 때는 부대비용을 입력하지 않고, 시스템은 임시로 <b>추정률 10%</b>를 얹어 계산합니다.</p>
+    </div></div>
+    <div class="hstep"><div class="hn mono">02</div><div class="hb">
+      <h3>인보이스 도착 → 부대비용 정산</h3>
+      <p><b>입고 › 입고 이력</b>에서 해당 건의 <b>💰 부대비용 정산</b>을 누르고 4가지를 실제 금액으로 입력합니다.</p>
+      <ul>
+        <li><b>운임·보험</b> — 해상/항공 운임, 적하보험</li>
+        <li><b>관세·부가세</b> — 수입신고 시 납부액</li>
+        <li><b>통관·하역</b> — 관세사 수수료, THC, 창고료, 상하차</li>
+        <li><b>기타</b> — 검사비, 국내 운송(항구→창고) 등</li>
+      </ul>
+      <p>비고에 <b>포워더·인보이스 번호</b>를 남겨두면 나중에 대조가 쉽습니다.</p>
+    </div></div>
+    <div class="hstep"><div class="hn mono">03</div><div class="hb">
+      <h3>저장하면 재고 단가가 진짜 원가로 바뀝니다</h3>
+      <div class="gbox">물품대 ＋ 부대비용 ＝ <b>Landed Cost</b> ÷ 수량 ＝ <b>실제 단가</b></div>
+      <p>이후 수주 견적 화면은 추정 10% 대신 <b>이 실제 단가</b>로 권장 판매가와 마진을 계산합니다. 미정산 건은 입고 이력에 <b style="color:var(--amber);">부대비용 미정산</b>으로 표시됩니다.</p>
+      <div class="gbox dang"><b>정산을 안 하면</b> — 실제 부대비용이 15%였는데 10%로 견적하면, 그 차이 5%p만큼 마진을 착각한 채 파는 겁니다. 니켈합금은 단가가 커서 한 건에 수십만 원씩 새어 나갑니다.</div>
+    </div></div>
+
+    <div class="g-h3">② 나갈 때 — 국내 배송비</div>
+    <div class="hstep"><div class="hn mono">01</div><div class="hb">
+      <h3>출하 등록 창에서 바로 입력</h3>
+      <p>용차비·화물비를 <b>배송비</b> 칸에 넣고 <b>부담 주체</b>를 고릅니다. 별도 화면이 아니라 출하 처리와 한 번에 끝납니다.</p>
+    </div></div>
+    <div class="hstep"><div class="hn mono">02</div><div class="hb">
+      <h3>부담 주체에 따라 돈의 방향이 다릅니다</h3>
+      <ul>
+        <li><b>당사 부담</b> → 비용. 미수금에 안 잡히고 <b>이달 배송비(당사)</b> KPI로만 집계</li>
+        <li><b>고객 청구</b> → 매출 가산. 물품금액＋배송비＝<b>청구금액</b>으로 미수금에 잡힘</li>
+        <li><b>착불</b> → 고객이 기사에게 직접 지불. 기록만 남기고 정산 제외</li>
+      </ul>
+      <p>거래명세서·세금계산서 발행 시 물품가액과 운반비를 나눠야 하므로 시스템은 <b>물품금액(amount_goods)</b>과 배송비를 따로 저장합니다.</p>
+    </div></div>
+
+    <div class="g-h3">③ 한눈 요약 — 비용이 흘러가는 길</div>
+    <div class="gbox">
+      <b>발주</b> → 물품대 확정(매입환율 고정) → <b>입고</b> → 인보이스 도착 → <b>부대비용 정산</b> → 실제 단가 확정 →
+      <b>수주 견적</b>(실제 단가 기준 마진 계산) → <b>출하</b> → 배송비 입력(부담 주체) → <b>수금</b>(청구금액 기준)
+    </div>
+    <div class="gbox warn"><b>월말 점검 두 가지</b> — ① 입고 이력에서 <b>부대비용 미정산</b> 건이 남아 있지 않은지 ② 미수금 화면의 <b>이달 배송비(당사)</b>가 예상 범위인지. 이 두 숫자만 챙겨도 마진 착시가 사라집니다.</div>
+  </div>
+
+  <div class="card">
+    <div class="g-h2"><span class="g-no">10</span> QR · 절단 · 밀시트 · 거래명세서</div>
     <div class="hstep"><div class="hn mono">01</div><div class="hb">
       <h3>QR 스캔 · 라벨</h3>
       <p>자재에 붙은 QR을 찍으면 해당 Heat No.의 재고 상세가 열립니다. 라벨 탭에서 자재를 골라 매수를 정해 인쇄합니다.</p>
@@ -1461,12 +1523,13 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   </div>
 
   <div class="card">
-    <div class="g-h2"><span class="g-no">10</span> 대시보드 읽는 법</div>
+    <div class="g-h2"><span class="g-no">11</span> 대시보드 읽는 법</div>
     <p class="g-lead">아침에 이 화면만 보면 오늘 처리할 일이 나옵니다.</p>
     <div class="gbox"><b>맨 위 한 줄</b> — "오늘 확인할 항목 — 수주대비 재고부족 2품목 · 출하 진행 3건"처럼 처리할 것만 추려 보여줍니다. 없으면 정상이라고 알려줍니다.</div>
-    <div class="g-h3">KPI 9종</div>
+    <div class="g-h3">주요 KPI</div>
     <ul>
       <li><b>재고 품목 · 보유 Heat No.</b> — 규모</li>
+      <li><b>Heat No. 미상</b> — 잔량은 있는데 Heat No.가 없는 자재 <span style="color:var(--amber);">(추적 불가 재고 — 클레임 방어가 안 됩니다)</span></li>
       <li><b>진행중 수주 · 출하 진행중</b> — 처리할 일</li>
       <li><b>수주대비 부족</b> — 팔기로 했는데 물건이 모자란 품목 수 <span style="color:var(--danger);">(가장 급함)</span></li>
       <li><b>잔량 부족 · 장기재고(180일+)</b> — 재고 건전성</li>
@@ -1478,7 +1541,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   </div>
 
   <div class="card">
-    <div class="g-h2"><span class="g-no">11</span> 마스터 · 게시판</div>
+    <div class="g-h2"><span class="g-no">12</span> 마스터 · 게시판</div>
     <div class="hstep"><div class="hn mono">01</div><div class="hb">
       <h3>마스터 (마스터 비밀번호 필요)</h3>
       <ul><li><b>PIN 관리</b> — 사원 등록·수정, 성명·부서·PIN</li>
@@ -1488,10 +1551,23 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       <h3>게시판</h3>
       <p>요청·오류·문의·개선을 사진과 함께 올립니다. 본인 PIN으로 수정·삭제할 수 있고 처리 상태(접수 → 진행중 → 완료)가 표시됩니다.</p>
     </div></div>
+    <div class="hstep"><div class="hn mono">03</div><div class="hb">
+      <h3>전자결재</h3>
+      <ul>
+        <li><b>결재선</b>을 먼저 만듭니다 — 검토·확인은 생략 가능, 승인자는 필수</li>
+        <li><b>상신</b> 시 제목·관련 링크와 함께 <b>파일 위치</b>(NAS·공유폴더·실물 캐비닛)를 기록합니다. 결재함에서 경로를 <b>탭하면 복사</b>됩니다.</li>
+        <li>결재자는 화면에 <b>손가락 서명</b>으로 승인합니다. 단계마다 SHA-256 무결성 해시가 남습니다.</li>
+        <li>최종 승인 시 <b>PDF 저장 여부를 묻습니다.</b> 결재함에서도 언제든 <b>📄 PDF 저장</b>(파일로) / <b>🖨 인쇄</b>(종이로)가 가능합니다.</li>
+      </ul>
+    </div></div>
+    <div class="hstep"><div class="hn mono">04</div><div class="hb">
+      <h3>업무현황 (별도 페이지)</h3>
+      <p>메뉴의 <b>업무현황 ↗</b>은 가벼운 별도 페이지로 열립니다. 인원별 근무 상태(근무·외근·출장·휴가 등)와 오늘 업무·진행률을 입력하고, <b>본인 항목만</b> 수정할 수 있습니다. 5분마다 자동 갱신됩니다.</p>
+    </div></div>
   </div>
 
   <div class="card">
-    <div class="g-h2"><span class="g-no">12</span> 일과별 사용 순서</div>
+    <div class="g-h2"><span class="g-no">13</span> 일과별 사용 순서</div>
     <div class="navmap">
       <div class="navrow"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
         <div><b>아침</b><span>대시보드 확인 → 수주대비 부족 · 납기 임박 · ETA 지연 점검</span></div></div>
@@ -1500,9 +1576,11 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       <div class="navrow"><svg viewBox="0 0 24 24"><path d="M6 3.5h12V21l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/></svg>
         <div><b>주문 접수</b><span>수주 등록 → 가용재고 확인 → 권장단가로 견적</span></div></div>
       <div class="navrow"><svg viewBox="0 0 24 24"><path d="M3.5 7h11v9h-11zM14.5 10h3.6l2.4 3v3h-6"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>
-        <div><b>출고일</b><span>출하 등록 → LOT 라벨 인쇄 → 거래명세서 발행</span></div></div>
+        <div><b>출고일</b><span>출하 등록(배송비·부담 주체 입력) → LOT 라벨 인쇄 → 거래명세서 발행</span></div></div>
       <div class="navrow"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 12h5M12 9.5v5"/></svg>
         <div><b>주 1회</b><span>미수금 연체 점검 · 장기재고 확인 · 발주 ETA 갱신</span></div></div>
+      <div class="navrow"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12h8M8 8.5h8M8 15.5h5"/></svg>
+        <div><b>월말</b><span>부대비용 미정산 건 정리 · 이달 배송비(당사) 확인 · Heat No. 미상 재고 정리</span></div></div>
     </div>
   </div>
 
@@ -1514,8 +1592,12 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <div class="faq"><b>수주를 다 못 보내고 일부만 보냅니다</b><span>출하 등록에서 이번에 나가는 수량만 입력하세요. 잔여가 남고, 나중에 다시 출하하면 자동으로 완료 처리됩니다.</span></div>
     <div class="faq"><b>환율이 안 뜹니다</b><span>환율 바의 <b>수정</b>을 눌러 직접 입력하세요. 인터넷 조회가 막혀도 수동 입력값으로 모든 계산이 정상 작동합니다.</span></div>
     <div class="faq"><b>실제 마진이 계산과 다릅니다</b><span>부대비용 정산을 하지 않으면 추정률(10%)로만 계산됩니다. 입고 이력에서 실제 운임·관세를 입력하세요.</span></div>
+    <div class="faq"><b>배송비를 고객에게 청구하는데 미수금이 물품값만 잡힙니다</b><span>출하 등록 때 배송비 부담을 <b>고객 청구</b>로 선택해야 청구금액에 포함됩니다. 이미 등록한 건은 수정이 안 되므로 다음 출하부터 주의하세요.</span></div>
+    <div class="faq"><b>배송비를 나중에 알게 됐습니다 (용차비 청구서가 늦게 옴)</b><span>현재는 출하 등록 시점에만 입력됩니다. 금액을 모르면 예상액을 넣고 비고에 표기하거나, 확정 후 마스터 권한으로 데이터를 정정하세요. 사후 정산 기능은 개선 예정입니다.</span></div>
+    <div class="faq"><b>Heat No. 미상 재고는 어떻게 처리하나요</b><span>실물에서 각인·라벨·밀시트를 대조해 Heat No.를 찾은 뒤 재고 상세에서 입력하세요. 끝내 확인이 안 되는 자재는 추적 불가이므로 주요 고객사 납품에서 제외하는 것이 안전합니다.</span></div>
     <div class="faq"><b>출하완료 건을 잘못 등록했습니다</b><span>수주 이력에서 수정·삭제할 수 있지만 <b>차감된 재고는 자동 복원되지 않습니다.</b> 재고를 되돌리려면 입고로 별도 처리하세요.</span></div>
     <div class="faq"><b>QR을 찍었는데 등록되지 않은 코드라고 나옵니다</b><span>해당 Heat No.가 아직 재고에 없는 경우입니다. 입고를 먼저 완료한 뒤 라벨을 출력하세요.</span></div>
+    <div class="faq"><b>미수금 카드의 '청구금액'이 출하 물품값과 다릅니다</b><span>고객 청구 배송비가 포함된 금액입니다. 카드에 배송비 줄이 따로 표시되니 내역을 확인하세요.</span></div>
     <div class="faq"><b>로그아웃은 어떻게 하나요</b><span>메뉴 맨 아래 <b>로그아웃</b>을 누르면 됩니다. 로그인은 7일간 유지되고 접속할 때마다 다시 7일로 연장됩니다.</span></div>
   </div>
 
@@ -5611,12 +5693,30 @@ function openShipReg(id){
       '<div><label>출하일</label><input id="sr-date" type="date" value="'+todayStr()+'"></div>'+
       '<div><label>비고</label><input id="sr-memo" placeholder="차량·기사·특이사항"></div>'+
     '</div>'+
+    '<div class="grid2">'+
+      '<div><label>배송비 (원)</label><input id="sr-deliv" type="number" min="0" value="0" oninput="shipPreview('+id+')"></div>'+
+      '<div><label>배송비 부담</label><select id="sr-delivby" onchange="shipPreview('+id+')">'+
+        '<option value="당사">당사 부담 (비용)</option>'+
+        '<option value="고객">고객 청구 (매출 가산)</option>'+
+        '<option value="착불">착불 (정산 제외)</option>'+
+      '</select></div>'+
+    '</div>'+
+    '<div class="chiprow">'+
+      '<button class="chipb" onclick="srDeliv(50000,'+id+')">5만</button>'+
+      '<button class="chipb" onclick="srDeliv(100000,'+id+')">10만</button>'+
+      '<button class="chipb" onclick="srDeliv(150000,'+id+')">15만</button>'+
+      '<button class="chipb" onclick="srDeliv(0,'+id+')">없음</button>'+
+    '</div>'+
     '<div class="costbox" id="sr-pv"></div>'+
     '<div style="display:flex;gap:8px;margin-top:14px;">'+
       '<button class="btn btn-p" style="flex:1" onclick="saveShip('+id+')">출하 처리</button>'+
       '<button class="btn btn-g" onclick="closeModal()">취소</button>'+
     '</div>';
   openModal('출하 등록 · '+(o.order_no||''), html);
+  shipPreview(id);
+}
+function srDeliv(v,id){
+  document.getElementById('sr-deliv').value=v;
   shipPreview(id);
 }
 function shipQtySet(id,d){
@@ -5642,7 +5742,21 @@ function shipPreview(id){
   t+='<div class="cline"><span>출하 후 잔여 수주</span><b>'+fmt(Math.round((rem-q)*100)/100)+u+'</b></div>';
   t+='<div class="cline"><span>출하 후 재고</span><b'+((avail-q)<0?' style="color:var(--danger)"':'')+'>'+
      fmt(Math.round((avail-q)*100)/100)+u+'</b></div>';
-  t+='<div class="cline"><span>출하 금액</span><b>₩'+fmt(Math.round(q*Number(o.price||0)))+'</b></div>';
+  var goodsAmt=Math.round(q*Number(o.price||0));
+  var dv=Number((document.getElementById('sr-deliv')||{}).value||0);
+  var dby=(document.getElementById('sr-delivby')||{}).value||'당사';
+  t+='<div class="cline"><span>물품 금액</span><b>₩'+fmt(goodsAmt)+'</b></div>';
+  if(dv>0){
+    if(dby==='고객'){
+      t+='<div class="cline"><span>＋ 배송비 (고객 청구)</span><b>₩'+fmt(dv)+'</b></div>';
+      t+='<div class="cline tot"><span>청구 총액</span><b>₩'+fmt(goodsAmt+dv)+'</b></div>';
+    }else if(dby==='당사'){
+      t+='<div class="cline"><span style="color:var(--amber);">− 배송비 (당사 부담)</span><b style="color:var(--amber);">₩'+fmt(dv)+'</b></div>';
+      t+='<div class="cline tot"><span>배송비 차감 후</span><b>₩'+fmt(goodsAmt-dv)+'</b></div>';
+    }else{
+      t+='<div class="cline sub2"><span>배송비 (착불 · 정산 제외)</span><b>₩'+fmt(dv)+'</b></div>';
+    }
+  }
   if(Math.round(pl))
     t+='<div class="cline tot"><span>환차손익</span><b>'+plHtml(pl,true)+' 원</b></div>';
   if(q>rem)  t+='<div class="cline"><span style="color:var(--danger);font-weight:700;">잔여 수주 수량을 초과했습니다</span><b></b></div>';
@@ -5664,13 +5778,18 @@ function saveShip(id){
   var now=cur==='KRW'?1:(fxOf(cur)||Number(it.fx_buy)||1);
   var buy=Number(it.fx_buy)||1;
   var pl=(cur==='KRW')?0:Math.round(q*Number(it.price||0)*(now-buy));
-  var amt=Math.round(q*Number(o.price||0));
+  var goodsAmt=Math.round(q*Number(o.price||0));
+  var dv=Number(document.getElementById('sr-deliv').value||0);
+  var dby=document.getElementById('sr-delivby').value||'당사';
+  /* 고객 청구분만 채권(미수금)에 가산한다 */
+  var amt=goodsAmt+(dby==='고객'?dv:0);
 
   sb('sw_ship',{method:'POST',body:{
     order_id:o.id, order_no:o.order_no, kind:k, item_id:it.id,
     item_name:ordItemName(o), heat_no:(k==='mat'?(it.heat_no||null):null),
     customer:o.customer, qty:q, unit:it.unit||'', price:Number(o.price)||0, amount:amt,
     ship_date:sdate, memo:memo,
+    amount_goods:goodsAmt, cost_deliv:dv||0, deliv_by:dby,
     currency:cur, unit_cost:Number(it.price)||0, fx:now, fx_buy:buy, fx_pl:pl
   }})
   .then(function(){
@@ -5694,6 +5813,7 @@ function saveShip(id){
   .then(function(){
     closeModal();
     var msg=(rem-q<=0.0001?'전량 출하 완료':'부분 출하 등록')+' · '+fmt(q)+(it.unit||'');
+    if(dv>0)msg+=' · 배송비 '+fmt(dv)+'원('+dby+')';
     if(Math.round(pl))msg+=' · 환차손익 '+(pl>0?'+':'−')+fmt(Math.abs(Math.round(pl)))+'원';
     toast(msg);
     return loadData();
@@ -5802,7 +5922,7 @@ function renderPay(){
   var mon=new Date(); mon.setDate(1); mon.setHours(0,0,0,0);
   var monS=mon.toISOString().slice(0,10);
 
-  var outTot=0,outCnt=0,overCnt=0,inMon=0,saleMon=0;
+  var outTot=0,outCnt=0,overCnt=0,inMon=0,saleMon=0,delivMon=0;
   var byCust={};
   var list=SHIPS.slice().sort(function(a,b){
     return String(shipDue(a)).localeCompare(String(shipDue(b)));
@@ -5819,7 +5939,10 @@ function renderPay(){
       byCust[c].bal+=bal; byCust[c].cnt++;
       if(over)byCust[c].over++;
     }
-    if((sh.ship_date||'')>=monS) saleMon+=Number(sh.amount)||0;
+    if((sh.ship_date||'')>=monS){
+      saleMon+=Number(sh.amount)||0;
+      if((sh.deliv_by||'당사')==='당사') delivMon+=Number(sh.cost_deliv)||0;
+    }
     if((sh.paid_date||'')>=monS) inMon+=Number(sh.paid_amt)||0;
 
     if(fl==='open'&&bal<=0)continue;
@@ -5843,7 +5966,11 @@ function renderPay(){
           '<span>여신 '+(Number(sh.pay_term)||PAY_TERM_DEF)+'일</span>'+
           '<span>만기 '+esc(shipDue(sh))+'</span>'+
         '</div>'+
-        '<div class="prp">출하금액 <b>₩'+fmt(sh.amount)+'</b>'+
+        (Number(sh.cost_deliv)>0
+          ? '<div class="prp" style="color:var(--sub);">배송비 ₩'+fmt(sh.cost_deliv)+
+            ' · '+esc(sh.deliv_by||'당사')+(sh.deliv_by==='고객'?' 청구 (아래 금액에 포함)':' 부담')+'</div>'
+          : '')+
+        '<div class="prp">청구금액 <b>₩'+fmt(sh.amount)+'</b>'+
           ' · 입금 ₩'+fmt(sh.paid_amt||0)+
           ' · 잔액 <b style="color:'+(bal>0?(over?'var(--danger)':'var(--amber)'):'var(--ok)')+'">₩'+fmt(bal)+'</b></div>'+
         '<div class="pract">'+
@@ -5859,6 +5986,8 @@ function renderPay(){
   document.getElementById('pk-over').textContent=overCnt;
   document.getElementById('pk-in').textContent=fmt(Math.round(inMon));
   document.getElementById('pk-sale').textContent=fmt(Math.round(saleMon));
+  var pd=document.getElementById('pk-deliv');
+  if(pd)pd.textContent=fmt(Math.round(delivMon));
 
   var cb=document.getElementById('pay-cust');
   if(cb){
