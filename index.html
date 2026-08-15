@@ -688,7 +688,9 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   <div class="kpi-wrap"><div class="kpi-strip">
     <div class="kpi"><div class="n" id="mk-cnt">0</div><div class="l">품목</div></div>
     <div class="kpi"><div class="n" id="mk-val">0</div><div class="l">재고금액(원)</div></div>
+    <div class="kpi warn"><div class="n" id="mk-low">0</div><div class="l">재고부족</div></div>
     <div class="kpi"><div class="n" id="mk-pl">0</div><div class="l">평가 환차손익</div></div>
+    <div class="kpi ok"><div class="n" id="mk-mon">0</div><div class="l">이달 입출고</div></div>
   </div></div>
   <div class="card">
     <h3>소재 재고 <span class="badge b-blue">Heat No. 단위</span></h3>
@@ -1685,17 +1687,34 @@ function evalMatPL(s){
   if(!buy||!now)return 0;
   return Number(s.qty||0)*Number(s.price||0)*(now-buy);
 }
+var MAT_MON_OUT=0;
+/* 소재 이달 출고(출하완료) 건수 — sw_part_log(kind='mat') 기준 */
+function loadMatMonth(){
+  var mon=new Date(); mon.setDate(1); mon.setHours(0,0,0,0);
+  return sb('sw_part_log?select=id&kind=eq.mat&type=eq.out&created_at=gte.'+mon.toISOString())
+    .then(function(r){ MAT_MON_OUT=(r||[]).length; renderMatKpi(); })
+    .catch(function(){ MAT_MON_OUT=0; });
+}
 function renderMatKpi(){
-  var val=0,pl=0;
+  var val=0,pl=0,low=0;
   for(var i=0;i<STOCK.length;i++){
     var s=STOCK[i], cur=s.currency||'KRW';
     val+=Number(s.qty||0)*toKRW(s.price,cur,cur==='KRW'?1:(fxOf(cur)||Number(s.fx_buy)));
     pl +=evalMatPL(s);
+    if(Number(s.total)>0 && Number(s.qty)/Number(s.total)<=0.3) low++;   /* 잔량 30% 이하 */
   }
   var c=document.getElementById('mk-cnt'); if(!c)return;
+  var mon=new Date(); mon.setDate(1); mon.setHours(0,0,0,0);
+  var inCnt=0;
+  for(var j=0;j<RECV.length;j++){
+    var rd=RECV[j].recv_date||RECV[j].created_at;
+    if(rd&&new Date(rd)>=mon)inCnt++;
+  }
   c.textContent=STOCK.length;
   document.getElementById('mk-val').textContent=fmt(Math.round(val));
+  document.getElementById('mk-low').textContent=low;
   document.getElementById('mk-pl').innerHTML=plHtml(pl,true);
+  document.getElementById('mk-mon').textContent=inCnt+MAT_MON_OUT;
 }
 /* 소재 폼 통화 처리 */
 function onMatCur(){
@@ -4811,7 +4830,7 @@ loadData().then(function(){
   fillWriterSelect();
   /* 대시보드 구분별 집계를 위해 부품 재고를 미리 로드 */
   return (FX_DATE?Promise.resolve():loadFx())
-    .then(function(){ return Promise.all([loadParts('bear',true), loadParts('etc',true)]); })
+    .then(function(){ return Promise.all([loadParts('bear',true), loadParts('etc',true), loadMatMonth()]); })
     .then(function(){ renderDash(); })
     .catch(function(){ /* 부품 테이블 미생성 시에도 대시보드는 표시 */ });
 });
