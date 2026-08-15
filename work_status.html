@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f1117">
+<title>업무현황 · ShinWoo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1117; --bg2:#131620; --card:#1a1d27; --card2:#20242f; --line:#3a4152;
+  --ink:#e8eaf0; --sub:#aab0c4;
+  --gold:#e2b04a; --gold-lt:#f6d365; --gold-deep:#c08c2c;
+  --goldbg:rgba(226,176,74,.12); --goldbd:rgba(226,176,74,.4);
+  --amber:#f2a03c; --ok:#43c184; --danger:#ef7466;
+  --num:'Rajdhani','Pretendard Variable',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;background:var(--bg);
+  color:var(--ink);font-size:14px;line-height:1.6;padding-bottom:40px;}
+header{position:sticky;top:0;z-index:50;background:rgba(15,17,23,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.htitle{font-size:19px;font-weight:900;background:linear-gradient(92deg,var(--gold-lt),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.badge{display:inline-block;padding:2.5px 10px;border-radius:11px;font-size:11.5px;font-weight:700;}
+.b-blue{background:var(--goldbg);color:var(--gold);}
+.hbtn{margin-left:auto;background:var(--goldbg);border:1px solid var(--goldbd);color:var(--gold);
+  border-radius:9px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+main{max-width:720px;margin:0 auto;padding:14px;}
+.card{background:linear-gradient(180deg,var(--card2),var(--card) 85%);border:1px solid var(--line);
+  border-radius:16px;padding:15px 14px;margin-bottom:12px;}
+.card h3{font-size:15px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.bar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+input,select{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:10px;
+  color:var(--ink);padding:11px 12px;font-size:14px;font-family:inherit;}
+input:focus,select:focus{outline:none;border-color:var(--gold);}
+.bar input{flex:1;min-width:130px;}
+label{font-size:12.5px;font-weight:700;color:var(--sub);display:block;margin:10px 0 4px;}
+.btn{border:none;border-radius:11px;padding:11px 16px;font-size:13.5px;font-weight:800;
+  cursor:pointer;font-family:inherit;}
+.btn-p{background:linear-gradient(160deg,#f6d365,#e2b04a);color:#241a05;}
+.btn-o{background:rgba(226,176,74,.08);color:var(--gold);border:1.5px solid rgba(226,176,74,.55);}
+.btn-g{background:#2b3a48;color:#c6d4e1;}
+.btn-sm{padding:8px 13px;font-size:12.5px;border-radius:9px;}
+.tg{padding:9px 13px;border-radius:9px;border:1.5px solid rgba(239,116,102,.45);background:transparent;
+  color:var(--danger);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+.tg.on{background:rgba(239,116,102,.16);}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;}
+.kpi{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid #424a5e;
+  border-radius:13px;padding:9px 5px 7px;text-align:center;}
+.kpi .n{font-family:var(--num);font-size:22px;font-weight:700;color:var(--gold-lt);line-height:1.05;}
+.kpi .l{font-size:10.5px;color:var(--sub);margin-top:2px;font-weight:600;white-space:nowrap;}
+.kpi.ok .n{color:var(--ok);} .kpi.warn .n{color:var(--amber);}
+.wsrow{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+  border-radius:11px;padding:10px 11px;margin-bottom:6px;cursor:pointer;}
+.wsrow.me{border-color:var(--goldbd);background:rgba(226,176,74,.06);}
+.wsdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.wsnm{font-size:13.5px;font-weight:800;flex-shrink:0;white-space:nowrap;}
+.wsnm i{font-style:normal;font-size:10.5px;color:var(--sub);font-weight:600;margin-left:4px;}
+.wsst{font-size:11.5px;font-weight:800;flex-shrink:0;}
+.wstx{flex:1;min-width:0;font-size:11.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wspg{width:52px;height:5px;border-radius:3px;background:var(--line);overflow:hidden;flex-shrink:0;}
+.wspg b{display:block;height:100%;background:linear-gradient(90deg,var(--gold-lt),var(--gold));}
+.wspn{font-family:var(--num);font-size:11.5px;font-weight:700;color:var(--gold-lt);width:32px;text-align:right;flex-shrink:0;}
+.empty{padding:24px 10px;text-align:center;color:var(--sub);font-size:12.5px;line-height:1.7;}
+.chiprow{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 2px;}
+.chipb{padding:9px 14px;border-radius:9px;border:1.5px solid var(--line);background:var(--card2);
+  color:var(--sub);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+.chipb.on{background:var(--goldbg);border-color:var(--goldbd);color:var(--gold);}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.ov.on{display:flex;}
+.modal{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);
+  border-radius:18px 18px 0 0;width:100%;max-width:720px;max-height:88vh;overflow:auto;padding:18px 16px 26px;}
+.mhd{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.mhd h4{font-size:16px;font-weight:800;flex:1;}
+.mx{background:#2b3a48;border:none;color:#c6d4e1;width:32px;height:32px;border-radius:9px;
+  font-size:15px;cursor:pointer;}
+.note{font-size:11.5px;color:var(--sub);margin-top:7px;line-height:1.6;}
+.warnbox{border-left:3px solid var(--amber);background:rgba(242,160,60,.08);border-radius:0 10px 10px 0;
+  padding:10px 12px;margin-bottom:10px;font-size:12.5px;}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:900;
+  background:#252a36;border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:12px;
+  font-size:13px;font-weight:600;box-shadow:0 6px 22px rgba(0,0,0,.55);opacity:0;pointer-events:none;
+  transition:opacity .22s;max-width:82vw;text-align:center;}
+.toast.on{opacity:1;}
+footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px;}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="htitle">업무현황</span>
+  <span class="badge b-blue" id="wsdate">-</span>
+  <button class="hbtn" onclick="location.href='index.html'">자재관리 ↗</button>
+</header>
+
+<main>
+  <div class="kpis">
+    <div class="kpi"><div class="n" id="ws-tot">0</div><div class="l">인원</div></div>
+    <div class="kpi ok"><div class="n" id="ws-in">0</div><div class="l">입력 완료</div></div>
+    <div class="kpi warn"><div class="n" id="ws-out">0</div><div class="l">미입력</div></div>
+  </div>
+
+  <div class="card">
+    <h3>오늘의 근무 · 업무 <span class="badge b-blue" id="wsme">-</span></h3>
+    <div class="bar">
+      <input type="text" id="wsq" placeholder="이름 검색" oninput="renderWork()">
+      <button class="tg" id="wsfill" onclick="toggleFill()">미입력만</button>
+      <button class="btn btn-g btn-sm" onclick="loadAll()">새로고침</button>
+    </div>
+    <div id="wslist"><div class="empty">불러오는 중…</div></div>
+  </div>
+
+  <footer>ShinWoo Smart Materials System · 업무현황</footer>
+</main>
+
+<div class="ov" id="ov" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="mhd"><h4 id="m-title"></h4><button class="mx" onclick="closeModal()">✕</button></div>
+    <div id="m-body"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* ================= Supabase ================= */
+var SB_URL='https://pllwltojbofjaftcemvn.supabase.co';
+var SB_KEY='sb_publishable_9dYJzdz472b888EcqdBBaA_Ncwk0yvT';
+function sb(path,opt){
+  opt=opt||{};
+  return fetch(SB_URL+'/rest/v1/'+path,{
+    method:opt.method||'GET',
+    headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,
+      'Content-Type':'application/json',Prefer:'return=representation'},
+    body:opt.body?JSON.stringify(opt.body):undefined
+  }).then(function(res){
+    if(!res.ok)return res.text().then(function(t){throw new Error('HTTP '+res.status+' '+t);});
+    if(res.status===204)return null;
+    return res.json();
+  });
+}
+/* ================= 공통 ================= */
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function todayStr(){
+  var d=new Date(),z=function(n){return ('0'+n).slice(-2);};
+  return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());
+}
+var _t;
+function toast(m){
+  var t=document.getElementById('toast');
+  t.textContent=m;t.classList.add('on');
+  clearTimeout(_t);_t=setTimeout(function(){t.classList.remove('on');},2000);
+}
+function openModal(title,html){
+  document.getElementById('m-title').textContent=title;
+  document.getElementById('m-body').innerHTML=html;
+  document.getElementById('ov').classList.add('on');
+}
+function closeModal(){document.getElementById('ov').classList.remove('on');}
+
+/* ================= 로그인 세션 (index.html 공유) ================= */
+var LK_LOGIN='sw_login';
+function getLogin(){
+  try{
+    var v=JSON.parse(localStorage.getItem(LK_LOGIN)||'null');
+    return (v&&v.exp>Date.now())?v:null;
+  }catch(e){return null;}
+}
+function myName(){var v=getLogin();return v?(v.name||''):'';}
+
+/* ================= 상태 ================= */
+var WS_STATUS=[
+  {k:'근무',c:'#43c184'},{k:'외근',c:'#4d94dd'},{k:'출장',c:'#b48be8'},
+  {k:'교육',c:'#e2b04a'},{k:'회의',c:'#f2a03c'},{k:'휴가',c:'#8a92a8'},
+  {k:'조퇴',c:'#fda085'},{k:'결근',c:'#ef7466'}
+];
+var WS_PROGS=[0,25,50,75,100];
+var USERS=[], WS={}, WS_DATE='', FILL=false;
+var EDIT=null, ED_ST='근무', ED_PG=0;
+function wsColor(k){
+  for(var i=0;i<WS_STATUS.length;i++) if(WS_STATUS[i].k===k) return WS_STATUS[i].c;
+  return '#3a4152';
+}
+
+/* ================= 로드 ================= */
+function loadAll(){
+  WS_DATE=todayStr();
+  document.getElementById('wsdate').textContent=WS_DATE;
+  var me=myName();
+  document.getElementById('wsme').textContent=me?('나 · '+me):'미로그인';
+  return Promise.all([
+    sb('sw_user_pin?select=*&order=name.asc').catch(function(){return [];}),
+    sb('hc_work_status?select=*&work_date=eq.'+WS_DATE).catch(function(){return null;})
+  ]).then(function(r){
+    USERS=(r[0]||[]).filter(function(u){return u&&u.name;});
+    if(r[1]===null){
+      document.getElementById('wslist').innerHTML=
+        '<div class="empty">업무현황 테이블이 없습니다.<br>Supabase에서 <b>hc_work_status</b>를 생성하세요.</div>';
+      return;
+    }
+    WS={};
+    (r[1]||[]).forEach(function(x){WS[x.user_name]=x;});
+    renderWork();
+  }).catch(function(e){
+    document.getElementById('wslist').innerHTML='<div class="empty">불러오기 실패<br>'+esc(e.message)+'</div>';
+  });
+}
+function toggleFill(){
+  FILL=!FILL;
+  document.getElementById('wsfill').classList.toggle('on',FILL);
+  renderWork();
+}
+function renderWork(){
+  var box=document.getElementById('wslist');
+  var q=(document.getElementById('wsq').value||'').trim().toLowerCase();
+  var me=myName(), tot=0, fin=0, h='';
+  for(var i=0;i<USERS.length;i++){
+    var u=USERS[i];
+    tot++;
+    var w=WS[u.name];
+    if(w)fin++;
+    if(q&&u.name.toLowerCase().indexOf(q)<0)continue;
+    if(FILL&&w)continue;
+    var st=w?w.status:'', pg=w?Number(w.progress)||0:0;
+    h+='<div class="wsrow'+(u.name===me?' me':'')+'" onclick="openWs(\'' +esc(u.name)+ '\')">'+
+      '<span class="wsdot" style="background:'+(w?wsColor(st):'#3a4152')+'"></span>'+
+      '<span class="wsnm">'+esc(u.name)+(u.dept?'<i>'+esc(u.dept)+'</i>':'')+'</span>'+
+      (w
+        ? '<span class="wsst" style="color:'+wsColor(st)+'">'+esc(st)+'</span>'+
+          '<span class="wstx">'+esc(w.task||'')+'</span>'+
+          '<span class="wspg"><b style="width:'+pg+'%"></b></span>'+
+          '<span class="wspn">'+pg+'%</span>'
+        : '<span class="wstx" style="opacity:.5;">미입력</span>')+
+      '</div>';
+  }
+  box.innerHTML=h||'<div class="empty">표시할 인원이 없습니다.</div>';
+  document.getElementById('ws-tot').textContent=tot;
+  document.getElementById('ws-in').textContent=fin;
+  document.getElementById('ws-out').textContent=tot-fin;
+}
+
+/* ================= 입력 ================= */
+function openWs(name){
+  var me=myName(), w=WS[name]||{}, mine=(name===me);
+  EDIT=name; ED_ST=w.status||'근무'; ED_PG=Number(w.progress)||0;
+  var stb='';
+  for(var i=0;i<WS_STATUS.length;i++){
+    var S=WS_STATUS[i];
+    stb+='<button class="chipb'+(ED_ST===S.k?' on':'')+'"'+
+      (ED_ST===S.k?' style="border-color:'+S.c+';color:'+S.c+';"':'')+
+      ' onclick="setSt(this,\''+S.k+'\')">'+S.k+'</button>';
+  }
+  var pgb='';
+  for(var j=0;j<WS_PROGS.length;j++)
+    pgb+='<button class="chipb'+(ED_PG===WS_PROGS[j]?' on':'')+'" onclick="setPg(this,'+WS_PROGS[j]+')">'+WS_PROGS[j]+'%</button>';
+  var html=
+    (mine?'':'<div class="warnbox">본인(<b>'+esc(me||'미로그인')+'</b>) 항목이 아닙니다. 조회만 가능합니다.</div>')+
+    '<label>상태</label><div class="chiprow" id="ed-st">'+stb+'</div>'+
+    '<label>진행률</label><div class="chiprow" id="ed-pg">'+pgb+'</div>'+
+    '<label>오늘 업무</label><input id="ed-task" value="'+esc(w.task||'')+'" placeholder="예: 625 파이프 절단 · 대한중공업 출하 준비"'+(mine?'':' disabled')+'>'+
+    '<label>비고</label><input id="ed-memo" value="'+esc(w.memo||'')+'" placeholder="특이사항"'+(mine?'':' disabled')+'>'+
+    (w.updated_at?'<p class="note">최종 수정 '+esc(String(w.updated_at).slice(0,16).replace('T',' '))+'</p>':'')+
+    (mine
+      ? '<div style="display:flex;gap:8px;margin-top:16px;">'+
+          '<button class="btn btn-p" style="flex:1" onclick="saveWs()">저장</button>'+
+          '<button class="btn btn-g" onclick="closeModal()">취소</button></div>'
+      : '<div style="margin-top:16px;"><button class="btn btn-g" style="width:100%" onclick="closeModal()">닫기</button></div>');
+  openModal(name+' · '+WS_DATE, html);
+}
+function setSt(btn,k){
+  ED_ST=k;
+  var bs=document.querySelectorAll('#ed-st .chipb');
+  for(var i=0;i<bs.length;i++){bs[i].classList.remove('on');bs[i].style.borderColor='';bs[i].style.color='';}
+  btn.classList.add('on');btn.style.borderColor=wsColor(k);btn.style.color=wsColor(k);
+}
+function setPg(btn,v){
+  ED_PG=v;
+  var bs=document.querySelectorAll('#ed-pg .chipb');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');
+}
+function saveWs(){
+  var name=EDIT; if(!name)return;
+  if(name!==myName())return toast('본인 항목만 수정할 수 있습니다');
+  var body={
+    user_name:name, work_date:WS_DATE, status:ED_ST, progress:ED_PG,
+    task:(document.getElementById('ed-task').value||'').trim()||null,
+    memo:(document.getElementById('ed-memo').value||'').trim()||null,
+    updated_at:new Date().toISOString()
+  };
+  var ex=WS[name];
+  var p= ex&&ex.id
+    ? sb('hc_work_status?id=eq.'+ex.id,{method:'PATCH',body:body})
+    : sb('hc_work_status',{method:'POST',body:body});
+  p.then(function(){ closeModal(); toast('저장되었습니다'); return loadAll(); })
+   .catch(function(e){ toast('저장 실패: '+e.message); });
+}
+
+/* ================= 시작 ================= */
+loadAll();
+setInterval(loadAll, 300000);   /* 5분마다 자동 갱신 */
+</script>
+</body>
+</html>

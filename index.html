@@ -328,6 +328,10 @@ body.locked{overflow:hidden;}
 .apst.cur{background:var(--goldbg);border-color:var(--goldbd);color:var(--gold);}
 .apst.rej{background:rgba(239,116,102,.14);border-color:rgba(239,116,102,.45);color:var(--danger);}
 .arw{color:var(--sub);font-size:10px;opacity:.6;}
+.dlink{display:inline-block;color:var(--gold);font-size:11.5px;font-weight:700;text-decoration:none;
+  background:var(--goldbg);border:1px solid var(--goldbd);border-radius:7px;padding:3px 9px;margin:3px 5px 0 0;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;}
+.dlink:active{background:rgba(226,176,74,.24);}
 .sigwrap{position:relative;background:#fff;border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-top:4px;}
 .sigwrap canvas{display:block;width:100%;height:auto;touch-action:none;}
 .sigph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -898,24 +902,6 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       </select>
     </div>
     <div id="pay-list"></div>
-  </div>
-</div>
-
-<!-- ========== 업무현황 ========== -->
-<div class="page" id="pg-work">
-  <div class="card">
-    <h3>업무현황 <span class="badge b-blue" id="wsdate">-</span></h3>
-    <div class="pbar2">
-      <input type="text" id="wsq" placeholder="이름 검색" oninput="renderWork()">
-      <button class="lowtg" id="wsfill" onclick="toggleWsFill()">미입력만</button>
-      <button class="btn btn-g btn-sm" onclick="loadWork(true)">새로고침</button>
-    </div>
-    <div class="kpi-wrap"><div class="kpi-strip">
-      <div class="kpi"><div class="n" id="ws-tot">0</div><div class="l">인원</div></div>
-      <div class="kpi ok"><div class="n" id="ws-in">0</div><div class="l">입력 완료</div></div>
-      <div class="kpi warn"><div class="n" id="ws-out">0</div><div class="l">미입력</div></div>
-    </div></div>
-    <div id="wslist"></div>
   </div>
 </div>
 
@@ -1715,7 +1701,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <button data-pg="pay" onclick="go(this)"><span class="ic">&#128176;</span><span>미수금 · 수금</span></button>
 
     <div class="sheet-sec">협업 · 결재</div>
-    <button data-pg="work" onclick="go(this)"><span class="ic">&#128101;</span><span>업무현황</span></button>
+    <button onclick="openWorkStatus()"><span class="ic">&#128101;</span><span>업무현황 ↗</span></button>
     <button data-pg="appr" onclick="goAppr()"><span class="ic">&#9997;&#65039;</span><span>전자결재</span></button>
 
     <div class="sheet-sec">지원</div>
@@ -1815,7 +1801,7 @@ function showLoading(on){
 }
 
 /* ================= 공통 ================= */
-var PAGE_TITLES={dash:'대시보드',stock:'재고',recv:'입고',qr:'QR 스캔·라벨',cut:'절단·잔재',order:'수주',ship:'출하',pay:'미수금 · 수금',po:'발주 · 입항',work:'업무현황',appr:'전자결재',mtc:'밀시트',doc:'거래명세서',board:'게시판',master:'마스터',guide:'사용안내'};
+var PAGE_TITLES={dash:'대시보드',stock:'재고',recv:'입고',qr:'QR 스캔·라벨',cut:'절단·잔재',order:'수주',ship:'출하',pay:'미수금 · 수금',po:'발주 · 입항',appr:'전자결재',mtc:'밀시트',doc:'거래명세서',board:'게시판',master:'마스터',guide:'사용안내'};
 function setPageTitle(t){var el=document.getElementById('htitle');if(el)el.textContent=t;}
 function setTitle(pg){
   var el=document.getElementById('htitle');
@@ -6315,119 +6301,10 @@ function inTransitQty(k,name){
 }
 
 
-/* ================= 업무현황 ================= */
-var WS_STATUS=[
-  {k:'근무',c:'#7ee0a0'},{k:'외근',c:'#4d94dd'},{k:'출장',c:'#b48be8'},
-  {k:'교육',c:'#e2b04a'},{k:'회의',c:'#f2a03c'},{k:'휴가',c:'#8a92a8'},
-  {k:'조퇴',c:'#fda085'},{k:'결근',c:'#ef7466'}
-];
-var WS_PROGS=[0,25,50,75,100];
-var WS={}, WS_DATE='', WS_FILL=false, WS_EDIT=null, WS_ST='근무', WS_PG=0;
-function wsColor(k){ for(var i=0;i<WS_STATUS.length;i++) if(WS_STATUS[i].k===k) return WS_STATUS[i].c; return '#3a4152'; }
-function myName(){ var v=getLogin(); return v?(v.name||''):''; }
-function loadWork(force){
-  WS_DATE=todayStr();
-  var el=document.getElementById('wsdate'); if(el)el.textContent=WS_DATE;
-  return sb('hc_work_status?select=*&work_date=eq.'+WS_DATE)
-    .then(function(r){
-      WS={};
-      (r||[]).forEach(function(x){ WS[x.user_name]=x; });
-      renderWork();
-    })
-    .catch(function(){
-      var b=document.getElementById('wslist');
-      if(b)b.innerHTML='<div class="pempty">업무현황 테이블이 없습니다.<br>Supabase에서 <b>hc_work_status</b>를 생성하세요.</div>';
-    });
-}
-function toggleWsFill(){
-  WS_FILL=!WS_FILL;
-  document.getElementById('wsfill').classList.toggle('on',WS_FILL);
-  renderWork();
-}
-function renderWork(){
-  var box=document.getElementById('wslist'); if(!box)return;
-  var q=(document.getElementById('wsq').value||'').trim().toLowerCase();
-  var tot=0,fin=0,h='';
-  var me=myName();
-  for(var i=0;i<USERS.length;i++){
-    var u=USERS[i]; if(!u.name)continue;
-    tot++;
-    var w=WS[u.name];
-    if(w)fin++;
-    if(q&&u.name.toLowerCase().indexOf(q)<0)continue;
-    if(WS_FILL&&w)continue;
-    var st=w?w.status:'', pg=w?Number(w.progress)||0:0;
-    h+='<div class="wsrow'+(u.name===me?' me':'')+'" onclick="openWs(\''+esc(u.name)+'\')">'+
-      '<span class="wsdot" style="background:'+(w?wsColor(st):'#3a4152')+'"></span>'+
-      '<span class="wsnm">'+esc(u.name)+(u.dept?'<i>'+esc(u.dept)+'</i>':'')+'</span>'+
-      (w
-        ? '<span class="wsst" style="color:'+wsColor(st)+'">'+esc(st)+'</span>'+
-          '<span class="wstx">'+esc(w.task||'')+'</span>'+
-          '<span class="wspg"><b style="width:'+pg+'%"></b></span>'+
-          '<span class="wspn">'+pg+'%</span>'
-        : '<span class="wstx" style="opacity:.5;">미입력</span>')+
-      '</div>';
-  }
-  box.innerHTML=h||'<div class="pempty">표시할 인원이 없습니다.</div>';
-  document.getElementById('ws-tot').textContent=tot;
-  document.getElementById('ws-in').textContent=fin;
-  document.getElementById('ws-out').textContent=tot-fin;
-}
-function openWs(name){
-  var me=myName();
-  var w=WS[name]||{};
-  var mine=(name===me);
-  WS_EDIT=name; WS_ST=w.status||'근무'; WS_PG=Number(w.progress)||0;
-  var stb='';
-  for(var i=0;i<WS_STATUS.length;i++){
-    var S=WS_STATUS[i];
-    stb+='<button class="chipb'+(WS_ST===S.k?' on':'')+'" style="'+(WS_ST===S.k?'border-color:'+S.c+';color:'+S.c+';':'')+
-         '" onclick="wsSetSt(this,\''+S.k+'\')">'+S.k+'</button>';
-  }
-  var pgb='';
-  for(var j=0;j<WS_PROGS.length;j++)
-    pgb+='<button class="chipb'+(WS_PG===WS_PROGS[j]?' on':'')+'" onclick="wsSetPg(this,'+WS_PROGS[j]+')">'+WS_PROGS[j]+'%</button>';
-  var html=
-    (mine?'':'<div class="gbox warn" style="margin-bottom:10px;">본인(<b>'+esc(me||'미로그인')+'</b>) 항목이 아닙니다. 조회만 가능합니다.</div>')+
-    '<label>상태</label><div class="chiprow" id="ws-st">'+stb+'</div>'+
-    '<label>진행률</label><div class="chiprow" id="ws-pg">'+pgb+'</div>'+
-    '<label>오늘 업무</label><input id="ws-task" value="'+esc(w.task||'')+'" placeholder="예: 625 파이프 절단 · 대한중공업 출하 준비"'+(mine?'':' disabled')+'>'+
-    '<label>비고</label><input id="ws-memo" value="'+esc(w.memo||'')+'" placeholder="특이사항"'+(mine?'':' disabled')+'>'+
-    (w.updated_at?'<p class="help">최종 수정 '+esc(String(w.updated_at).slice(0,16).replace('T',' '))+'</p>':'')+
-    (mine
-      ? '<div style="display:flex;gap:8px;margin-top:14px;">'+
-          '<button class="btn btn-p" style="flex:1" onclick="saveWs()">저장</button>'+
-          '<button class="btn btn-g" onclick="closeModal()">취소</button></div>'
-      : '<div style="margin-top:14px;"><button class="btn btn-g" style="width:100%" onclick="closeModal()">닫기</button></div>');
-  openModal(name+' · '+WS_DATE, html);
-}
-function wsSetSt(btn,k){
-  WS_ST=k;
-  var bs=document.querySelectorAll('#ws-st .chipb');
-  for(var i=0;i<bs.length;i++){ bs[i].classList.remove('on'); bs[i].style.borderColor=''; bs[i].style.color=''; }
-  btn.classList.add('on'); btn.style.borderColor=wsColor(k); btn.style.color=wsColor(k);
-}
-function wsSetPg(btn,v){
-  WS_PG=v;
-  var bs=document.querySelectorAll('#ws-pg .chipb');
-  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
-  btn.classList.add('on');
-}
-function saveWs(){
-  var name=WS_EDIT; if(!name)return;
-  if(name!==myName())return toast('본인 항목만 수정할 수 있습니다');
-  var body={
-    user_name:name, work_date:WS_DATE, status:WS_ST, progress:WS_PG,
-    task:(document.getElementById('ws-task').value||'').trim()||null,
-    memo:(document.getElementById('ws-memo').value||'').trim()||null,
-    updated_at:new Date().toISOString()
-  };
-  var ex=WS[name];
-  var p= ex&&ex.id
-    ? sb('hc_work_status?id=eq.'+ex.id,{method:'PATCH',body:body})
-    : sb('hc_work_status',{method:'POST',body:body});
-  p.then(function(){ closeModal(); toast('업무현황이 저장되었습니다'); return loadWork(true); })
-   .catch(function(e){ toast('저장 실패: '+e.message); });
+/* ================= 업무현황 (별도 파일) ================= */
+function openWorkStatus(){
+  closeSheet();
+  window.open('work_status.html','_blank','noopener');
 }
 
 /* ================= 전자결재 ================= */
@@ -6553,6 +6430,8 @@ function openSubmit(docType,refId,title){
     '<label>문서 제목 *</label><input id="sa-title" value="'+esc(SUBMITCTX.title)+'" placeholder="예: PO-2026-084 발주 승인 요청">'+
     '<label>결재선 *</label><select id="sa-route" onchange="saPreview()">'+ro+'</select>'+
     '<div class="krwpv" id="sa-preview"></div>'+
+    '<label>관련 링크 <span style="font-weight:600;color:var(--sub);">(견적서·도면·드라이브 등)</span></label>'+
+    '<input id="sa-url" placeholder="https://... (여러 개는 줄바꿈 없이 쉼표로)">'+
     '<label>상신 의견</label><input id="sa-memo" placeholder="배경·요청 사항">'+
     '<div style="display:flex;gap:8px;margin-top:14px;">'+
       '<button class="btn btn-p" style="flex:1" onclick="doSubmitAppr()">상신</button>'+
@@ -6582,7 +6461,8 @@ function doSubmitAppr(){
   sb('sw_approval',{method:'POST',body:{
     doc_type:document.getElementById('sa-type').value,
     ref_id:SUBMITCTX?SUBMITCTX.refId:null,
-    title:title, steps:steps, cur:1, status:'진행', requested_by:myName()
+    title:title, steps:steps, cur:1, status:'진행', requested_by:myName(),
+    doc_url:(document.getElementById('sa-url').value||'').trim()||null
   }})
   .then(function(){ closeModal(); toast('결재 상신 완료 — 다음: '+steps[1].name); return loadAppr(); })
   .catch(function(e){ toast('상신 실패: '+e.message); });
@@ -6625,13 +6505,18 @@ function renderAppr(){
       '</div>'+
       '<div class="apsteps" style="margin-top:8px;">'+st+'</div>'+
       (a.reject_reason?'<div class="prp" style="color:var(--danger);">반려 사유 · '+esc(a.reject_reason)+'</div>':'')+
+      (a.doc_url?'<div class="prp">'+urlLinks(a.doc_url)+'</div>':'')+
       '<div class="prm" style="margin-top:6px;"><span>상신 '+esc(a.requested_by||'')+'</span>'+
         '<span>'+esc(String(a.created_at||'').slice(0,16).replace('T',' '))+'</span></div>'+
-      (myTurn(a)
-        ? '<div class="pract"><button class="edit" onclick="openSign('+a.id+')">✍️ 결재</button>'+
-          '<button class="del" onclick="doReject('+a.id+')">반려</button></div>'
-        : (a.requested_by===myName()&&a.status!=='완료'
-            ? '<div class="pract"><button class="del" onclick="delAppr('+a.id+')">상신 취소</button></div>' : ''))+
+      '<div class="pract">'+
+        (myTurn(a)
+          ? '<button class="edit" onclick="openSign('+a.id+')">✍️ 결재</button>'+
+            '<button class="del" onclick="doReject('+a.id+')">반려</button>'
+          : '')+
+        '<button class="edit" onclick="apprPDF('+a.id+')">📄 PDF</button>'+
+        (a.requested_by===myName()&&a.status!=='완료'
+          ? '<button class="del" onclick="delAppr('+a.id+')">취소</button>' : '')+
+      '</div>'+
     '</div></div>';
   }
   box.innerHTML=h||'<div class="pempty">'+(APPRTAB==='todo'?'내 결재 대기 문서가 없습니다 ✓':'문서가 없습니다')+'</div>';
@@ -6738,6 +6623,111 @@ function doReject(id){
     .then(function(){ closeModal(); toast('반려 처리되었습니다'); return loadAppr(); })
     .catch(function(e){ toast('처리 실패: '+e.message); });
 }
+/* ---- 링크 렌더 ---- */
+function urlLinks(u){
+  var arr=String(u||'').split(','), h='';
+  for(var i=0;i<arr.length;i++){
+    var t=arr[i].trim(); if(!t)continue;
+    var href=(/^https?:\/\//i.test(t)?t:'https://'+t);
+    h+='<a href="'+esc(href)+'" target="_blank" rel="noopener" class="dlink">🔗 '+esc(t.length>44?t.slice(0,44)+'…':t)+'</a>';
+  }
+  return h;
+}
+/* ---- 결재 문서 PDF (A4 · 결재란 + 이력) ---- */
+function apprPDF(id){
+  var a=apprById(id); if(!a)return;
+  var roles=['작성','검토','확인','승인'];
+  var cells='';
+  for(var i=0;i<roles.length;i++){
+    var st=null;
+    for(var j=0;j<a.steps.length;j++) if(a.steps[j].role===roles[i]) st=a.steps[j];
+    var sig = st&&st.sig ? '<img src="'+st.sig+'">' : (st&&st.status==='승인'?'<span class="ck">승인</span>':'');
+    cells+='<td><div class="rl">'+roles[i]+'</div>'+
+           '<div class="sg">'+sig+'</div>'+
+           '<div class="nm">'+esc(st?st.name:'')+'</div>'+
+           '<div class="dt">'+(st&&st.signed_at?String(st.signed_at).slice(0,10):'')+'</div></td>';
+  }
+  var hist='';
+  for(var k=0;k<a.steps.length;k++){
+    var x=a.steps[k];
+    hist+='<tr><td>'+esc(x.role)+'</td><td>'+esc(x.name||'')+'</td>'+
+      '<td class="'+(x.status==='반려'?'ng':(x.status==='승인'?'ok':''))+'">'+esc(x.status||'')+'</td>'+
+      '<td class="mn">'+(x.signed_at?String(x.signed_at).slice(0,16).replace('T',' '):'-')+'</td>'+
+      '<td class="mn sm">'+(x.memo?esc(x.memo)+'<br>':'')+(x.hash?x.hash.slice(0,32)+'…':'')+'</td></tr>';
+  }
+  var links='';
+  if(a.doc_url){
+    var arr=String(a.doc_url).split(',');
+    for(var m=0;m<arr.length;m++){ var t=arr[m].trim(); if(t)links+='<div class="lk">'+esc(t)+'</div>'; }
+  }
+  var html='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>'+esc(a.title)+'</title><style>'+
+    '@page{size:A4;margin:14mm}'+
+    '*{box-sizing:border-box}body{font-family:"Malgun Gothic","Pretendard",sans-serif;color:#1e222d;font-size:11px;margin:0}'+
+    '.hd{display:flex;align-items:flex-start;gap:10px;border-bottom:2.5px solid #2e2614;padding-bottom:8px;margin-bottom:12px}'+
+    '.hd h1{font-size:20px;letter-spacing:.28em;margin:0;flex:1;text-align:center;padding-left:.28em}'+
+    '.co{font-size:9.5px;color:#555;text-align:right;line-height:1.5;white-space:nowrap}'+
+    '.apx{border-collapse:collapse;margin-bottom:12px}'+
+    '.apx td{border:1px solid #333;width:23mm;height:26mm;vertical-align:top;text-align:center;padding:0}'+
+    '.apx .rl{background:#f0eee6;border-bottom:1px solid #333;font-size:9px;font-weight:700;padding:2px 0}'+
+    '.apx .sg{height:13mm;display:flex;align-items:center;justify-content:center}'+
+    '.apx .sg img{max-width:20mm;max-height:11mm}'+
+    '.apx .sg .ck{color:#146c43;font-weight:700;font-size:10px}'+
+    '.apx .nm{font-size:9.5px;font-weight:700}'+
+    '.apx .dt{font-size:8px;color:#666}'+
+    '.dl2{width:100%;border-collapse:collapse;margin-bottom:12px}'+
+    '.dl2 th{background:#2e2614;color:#fff;font-size:10px;padding:5px 7px;text-align:left;width:24mm;font-weight:600}'+
+    '.dl2 td{border:1px solid #c6ccdb;padding:5px 8px;font-size:11px}'+
+    '.sect{background:#f4f2ec;border-left:3px solid #2e2614;font-size:10.5px;font-weight:700;padding:4px 8px;margin:12px 0 5px}'+
+    '.dt2{width:100%;border-collapse:collapse}'+
+    '.dt2 th{background:#f0eee6;border:1px solid #c6ccdb;font-size:9.5px;padding:4px 6px}'+
+    '.dt2 td{border:1px solid #c6ccdb;padding:4px 6px;font-size:10px;vertical-align:top}'+
+    '.dt2 .ok{color:#146c43;font-weight:700}.dt2 .ng{color:#a5321f;font-weight:700}'+
+    '.mn{font-family:Consolas,monospace;font-size:9px;color:#555}.sm{word-break:break-all}'+
+    '.lk{font-family:Consolas,monospace;font-size:9.5px;color:#1f5fa8;word-break:break-all;padding:1px 0}'+
+    '.ft{margin-top:14px;border-top:1px solid #c6ccdb;padding-top:6px;font-size:8.5px;color:#777;display:flex;justify-content:space-between}'+
+    '.stmp{display:inline-block;border:2px solid '+(a.status==='완료'?'#146c43':(a.status==='반려'?'#a5321f':'#8a6d1f'))+
+      ';color:'+(a.status==='완료'?'#146c43':(a.status==='반려'?'#a5321f':'#8a6d1f'))+
+      ';font-size:13px;font-weight:800;padding:3px 14px;border-radius:4px;letter-spacing:.15em}'+
+    '</style></head><body>'+
+    '<div class="hd"><h1>결 재 문 서</h1>'+
+      '<div class="co"><b>ShinWoo Tech Innovation Co., Ltd.</b><br>'+
+      '부산광역시 강서구 유통단지1로 41<br>T. 051-796-0375</div></div>'+
+    '<table class="apx"><tr>'+cells+'</tr></table>'+
+    '<table class="dl2">'+
+      '<tr><th>문서번호</th><td>APR-'+String(a.id).padStart(4,'0')+'</td><th>문서구분</th><td>'+esc(a.doc_type||'')+'</td></tr>'+
+      '<tr><th>제목</th><td colspan="3"><b>'+esc(a.title)+'</b></td></tr>'+
+      '<tr><th>상신자</th><td>'+esc(a.requested_by||'')+'</td><th>상신일시</th><td>'+
+        esc(String(a.created_at||'').slice(0,16).replace('T',' '))+'</td></tr>'+
+      '<tr><th>진행상태</th><td colspan="3"><span class="stmp">'+esc(a.status||'')+'</span>'+
+        (a.reject_reason?' &nbsp; 반려사유: '+esc(a.reject_reason):'')+'</td></tr>'+
+      (links?'<tr><th>관련 링크</th><td colspan="3">'+links+'</td></tr>':'')+
+      (a.steps[0]&&a.steps[0].memo?'<tr><th>상신 의견</th><td colspan="3">'+esc(a.steps[0].memo)+'</td></tr>':'')+
+    '</table>'+
+    '<div class="sect">결재 이력 <span style="font-weight:400;font-size:9px;color:#666">SHA-256 무결성 해시 적용</span></div>'+
+    '<table class="dt2"><thead><tr><th style="width:16mm">단계</th><th style="width:22mm">결재자</th>'+
+      '<th style="width:16mm">상태</th><th style="width:32mm">일시</th><th>의견 / 무결성 해시</th></tr></thead>'+
+      '<tbody>'+hist+'</tbody></table>'+
+    '<div class="ft"><span>출력 '+todayStr()+' · 출력자 '+esc(myName())+'</span>'+
+      '<span>ShinWoo Smart Materials System</span></div>'+
+    '</body></html>';
+  printHtml(html);
+}
+/* 공통 인쇄 (iframe srcdoc) */
+function printHtml(html){
+  var old=document.getElementById('prtfrm');
+  if(old)old.parentNode.removeChild(old);
+  var f=document.createElement('iframe');
+  f.id='prtfrm';
+  f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;';
+  f.onload=function(){
+    setTimeout(function(){
+      try{ f.contentWindow.focus(); f.contentWindow.print(); }catch(e){ toast('인쇄 실패'); }
+    },250);
+  };
+  f.srcdoc=html;
+  document.body.appendChild(f);
+}
+
 function delAppr(id){
   if(!confirm('상신한 결재를 취소(삭제)할까요?'))return;
   sb('sw_approval?id=eq.'+id,{method:'DELETE'})
@@ -6788,7 +6778,7 @@ loadData().then(function(){
   renderRecvForm();
   fillWriterSelect();
   /* 대시보드 구분별 집계를 위해 부품 재고를 미리 로드 */
-  loadWork(); loadRoutes(); loadAppr();
+  loadRoutes(); loadAppr();
   return (FX_DATE?Promise.resolve():loadFx())
     .then(function(){ return Promise.all([loadParts('bear',true), loadParts('etc',true), loadMatMonth()]); })
     .then(function(){ renderDash(); })
