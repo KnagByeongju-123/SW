@@ -1017,7 +1017,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <div class="navmap">
       <div class="navrow">
         <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-        <div><b>PIN 로그인</b><span>숫자 4자리 입력 · 초기 PIN은 0000 · 12시간 유지</span></div>
+        <div><b>PIN 로그인</b><span>숫자 4자리 입력 · 초기 PIN은 0000 · 7일 유지(접속할 때마다 연장)</span></div>
       </div>
       <div class="navrow">
         <svg viewBox="0 0 24 24"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg>
@@ -1148,7 +1148,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   <div class="card">
     <div class="g-h2"><span class="g-no">6</span> 자주 묻는 질문</div>
     <div class="faq"><b>PIN을 몰라 로그인할 수 없습니다</b><span>초기 PIN은 0000입니다. 변경된 경우 관리자(마스터)에게 문의하세요. 개인 PIN은 마스터 → PIN 관리에서 확인·재발급할 수 있습니다.</span></div>
-    <div class="faq"><b>로그아웃은 어떻게 하나요</b><span>우측 상단의 이름 배지를 누르거나, 메뉴 맨 아래 [로그아웃]을 누르면 됩니다. 로그인은 12시간 동안 유지되며 이후 다시 PIN을 입력합니다.</span></div>
+    <div class="faq"><b>로그아웃은 어떻게 하나요</b><span>우측 상단의 이름 배지를 누르거나, 메뉴 맨 아래 [로그아웃]을 누르면 됩니다. 로그인은 7일간 유지되고 접속할 때마다 기한이 다시 7일로 연장되므로, 매일 사용하면 재로그인이 필요 없습니다.</span></div>
     <div class="faq"><b>카메라가 안 켜집니다</b><span>주소가 https로 시작하는지 확인하세요. 보안상 https에서만 카메라가 동작합니다. 처음 사용할 때 뜨는 권한 요청은 [허용]을 눌러야 합니다.</span></div>
     <div class="faq"><b>입고했는데 재고에 안 보입니다</b><span>수입검사 합격 처리를 해야 재고가 됩니다. 메뉴 → 입고 → 검사 대기에서 확인하세요. 홈 화면의 검사 대기 숫자로도 알 수 있습니다.</span></div>
     <div class="faq"><b>QR을 찍었는데 등록되지 않은 코드라고 나옵니다</b><span>해당 Heat No.가 아직 재고에 없는 경우입니다. 입고와 검사 합격을 먼저 완료한 뒤 라벨을 출력하세요.</span></div>
@@ -1816,7 +1816,7 @@ var SYSPINS={};
 function getMasterHash(){return (SYSPINS.master&&SYSPINS.master.pin_hash)||PIN0000_HASH;}
 function getDefaultHash(){return (SYSPINS.def&&SYSPINS.def.pin_hash)||PIN0000_HASH;}
 var LK_AUTH='sw_master_auth', LK_FAIL='sw_master_fail';
-var LK_LOGIN='sw_login', LOGIN_TTL_HR=12;
+var LK_LOGIN='sw_login', LOGIN_TTL_HR=24*7;   /* 7일 유지 · 접속할 때마다 재연장 */
 var lgPin='', usersReady=null;
 
 /* ===== 진입 PIN 로그인 (HC_Smart 스타일) ===== */
@@ -4254,7 +4254,6 @@ function exportPartCSV(k){
 }
 
 initPartUI();
-initOrderUI();
 loadFx().then(function(){ try{ renderStock(); }catch(e){} });
 
 /* ================= 수주 · 출하 (소재 · 베어링 · 기타 공통) ================= */
@@ -4677,6 +4676,8 @@ function advanceOrder(o,it){
   .catch(function(err){ alert('처리 실패: '+err.message); closeModal(); });
 }
 
+initOrderUI();
+
 /* renderAll 호환 래퍼 */
 function renderOrder(){
   ['mat','bear','etc'].forEach(function(k){
@@ -4707,7 +4708,8 @@ function renderAll(){
   renderRecvLog();
 }
 fillDeptSelect();
-if(getLogin())document.getElementById('login').classList.add('off');
+var _lg=getLogin();
+if(_lg){ setLoginSession(_lg); document.getElementById('login').classList.add('off'); }
 updUbadge();
 usersReady=loadUsers();
 loadData().then(function(){
