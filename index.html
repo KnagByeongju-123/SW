@@ -787,6 +787,13 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
 <!-- ========== 입고 ========== -->
 <div class="page" id="pg-recv">
   <div class="subtab">
+    <button class="on" data-sub="rcv-mat"  onclick="goRecvKind(this)">소재</button>
+    <button           data-sub="rcv-bear" onclick="goRecvKind(this)">베어링</button>
+    <button           data-sub="rcv-etc"  onclick="goRecvKind(this)">기타</button>
+  </div>
+
+  <div class="sub on" id="sub-rcv-mat">
+  <div class="subtab">
     <button class="on" data-sub="recvnew" onclick="goRecvSub(this)">입고 등록</button>
     <button data-sub="recvwait" onclick="goRecvSub(this)">검사 대기</button>
     <button data-sub="recvlog" onclick="goRecvSub(this)">입고 이력</button>
@@ -885,6 +892,10 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       <div id="rc-log"></div>
     </div>
   </div>
+  </div>
+
+  <div class="sub" id="sub-rcv-bear"></div>
+  <div class="sub" id="sub-rcv-etc"></div>
 </div>
 
 <!-- ========== QR ========== -->
@@ -3249,9 +3260,25 @@ function goRecvSub(btn){
   var bs=btn.parentNode.querySelectorAll('button');
   for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
   btn.classList.add('on');
-  var subs=document.querySelectorAll('#pg-recv .sub');
+  var subs=document.querySelectorAll('#sub-rcv-mat > .sub');
   for(var j=0;j<subs.length;j++)subs[j].classList.remove('on');
   document.getElementById('sub-'+btn.getAttribute('data-sub')).classList.add('on');
+}
+function goRecvKind(btn){
+  var bs=btn.parentNode.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');
+  var subs=document.querySelectorAll('#pg-recv > .sub');
+  for(var j=0;j<subs.length;j++)subs[j].classList.remove('on');
+  var id=btn.getAttribute('data-sub');
+  document.getElementById('sub-'+id).classList.add('on');
+  window.scrollTo(0,0);
+  var k=id==='rcv-bear'?'bear':(id==='rcv-etc'?'etc':null);
+  if(k){
+    (FX_DATE?Promise.resolve():loadFx()).then(function(){
+      if(!PLOADED[k])loadParts(k);else renderRecvParts(k);
+    });
+  }
 }
 function setRecvMode(btn){
   var bs=btn.parentNode.querySelectorAll('button');
@@ -3677,7 +3704,7 @@ function renderFxBar(){
       '<button class="fxedit" onclick="editFx()">수정</button>'
     : '<span class="fxd">💱 환율을 불러오지 못했습니다</span>'+
       '<button class="fxedit" onclick="editFx()">직접 입력</button>';
-  ['bear','etc','mat'].forEach(function(k){
+  ['bear','etc','mat','rvbear','rvetc'].forEach(function(k){
     var el = document.getElementById('fxbar-'+k);
     if(el) el.innerHTML = h;
   });
@@ -3763,9 +3790,71 @@ function partShell(k){
     '<div id="phist-'+k+'"></div>'+
   '</div>';
 }
+function recvPartShell(k){
+  return ''+
+  fxBarHtml(k==='bear'?'rvbear':'rvetc')+
+  '<div class="card">'+
+    '<h3>'+PKIND[k].icon+' '+PKIND[k].label+' 입고 <span class="badge b-blue">품목 단위</span></h3>'+
+    '<p class="help" style="margin:-2px 0 10px;">품목을 누르면 정보 수정, <b>입고</b> 버튼으로 수량을 올립니다. 처음 들어오는 품목은 <b>＋ 품목 등록</b>으로 만드세요.</p>'+
+    '<div class="pbar2">'+
+      '<input type="text" id="rvq-'+k+'" placeholder="품명 · 규격 · 거래처 검색" oninput="renderRecvParts(\''+k+'\')">'+
+      '<button class="btn btn-p btn-sm" onclick="editPart(\''+k+'\',null)">＋ 품목 등록</button>'+
+    '</div>'+
+    '<div id="rvlist-'+k+'"><div class="pempty">불러오는 중…</div></div>'+
+  '</div>'+
+  '<div class="card">'+
+    '<h3>최근 입고 <span class="badge b-blue">최근 30건 중 입고분</span></h3>'+
+    '<div id="rvhist-'+k+'"></div>'+
+  '</div>';
+}
+function renderRecvParts(k){
+  var box=document.getElementById('rvlist-'+k); if(!box)return;
+  var q=(document.getElementById('rvq-'+k).value||'').trim().toLowerCase();
+  var h='';
+  for(var i=0;i<PARTS[k].length;i++){
+    var it=PARTS[k][i];
+    var blob=[it.name,it.spec,it.location,it.vendor,it.memo].join(' ').toLowerCase();
+    if(q&&blob.indexOf(q)<0)continue;
+    var cur=it.currency||'KRW';
+    var priceTxt=Number(it.price)
+      ?(cur==='KRW'?'<span>@'+fmt(it.price)+'원</span>'
+                   :'<span class="curtag">'+cur+'</span><span>@'+money(it.price,cur)+'</span>')
+      :'';
+    h+='<div class="pcard">'+
+      '<div class="pico">'+PKIND[k].icon+'</div>'+
+      '<div class="pinf">'+
+        '<div class="pnm" onclick="editPart(\''+k+'\','+it.id+')">'+esc(it.name)+'</div>'+
+        '<div class="pmeta">'+
+          (it.category?'<span class="tag">'+esc(it.category)+'</span>':'')+
+          (it.spec?'<span>'+esc(it.spec)+'</span>':'')+
+          (it.vendor?'<span>🏢'+esc(it.vendor)+'</span>':'')+
+          priceTxt+
+        '</div>'+
+      '</div>'+
+      '<div class="pqty"><div class="q">'+fmt(it.stock)+'</div><div class="m">'+esc(it.unit||'EA')+'</div></div>'+
+      '<div class="pbtns"><button class="in" onclick="openPartIO(\''+k+'\','+it.id+',\'in\')">입고</button></div>'+
+    '</div>';
+  }
+  box.innerHTML=h||'<div class="pempty">품목이 없습니다. [＋ 품목 등록]으로 시작하세요.</div>';
+  var hist='';
+  for(var j=0;j<PLOG[k].length;j++){
+    var g=PLOG[k][j];
+    if(g.type!=='in')continue;
+    var d=g.created_at?String(g.created_at).slice(0,16).replace('T',' '):'';
+    hist+='<div class="prow">'+
+      '<span class="tp in">입고</span>'+
+      '<span class="nm2">'+esc(g.item_name)+(g.memo?' · '+esc(g.memo):'')+'</span>'+
+      '<span class="qt" style="color:var(--gold)">+'+fmt(g.qty)+'</span>'+
+      '<span class="dt2">'+esc(d)+'</span></div>';
+  }
+  var hb=document.getElementById('rvhist-'+k);
+  if(hb)hb.innerHTML=hist||'<div class="pempty">입고 이력이 없습니다</div>';
+}
 function initPartUI(){
   document.getElementById('sub-stk-bear').innerHTML = partShell('bear');
   document.getElementById('sub-stk-etc').innerHTML  = partShell('etc');
+  document.getElementById('sub-rcv-bear').innerHTML = recvPartShell('bear');
+  document.getElementById('sub-rcv-etc').innerHTML  = recvPartShell('etc');
   renderFxBar();
 }
 
@@ -3849,7 +3938,7 @@ function loadParts(k, silent){
     for(var q=0;q<rl.length;q++) real += Number(rl[q].fx_pl)||0;
     document.getElementById('prl-'+k).innerHTML = Math.round(real)
       ? '<div class="plsum">이달 실현 환차손익 '+plHtml(real, true)+' 원</div>' : '';
-    renderParts(k); renderPartLog(k);
+    renderParts(k); renderPartLog(k); renderRecvParts(k);
   }).catch(function(err){
     document.getElementById('plist-'+k).innerHTML =
       '<div class="pempty">재고 테이블이 없습니다.<br>Supabase에서 <b>sw_part / sw_part_log / sw_fx</b> 테이블을 먼저 생성하세요.<br><span style="font-size:11px;opacity:.7">'+esc(err.message)+'</span></div>';
