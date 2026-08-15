@@ -652,7 +652,16 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       <div class="kpi"><div class="n" id="k-ord">-</div><div class="l">진행중 수주</div></div>
       <div class="kpi warn"><div class="n" id="k-low">-</div><div class="l">잔량 부족</div></div>
       <div class="kpi warn"><div class="n" id="k-recv">-</div><div class="l">이달 입고</div></div>
+      <div class="kpi warn"><div class="n" id="k-short">-</div><div class="l">수주대비 부족</div></div>
     </div>
+  </div>
+
+  <div class="card">
+    <h3>구분별 현황</h3>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>구분</th><th>품목</th><th>재고금액(원)</th><th>진행 수주</th><th>부족</th></tr></thead>
+      <tbody id="dash-kinds"></tbody>
+    </table></div>
   </div>
 
   <div class="card">
@@ -660,10 +669,6 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <div id="dash-ship"></div>
   </div>
 
-  <div class="card">
-    <h3>밀시트 미등록 자재</h3>
-    <div id="dash-mtc"></div>
-  </div>
 </div>
 
 <!-- ========== 재고 ========== -->
@@ -1501,6 +1506,78 @@ function newOrderNo(){
 }
 
 /* ================= 대시보드 ================= */
+/* 진행중 수주 수량 합계 vs 현재고 → 부족 품목 산출 */
+function shortageRows(){
+  var need={};
+  for(var i=0;i<ORDERS.length;i++){
+    var o=ORDERS[i];
+    if(Number(o.status)>=3)continue;                 /* 출하완료 제외 */
+    var k=ordKindOf(o);
+    var id=(k==='mat')?o.stock_id:o.part_id;
+    if(!id)continue;
+    var key=k+':'+id;
+    if(!need[key])need[key]={kind:k,id:id,qty:0,orders:0};
+    need[key].qty+=Number(o.qty)||0;
+    need[key].orders++;
+  }
+  var out=[];
+  for(var key in need){
+    var n=need[key], it, avail, name, sub, unit;
+    if(n.kind==='mat'){
+      it=STOCK_BY_ID[n.id];
+      if(!it)continue;
+      avail=Number(it.qty)||0;
+      name=(it.alloy||'')+' '+(it.form||'');
+      sub=it.heat_no||''; unit=it.unit||'';
+    }else{
+      it=partById(n.kind,n.id);
+      if(!it)continue;
+      avail=Number(it.stock)||0;
+      name=it.name||''; sub=it.spec||''; unit=it.unit||'EA';
+    }
+    var lack=Math.round((n.qty-avail)*100)/100;
+    if(lack>0)out.push({kind:n.kind,name:name,sub:sub,unit:unit,
+                        need:n.qty,avail:avail,lack:lack,orders:n.orders});
+  }
+  out.sort(function(a,b){return b.lack-a.lack;});
+  return out;
+}
+function renderShortage(){
+  /* 부족 카드는 제거됨 — 구분별 현황의 '부족' 컬럼과 KPI·요약문에만 사용 */
+  return shortageRows();
+}
+/* 구분별(소재·베어링·기타) 요약 */
+function renderDashKinds(SH){
+  var tb=document.getElementById('dash-kinds'); if(!tb)return;
+  var h='';
+  ['mat','bear','etc'].forEach(function(k){
+    var cnt=0,val=0;
+    if(k==='mat'){
+      cnt=STOCK.length;
+      for(var i=0;i<STOCK.length;i++){
+        var s2=STOCK[i], cur=s2.currency||'KRW';
+        val+=Number(s2.qty||0)*toKRW(s2.price,cur,cur==='KRW'?1:(fxOf(cur)||Number(s2.fx_buy)));
+      }
+    }else{
+      cnt=PARTS[k].length;
+      for(var j=0;j<PARTS[k].length;j++){
+        var p=PARTS[k][j];
+        val+=Number(p.stock||0)*toKRW(p.price,p.currency||'KRW');
+      }
+    }
+    var live=0;
+    for(var m=0;m<ORDERS.length;m++)
+      if(ordKindOf(ORDERS[m])===k&&Number(ORDERS[m].status)<3)live++;
+    var sh=0;
+    for(var n=0;n<SH.length;n++) if(SH[n].kind===k) sh++;
+    h+='<tr><td><b>'+OKIND[k].icon+' '+OKIND[k].label+'</b></td>'+
+      '<td>'+fmt(cnt)+'</td>'+
+      '<td style="text-align:right;font-family:var(--num);">'+fmt(Math.round(val))+'</td>'+
+      '<td>'+fmt(live)+'</td>'+
+      '<td>'+(sh?'<span class="badge b-danger">'+sh+'</span>':'<span style="color:var(--ok);">0</span>')+'</td></tr>';
+  });
+  tb.innerHTML=h;
+}
 function renderDash(){
   var heats={},low=0,noMtc=0;
   for(var i=0;i<STOCK.length;i++){
@@ -1525,12 +1602,16 @@ function renderDash(){
     if(rd&&new Date(rd)>=mon)waitn++;
   }
   document.getElementById('k-recv').textContent=waitn;
+  var SH=renderShortage();
+  document.getElementById('k-short').textContent=SH.length;
+  renderDashKinds(SH);
 
   var now=new Date();
   var days=['일','월','화','수','목','금','토'];
   document.getElementById('hero-date').textContent=
     now.getFullYear()+'. '+(now.getMonth()+1)+'. '+now.getDate()+' ('+days[now.getDay()]+')';
   var parts=[];
+  if(SH.length>0)parts.push('<span style="color:var(--danger);">수주대비 재고부족 <b>'+SH.length+'품목</b></span>');
   if(ship>0)parts.push('출하 진행 <b>'+ship+'건</b>');
   if(noMtc>0)parts.push('밀시트 미등록 <b>'+noMtc+'건</b>');
   if(low>0)parts.push('잔량 부족 <b>'+low+'건</b>');
@@ -1554,20 +1635,6 @@ function renderDash(){
   }
   if(!any)box.innerHTML='<div style="color:var(--sub);font-size:13px;">진행중인 출하가 없습니다.</div>';
 
-  var mb=document.getElementById('dash-mtc');
-  mb.innerHTML='';
-  var any2=false;
-  for(var n=0;n<STOCK.length;n++){
-    if(STOCK[n].mtc)continue;
-    any2=true;
-    var s=STOCK[n];
-    var e=document.createElement('div');
-    e.style.cssText='padding:9px 2px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center;';
-    e.innerHTML='<div>'+esc(s.alloy)+' '+esc(s.form)+' <span class="heat">'+esc(s.heat_no)+'</span></div>'+
-      '<span class="badge b-warn">MTC 미등록</span>';
-    mb.appendChild(e);
-  }
-  if(!any2)mb.innerHTML='<div style="color:var(--ok);font-size:13px;">모든 재고에 밀시트가 등록되어 있습니다 ✓</div>';
 }
 
 /* ================= 재고 ================= */
@@ -4738,6 +4805,11 @@ loadData().then(function(){
   renderCutForm();
   renderRecvForm();
   fillWriterSelect();
+  /* 대시보드 구분별 집계를 위해 부품 재고를 미리 로드 */
+  return (FX_DATE?Promise.resolve():loadFx())
+    .then(function(){ return Promise.all([loadParts('bear',true), loadParts('etc',true)]); })
+    .then(function(){ renderDash(); })
+    .catch(function(){ /* 부품 테이블 미생성 시에도 대시보드는 표시 */ });
 });
 </script>
 </body>
