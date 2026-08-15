@@ -270,6 +270,78 @@ body.locked{overflow:hidden;}
   border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;}
 .subtab button.on{background:#2f4156;color:#fff;border:1px solid #55708e;box-shadow:0 1px 5px rgba(0,0,0,.3);}
 .sub{display:none;}
+/* ===== 재고 확장(부품 · 환율) ===== */
+.pbar2{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+.pbar2 input[type=text]{flex:1;min-width:140px;}
+.pbar2 select{width:auto;min-width:110px;}
+.pbar2 .lowtg{padding:9px 13px;border-radius:9px;border:1.5px solid rgba(239,116,102,.45);
+  background:transparent;color:var(--danger);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+.pbar2 .lowtg.on{background:rgba(239,116,102,.16);}
+.pcard{display:flex;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:11px 12px;margin-bottom:8px;align-items:center;}
+.pcard.low{border-color:rgba(239,116,102,.55);background:rgba(239,116,102,.06);}
+.pico{width:44px;height:44px;border-radius:10px;background:var(--card2);border:1px solid var(--line);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:19px;}
+.pinf{flex:1;min-width:0;}
+.pnm{font-size:14px;font-weight:800;cursor:pointer;color:var(--ink);}
+.pnm:active{color:var(--gold);}
+.pmeta{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px;font-size:11px;color:var(--sub);align-items:center;}
+.pmeta .tag{background:var(--card2);border:1px solid var(--line);border-radius:5px;padding:1px 7px;font-weight:600;}
+.pqty{text-align:right;flex-shrink:0;}
+.pqty .q{font-family:var(--num);font-size:21px;font-weight:700;color:var(--gold-lt);line-height:1.05;}
+.pqty .q.low{color:var(--danger);}
+.pqty .m{font-size:10px;color:var(--sub);}
+.pbtns{display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+.pbtns button{border-radius:7px;font-size:11.5px;font-weight:800;cursor:pointer;padding:6px 11px;font-family:inherit;}
+.pbtns .in{background:rgba(226,176,74,.16);border:1px solid var(--goldbd);color:var(--gold);}
+.pbtns .out{background:rgba(242,160,60,.14);border:1px solid rgba(242,160,60,.5);color:var(--amber);}
+.lowbadge{font-size:10px;font-weight:800;color:var(--danger);background:rgba(239,116,102,.15);
+  border:1px solid rgba(239,116,102,.4);border-radius:5px;padding:1px 7px;margin-left:5px;}
+.prow{display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);
+  border-radius:10px;padding:8px 11px;margin-bottom:6px;font-size:12.5px;}
+.prow .tp{font-weight:800;font-size:11px;padding:1.5px 8px;border-radius:5px;flex-shrink:0;}
+.prow .tp.in{background:rgba(226,176,74,.16);color:var(--gold);}
+.prow .tp.out{background:rgba(242,160,60,.16);color:var(--amber);}
+.prow .nm2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);}
+.prow .qt{font-family:var(--num);font-weight:700;flex-shrink:0;}
+.prow .dt2{font-size:10.5px;color:var(--sub);flex-shrink:0;}
+.pempty{padding:22px 10px;text-align:center;color:var(--sub);font-size:12.5px;line-height:1.7;}
+.iotype{display:flex;gap:7px;margin-bottom:12px;}
+.iotype button{flex:1;padding:11px 0;border-radius:10px;border:1.5px solid var(--line);background:var(--card2);
+  color:var(--sub);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;}
+.iotype button.in.on{background:var(--goldbg);border-color:var(--gold);color:var(--gold);}
+.iotype button.out.on{background:rgba(242,160,60,.16);border-color:var(--amber);color:var(--amber);}
+.qtyrow{display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0 4px;}
+.qtyrow button{width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--card2);
+  color:var(--ink);font-size:22px;cursor:pointer;flex-shrink:0;}
+.qtyrow input{width:96px;text-align:center;font-family:var(--num);font-size:24px;font-weight:700;margin:0;}
+.fxbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;background:var(--card);
+  border:1px solid var(--line);border-radius:11px;padding:8px 11px;margin-bottom:11px;font-size:11.5px;}
+.fxbar .fxd{color:var(--sub);font-weight:700;}
+.fxbar .fxd i{font-style:normal;opacity:.6;font-size:10.5px;}
+.fxbar .fxr{font-family:var(--num);font-weight:700;color:var(--gold-lt);background:var(--card2);
+  border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-size:12px;}
+.fxbar .fxedit{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--sub);
+  border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
+.curtag{background:var(--goldbg);border:1px solid var(--goldbd);color:var(--gold);
+  border-radius:5px;padding:1px 6px;font-weight:800;font-size:10.5px;}
+.plchip{font-family:var(--num);font-weight:700;}
+.plsum{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:8px 11px;
+  margin-bottom:8px;font-size:12.5px;font-weight:700;color:var(--sub);}
+.krwpv{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:8px 11px;
+  margin-top:9px;font-size:12px;color:var(--sub);line-height:1.6;}
+.krwpv b{color:var(--gold-lt);font-family:var(--num);font-size:13.5px;}
+.krwpv:empty{display:none;}
+.fxbox{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-top:12px;}
+.fxln{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--sub);padding:3px 0;}
+.fxln b{font-family:var(--num);font-size:13.5px;color:var(--ink);font-weight:700;}
+.fxln i{font-style:normal;opacity:.55;font-size:10.5px;}
+.fxln.tot{border-top:1px solid var(--line);margin-top:5px;padding-top:7px;font-weight:800;color:var(--ink);}
+.tst{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);z-index:9999;
+  background:#252a36;border:1px solid var(--line);color:var(--ink);padding:11px 18px;border-radius:12px;
+  font-size:13px;font-weight:600;box-shadow:0 6px 22px rgba(0,0,0,.55);opacity:0;pointer-events:none;
+  transition:opacity .22s;max-width:82vw;text-align:center;}
+.tst.on{opacity:1;}
 .sub.on{display:block;}
 
 .msg{padding:10px 13px;border-radius:11px;font-size:12.5px;font-weight:600;margin-bottom:10px;display:none;}
@@ -593,19 +665,36 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
 
 <!-- ========== 재고 ========== -->
 <div class="page" id="pg-stock">
+  <div class="subtab">
+    <button class="on" data-sub="stk-mat"  onclick="goStockSub(this)">소재</button>
+    <button           data-sub="stk-bear" onclick="goStockSub(this)">베어링</button>
+    <button           data-sub="stk-etc"  onclick="goStockSub(this)">기타</button>
+  </div>
+
+  <div class="sub on" id="sub-stk-mat">
+  <div class="fxbar" id="fxbar-mat"></div>
+  <div class="kpi-wrap"><div class="kpi-strip" style="grid-template-rows:auto">
+    <div class="kpi"><div class="n" id="mk-cnt">0</div><div class="l">품목</div></div>
+    <div class="kpi"><div class="n" id="mk-val">0</div><div class="l">재고금액(원)</div></div>
+    <div class="kpi"><div class="n" id="mk-pl">0</div><div class="l">평가 환차손익</div></div>
+  </div></div>
   <div class="card">
-    <h3>재고 조회 <span class="badge b-blue">Heat No. 단위</span></h3>
+    <h3>소재 재고 <span class="badge b-blue">Heat No. 단위</span></h3>
     <div class="search-bar">
       <input id="q-stock" placeholder="합금·형상·Heat No. 검색  예) 625, PIPE, 2K48" oninput="renderStock()">
       <button class="btn btn-o btn-sm" onclick="selectTab('qr')">QR 스캔</button>
     </div>
     <div class="tbl-wrap">
       <table class="tbl">
-        <thead><tr><th>합금 / 형상</th><th>규격</th><th>Heat No.</th><th>잔량</th><th>MTC</th></tr></thead>
+        <thead><tr><th>합금 / 형상</th><th>규격</th><th>Heat No.</th><th>잔량</th><th>매입단가</th><th>MTC</th></tr></thead>
         <tbody id="tb-stock"></tbody>
       </table>
     </div>
   </div>
+  </div>
+
+  <div class="sub" id="sub-stk-bear"></div>
+  <div class="sub" id="sub-stk-etc"></div>
 </div>
 
 <!-- ========== 수주·출하 ========== -->
@@ -753,6 +842,17 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
         <div><label>P/O 번호</label><input id="rc-po" placeholder="PO-2026-081"></div>
         <div><label>인보이스 번호</label><input id="rc-inv" placeholder="INV-8842"></div>
       </div>
+      <div class="grid3">
+        <div><label>통화</label>
+          <select id="rc-cur" onchange="onRecvCur()">
+            <option value="KRW">KRW &#8361;</option><option value="USD">USD $</option>
+            <option value="CNY">CNY &#165;</option><option value="EUR">EUR &#8364;</option>
+          </select></div>
+        <div><label>매입 단가</label><input id="rc-price" type="number" min="0" step="0.01" placeholder="0" oninput="recvKrwPv()"></div>
+        <div id="rc-fxwrap" style="display:none;"><label>매입 환율</label>
+          <input id="rc-fx" type="number" min="0" step="0.01" placeholder="0" oninput="recvKrwPv()"></div>
+      </div>
+      <div class="krwpv" id="rc-pv"></div>
       <label>입고 담당자</label><select id="rc-receiver"></select>
       <label class="chk"><input type="checkbox" id="rc-mtc"> 밀시트(MTC) 확보함</label>
       <label>메모</label><input id="rc-memo" placeholder="포장 상태, 특이사항 등">
@@ -1171,6 +1271,17 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
           </datalist></div>
         <div><label>적용규격</label><input id="m-std" placeholder="ASTM B444"></div>
       </div>
+      <div class="grid3">
+        <div><label>통화</label>
+          <select id="m-cur" onchange="onMatCur()">
+            <option value="KRW">KRW &#8361;</option><option value="USD">USD $</option>
+            <option value="CNY">CNY &#165;</option><option value="EUR">EUR &#8364;</option>
+          </select></div>
+        <div><label>매입 단가</label><input id="m-price" type="number" min="0" step="0.01" placeholder="0" oninput="matKrwPv()"></div>
+        <div id="m-fxwrap" style="display:none;"><label>매입 환율</label>
+          <input id="m-fx" type="number" min="0" step="0.01" placeholder="0" oninput="matKrwPv()"></div>
+      </div>
+      <div class="krwpv" id="m-pv"></div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-p" id="btn-mat-add" onclick="saveMaterial()">소재 등록</button>
         <button class="btn btn-g" id="btn-mat-cancel" onclick="cancelMatEdit()" style="display:none;">수정 취소</button>
@@ -1233,7 +1344,9 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   </div>
   <div class="sheet-grid">
     <button data-pg="dash" onclick="go(this)"><span class="ic">&#127968;</span><span>대시보드</span></button>
-    <button data-pg="stock" onclick="go(this)"><span class="ic">&#128230;</span><span>재고</span></button>
+    <button data-pg="stock" onclick="goStock('mat')"><span class="ic">&#128230;</span><span>재고 · 소재</span></button>
+    <button data-pg="stock" onclick="goStock('bear')"><span class="ic">&#9881;&#65039;</span><span>재고 · 베어링</span></button>
+    <button data-pg="stock" onclick="goStock('etc')"><span class="ic">&#128736;&#65039;</span><span>재고 · 기타</span></button>
     <button data-pg="recv" onclick="go(this)"><span class="ic">&#128229;</span><span>입고</span></button>
     <button data-pg="qr" onclick="go(this)"><span class="ic">&#128307;</span><span>QR 스캔·라벨</span></button>
     <button data-pg="cut" onclick="go(this)"><span class="ic">&#9986;&#65039;</span><span>절단·잔재</span></button>
@@ -1487,13 +1600,79 @@ function renderStock(){
       '<td class="mono" style="font-size:12.5px;">'+esc(s.spec)+'</td>'+
       '<td><span class="heat">'+esc(s.heat_no)+'</span></td>'+
       '<td><span class="badge '+qtyBadge+'">'+esc(s.qty)+' '+esc(s.unit)+'</span></td>'+
+      '<td style="font-size:12px;">'+matPriceHtml(s)+'</td>'+
       '<td>'+(s.mtc?'<span class="badge b-ok">등록</span>':'<span class="badge b-danger">미등록</span>')+'</td>';
     (function(item){
       tr.addEventListener('click',function(){showStockDetail(item);});
     })(s);
     tb.appendChild(tr);
   }
-  if(!tb.children.length)tb.innerHTML='<tr><td colspan="5" style="color:var(--sub);text-align:center;">검색 결과가 없습니다.</td></tr>';
+  if(!tb.children.length)tb.innerHTML='<tr><td colspan="6" style="color:var(--sub);text-align:center;">검색 결과가 없습니다.</td></tr>';
+  renderMatKpi();
+}
+/* 소재 매입단가 표기 · KPI · 환차손익 */
+function matPriceHtml(s){
+  var cur=s.currency||'KRW', p=Number(s.price||0);
+  if(!p)return '<span style="color:var(--sub);">-</span>';
+  if(cur==='KRW')return '₩'+fmt(p);
+  var now=fxOf(cur), pl=evalMatPL(s);
+  return '<span class="curtag">'+cur+'</span> '+money(p,cur)+
+    '<br><span style="color:var(--sub);font-size:11px;">₩'+fmt(Math.round(p*(now||Number(s.fx_buy)||0)))+
+    (Math.round(pl)?' · '+plHtml(pl):'')+'</span>';
+}
+function evalMatPL(s){
+  var cur=s.currency||'KRW';
+  if(cur==='KRW')return 0;
+  var buy=Number(s.fx_buy)||0, now=fxOf(cur);
+  if(!buy||!now)return 0;
+  return Number(s.qty||0)*Number(s.price||0)*(now-buy);
+}
+function renderMatKpi(){
+  var val=0,pl=0;
+  for(var i=0;i<STOCK.length;i++){
+    var s=STOCK[i], cur=s.currency||'KRW';
+    val+=Number(s.qty||0)*toKRW(s.price,cur,cur==='KRW'?1:(fxOf(cur)||Number(s.fx_buy)));
+    pl +=evalMatPL(s);
+  }
+  var c=document.getElementById('mk-cnt'); if(!c)return;
+  c.textContent=STOCK.length;
+  document.getElementById('mk-val').textContent=fmt(Math.round(val));
+  document.getElementById('mk-pl').innerHTML=plHtml(pl,true);
+}
+/* 소재 폼 통화 처리 */
+function onMatCur(){
+  var cur=document.getElementById('m-cur').value;
+  document.getElementById('m-fxwrap').style.display=cur==='KRW'?'none':'block';
+  var fx=document.getElementById('m-fx');
+  if(cur!=='KRW'&&!Number(fx.value)&&fxOf(cur))fx.value=fxOf(cur).toFixed(2);
+  matKrwPv();
+}
+function matKrwPv(){
+  var el=document.getElementById('m-pv'); if(!el)return;
+  var cur=document.getElementById('m-cur').value, p=Number(document.getElementById('m-price').value||0);
+  if(!p){el.innerHTML='';return;}
+  if(cur==='KRW'){el.innerHTML='매입 단가 <b>₩'+fmt(p)+'</b>';return;}
+  var buy=Number(document.getElementById('m-fx').value||0), now=fxOf(cur);
+  var h='매입 기준 <b>₩'+fmt(Math.round(p*(buy||now)))+'</b>';
+  if(now)h+=' · 오늘 기준 <b>₩'+fmt(Math.round(p*now))+'</b>';
+  if(buy&&now)h+=' · 단가차 '+plHtml(p*(now-buy));
+  el.innerHTML=h;
+}
+function onRecvCur(){
+  var cur=document.getElementById('rc-cur').value;
+  document.getElementById('rc-fxwrap').style.display=cur==='KRW'?'none':'block';
+  var fx=document.getElementById('rc-fx');
+  if(cur!=='KRW'&&!Number(fx.value)&&fxOf(cur))fx.value=fxOf(cur).toFixed(2);
+  recvKrwPv();
+}
+function recvKrwPv(){
+  var el=document.getElementById('rc-pv'); if(!el)return;
+  var cur=document.getElementById('rc-cur').value, p=Number(document.getElementById('rc-price').value||0);
+  var qty=Number(document.getElementById('rc-qty').value||0);
+  if(!p){el.innerHTML='';return;}
+  var buy=cur==='KRW'?1:Number(document.getElementById('rc-fx').value||0)||fxOf(cur);
+  var krw=Math.round(p*buy);
+  el.innerHTML='매입 단가 <b>₩'+fmt(krw)+'</b>'+(qty?' · 입고 총액 <b>₩'+fmt(Math.round(krw*qty))+'</b>':'');
 }
 function cutHistoryHtml(s2){
   var rows='';
@@ -1642,7 +1821,8 @@ function showOrderDetail(o){
     '<dt>규격</dt><dd class="mono">'+esc(it.spec||'-')+'</dd>'+
     '<dt>Heat No.</dt><dd><span class="heat">'+esc(it.heat_no||'-')+'</span></dd>'+
     '<dt>수량</dt><dd>'+esc(o.qty)+' '+esc(it.unit||'')+'</dd>'+
-    '<dt>단가</dt><dd>'+fmt(o.price)+' 원</dd>'+
+    '<dt>판매단가</dt><dd>'+fmt(o.price)+' 원</dd>'+
+    matCostRow(it,Number(o.qty))+
     '<dt>납기</dt><dd>'+esc(o.due_date)+'</dd>'+
     '</dl>'+mtcWarn+btn);
   var b=document.getElementById('m-next');
@@ -1660,7 +1840,9 @@ function advanceOrder(o,it){
     // 출하완료 시 재고 차감
     if(next===3&&it.id){
       var newQty=Math.max(0,Number(it.qty)-Number(o.qty));
-      return sb('sw_stock?id=eq.'+it.id,{method:'PATCH',body:{qty:newQty}});
+      LAST_SHIP_PL=matShipPL(it,Number(o.qty));
+      return sb('sw_stock?id=eq.'+it.id,{method:'PATCH',body:{qty:newQty}})
+        .then(function(){return logMatShip(o,it,Number(o.qty),LAST_SHIP_PL);});
     }
   })
   .then(function(){
@@ -1669,7 +1851,13 @@ function advanceOrder(o,it){
       var sb2=document.querySelector('#pg-order .subtab button[data-sub="ship"]');
       if(sb2)goOrderSub(sb2);
     }
-    if(next===3)alert('출하 완료 처리되었습니다.\n재고가 차감되었고, 거래명세서 탭에서 명세서를 출력할 수 있습니다.');
+    if(next===3){
+      var ex='';
+      if(Math.round(LAST_SHIP_PL))
+        ex='\n환차손익: '+(LAST_SHIP_PL>0?'+':'−')+fmt(Math.abs(Math.round(LAST_SHIP_PL)))+'원 (매입환율 대비)';
+      alert('출하 완료 처리되었습니다.\n재고가 차감되었고, 거래명세서 탭에서 명세서를 출력할 수 있습니다.'+ex);
+      LAST_SHIP_PL=0;
+    }
     return loadData();
   })
   .catch(function(err){
@@ -2288,6 +2476,10 @@ function startMatEdit(m){
   document.getElementById('m-unit').value=m.unit||'EA';
   document.getElementById('m-mill').value=m.mill||'';
   document.getElementById('m-std').value=m.std||'';
+  document.getElementById('m-cur').value=m.currency||'KRW';
+  document.getElementById('m-price').value=Number(m.price)||'';
+  document.getElementById('m-fx').value=Number(m.fx_buy)||'';
+  onMatCur();
   document.getElementById('btn-mat-add').textContent='수정 저장';
   document.getElementById('btn-mat-cancel').style.display='';
   var el=document.getElementById('sub-mat');
@@ -2301,6 +2493,10 @@ function cancelMatEdit(){
   document.getElementById('m-total').value='';
   document.getElementById('m-mill').value='';
   document.getElementById('m-std').value='';
+  document.getElementById('m-price').value='';
+  document.getElementById('m-fx').value='';
+  document.getElementById('m-cur').value='KRW';
+  onMatCur();
   document.getElementById('btn-mat-add').textContent='소재 등록';
   document.getElementById('btn-mat-cancel').style.display='none';
 }
@@ -2327,7 +2523,12 @@ function saveMaterial(){
   }
   var btn=document.getElementById('btn-mat-add');
   btn.disabled=true;
-  var body={alloy:alloy,form:form,spec:spec,heat_no:heat,total:total,unit:unit,mill:mill||null,std:std||null};
+  var mcur=document.getElementById('m-cur').value||'KRW';
+  var mprice=Number(document.getElementById('m-price').value||0);
+  var mfx=mcur==='KRW'?1:Number(document.getElementById('m-fx').value||0);
+  if(mcur!=='KRW'&&mprice>0&&mfx<=0){showMsg('msg-mat','매입 환율을 입력하세요','err');btn.disabled=false;return;}
+  var body={alloy:alloy,form:form,spec:spec,heat_no:heat,total:total,unit:unit,mill:mill||null,std:std||null,
+    currency:mcur,price:mprice,fx_buy:mfx||1};
   var req;
   if(editMat){
     req=sb('sw_stock?id=eq.'+editMat.id,{method:'PATCH',body:body});
@@ -3119,6 +3320,11 @@ function saveReceipt(){
     memo:document.getElementById('rc-memo').value.trim()||null,
     insp_status:0
   };
+  var rcur=document.getElementById('rc-cur').value||'KRW';
+  var rprice=Number(document.getElementById('rc-price').value||0);
+  var rfx=rcur==='KRW'?1:Number(document.getElementById('rc-fx').value||0);
+  if(rcur!=='KRW'&&rprice>0&&rfx<=0){showMsg('msg-rc','매입 환율을 입력하세요','err');return;}
+  body.currency=rcur; body.price=rprice; body.fx_buy=rfx||1;
   if(recvMode==='add'){
     var v=document.getElementById('rc-stock').value;
     var s2=v?STOCK_BY_ID[v]:null;
@@ -3153,6 +3359,8 @@ function saveReceipt(){
   .then(function(){
     document.getElementById('rc-qty').value='';
     document.getElementById('rc-memo').value='';
+    document.getElementById('rc-price').value='';
+    document.getElementById('rc-pv').innerHTML='';
     if(recvMode==='new'){
       document.getElementById('rc-alloy').value='';
       document.getElementById('rc-spec').value='';
@@ -3248,6 +3456,8 @@ function inspect(r,st,btn){
     var nq=Math.round((Number(s2.qty)+Number(r.qty))*100)/100;
     var nt=Math.round((Number(s2.total)+Number(r.qty))*100)/100;
     var body={qty:nq,total:nt};
+    var mv=mergeMatCost(s2,r);
+    if(mv){body.currency=mv.currency;body.price=mv.price;body.fx_buy=mv.fx_buy;}
     if(r.has_mtc)body.mtc=true;
     chain=sb('sw_stock?id=eq.'+s2.id,{method:'PATCH',body:body})
       .then(function(){return sb('sw_receipt?id=eq.'+r.id,{method:'PATCH',body:patch});});
@@ -3256,7 +3466,8 @@ function inspect(r,st,btn){
     chain=sb('sw_stock',{method:'POST',body:{
       alloy:r.alloy, form:r.form, spec:r.spec, heat_no:r.heat_no,
       qty:r.qty, total:r.qty, unit:r.unit,
-      mill:r.mill, std:r.std, mtc:!!r.has_mtc
+      mill:r.mill, std:r.std, mtc:!!r.has_mtc,
+      currency:r.currency||'KRW', price:Number(r.price)||0, fx_buy:Number(r.fx_buy)||1
     }}).then(function(res){
       var newId=(res&&res[0]&&res[0].id)||null;
       patch.stock_id=newId;
@@ -3327,6 +3538,620 @@ function showRecvDetail(r){
     '</dl>'+
     (r.insp_status===1?'<button class="btn btn-o" style="width:100%;margin-top:14px;" onclick="closeModal();selectTab(\'qr\');">QR 라벨 출력하러 가기</button>':''));
 }
+
+/* ================= 소재 매입원가 · 환차손익 ================= */
+var LAST_SHIP_PL = 0;
+/* 기존 자재 추가입고 시 매입원가 가중평균 (통화 동일할 때만 평균, 다르면 신규 입고 조건 적용) */
+function mergeMatCost(s2, r){
+  var np = Number(r.price)||0;
+  if(!np) return null;                                   /* 입고 단가 미입력 → 기존 유지 */
+  var ncur = r.currency||'KRW', nfx = Number(r.fx_buy)||1;
+  var ocur = s2.currency||'KRW', op = Number(s2.price)||0, ofx = Number(s2.fx_buy)||1;
+  var oq = Number(s2.qty)||0, nq = Number(r.qty)||0;
+  if(!op || ocur !== ncur || oq <= 0)
+    return { currency:ncur, price:np, fx_buy:nfx };       /* 기존 단가 없음/통화 상이 → 신규로 대체 */
+  var tq = oq + nq;
+  if(tq <= 0) return { currency:ncur, price:np, fx_buy:nfx };
+  return {
+    currency: ncur,
+    price:  Math.round(((op*oq + np*nq) / tq) * 100) / 100,
+    fx_buy: Math.round(((ofx*oq + nfx*nq) / tq) * 100) / 100
+  };
+}
+/* 출하 환차손익 = 출하량 × 외화 매입단가 × (오늘환율 − 매입환율) */
+function matShipPL(it, qty){
+  var cur = it.currency||'KRW';
+  if(cur === 'KRW') return 0;
+  var buy = Number(it.fx_buy)||0, now = fxOf(cur);
+  if(!buy || !now) return 0;
+  return qty * Number(it.price||0) * (now - buy);
+}
+/* 출하 이력을 통합 원장(sw_part_log, kind='mat')에 기록 */
+function logMatShip(o, it, qty, pl){
+  var cur = it.currency||'KRW', now = cur==='KRW' ? 1 : (fxOf(cur) || Number(it.fx_buy) || 1);
+  return sb('sw_part_log', { method:'POST', body:{
+    kind:'mat', item_id:it.id,
+    item_name:(it.alloy||'')+' '+(it.heat_no||''),
+    type:'out', qty:qty, memo:(o.order_no||'')+' · '+(o.customer||''),
+    currency:cur, unit_price:Number(it.price)||0, fx:now,
+    fx_buy:Number(it.fx_buy)||1, fx_pl:Math.round(pl),
+    amount_krw:Math.round(qty * Number(it.price||0) * now)
+  }}).catch(function(){ /* 이력 실패는 출하 자체를 막지 않음 */ });
+}
+/* 출하 모달 매입원가 · 예상 환차손익 행 */
+function matCostRow(it, qty){
+  var cur = it.currency||'KRW', p = Number(it.price)||0;
+  if(!p) return '';
+  if(cur === 'KRW')
+    return '<dt>매입단가</dt><dd>'+fmt(p)+' 원</dd>';
+  var buy = Number(it.fx_buy)||0, now = fxOf(cur), pl = matShipPL(it, qty);
+  return '<dt>매입단가</dt><dd><span class="curtag">'+cur+'</span> '+money(p,cur)+
+           ' · 매입환율 ₩'+fmt(buy.toFixed(2))+'</dd>'+
+         '<dt>오늘환율</dt><dd>₩'+(now?fmt(now.toFixed(2)):'-')+
+           (FX_DATE?' <span style="color:var(--sub);font-size:11px;">('+esc(FX_DATE)+')</span>':'')+'</dd>'+
+         '<dt>환차손익</dt><dd>'+(Math.round(pl)?plHtml(pl,true)+' 원':'0 원')+'</dd>';
+}
+
+/* ================= 부품재고 (베어링 · 기타) ================= */
+var PKIND = { bear:{ key:'bear', label:'베어링', icon:'⚙️',
+                     cats:['볼베어링','롤러베어링','니들베어링','스러스트','오일씰','부싱','기타'] },
+              etc :{ key:'etc',  label:'기타',   icon:'📦',
+                     cats:['소모공구','체결부품','윤활·유지류','포장자재','안전용품','기타'] } };
+var PARTS = { bear:[], etc:[] }, PLOG = { bear:[], etc:[] };
+var PLOW  = { bear:false, etc:false }, PLOADED = { bear:false, etc:false };
+var PEDIT = null, PIO = null, PIOTYPE = 'in', PIOKIND = 'bear';
+
+/* ---- 환율 ---- */
+var CURS = ['KRW','USD','CNY','EUR'];
+var CUR_SYM = { KRW:'₩', USD:'$', CNY:'¥', EUR:'€' };
+var FX = { KRW:1, USD:0, CNY:0, EUR:0 };
+var FX_DATE = '', FX_SRC = '';
+
+function todayStr(){
+  var d = new Date(), z = function(n){ return ('0'+n).slice(-2); };
+  return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());
+}
+function fxOf(cur){ return cur === 'KRW' ? 1 : (Number(FX[cur]) || 0); }
+function toKRW(amt, cur, rate){
+  var r = rate != null && Number(rate) > 0 ? Number(rate) : fxOf(cur);
+  return Number(amt||0) * (cur === 'KRW' ? 1 : r);
+}
+function money(amt, cur){
+  var n = Number(amt||0);
+  if(cur === 'KRW' || !cur) return '₩'+fmt(Math.round(n));
+  return (CUR_SYM[cur]||'')+n.toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+/* 오늘자 환율: ① sw_fx 캐시 → ② 공개 API → ③ 최근 저장분 */
+function loadFx(){
+  var t = todayStr();
+  return sb('sw_fx?date=eq.'+t+'&select=*').then(function(r){
+    if(r && r.length){
+      FX.USD = Number(r[0].usd)||0; FX.CNY = Number(r[0].cny)||0; FX.EUR = Number(r[0].eur)||0;
+      FX_DATE = t; FX_SRC = r[0].src || '저장값';
+      return true;
+    }
+    return fetchFxApi().then(function(ok){
+      if(ok){
+        FX_DATE = t;
+        return sb('sw_fx', { method:'POST', body:{ date:t, usd:FX.USD, cny:FX.CNY, eur:FX.EUR, src:FX_SRC } })
+          .then(function(){ return true; }).catch(function(){ return true; });
+      }
+      return sb('sw_fx?select=*&order=date.desc&limit=1').then(function(p){
+        if(p && p.length){
+          FX.USD = Number(p[0].usd)||0; FX.CNY = Number(p[0].cny)||0; FX.EUR = Number(p[0].eur)||0;
+          FX_DATE = p[0].date; FX_SRC = '최근 저장값';
+        }
+        return false;
+      });
+    });
+  }).catch(function(){ return false; }).then(function(v){ renderFxBar(); return v; });
+}
+function fetchFxApi(){
+  return fetch('https://api.frankfurter.app/latest?from=EUR&to=KRW,USD,CNY')
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var k = j.rates.KRW, u = j.rates.USD, c = j.rates.CNY;
+      if(!k || !u || !c) throw new Error('rate');
+      FX.EUR = k; FX.USD = k/u; FX.CNY = k/c; FX_SRC = 'ECB';
+      return true;
+    }).catch(function(){
+      return fetch('https://open.er-api.com/v6/latest/USD')
+        .then(function(r){ return r.json(); })
+        .then(function(j){
+          var R = j.rates; if(!R || !R.KRW) throw new Error('rate');
+          FX.USD = R.KRW; FX.CNY = R.KRW/R.CNY; FX.EUR = R.KRW/R.EUR; FX_SRC = 'ER-API';
+          return true;
+        }).catch(function(){ return false; });
+    });
+}
+function fxBarHtml(k){
+  return '<div class="fxbar" id="fxbar-'+k+'"></div>';
+}
+function renderFxBar(){
+  var h = FX.USD
+    ? '<span class="fxd">💱 '+esc(FX_DATE||'-')+' <i>'+esc(FX_SRC||'')+'</i></span>'+
+      '<span class="fxr">$1 = ₩'+fmt(Math.round(FX.USD))+'</span>'+
+      '<span class="fxr">¥1 = ₩'+FX.CNY.toFixed(1)+'</span>'+
+      '<span class="fxr">€1 = ₩'+fmt(Math.round(FX.EUR))+'</span>'+
+      '<button class="fxedit" onclick="editFx()">수정</button>'
+    : '<span class="fxd">💱 환율을 불러오지 못했습니다</span>'+
+      '<button class="fxedit" onclick="editFx()">직접 입력</button>';
+  ['bear','etc','mat'].forEach(function(k){
+    var el = document.getElementById('fxbar-'+k);
+    if(el) el.innerHTML = h;
+  });
+}
+function editFx(){
+  var html =
+    '<p class="help">기준일 <b>'+esc(FX_DATE||todayStr())+'</b> · 1외화당 원화 금액을 입력합니다. 저장하면 모든 기기에 공유됩니다.</p>'+
+    '<div class="grid2">'+
+      '<div><label>USD ($)</label><input id="fx-usd" type="number" step="0.01" value="'+(FX.USD?FX.USD.toFixed(2):'')+'"></div>'+
+      '<div><label>CNY (¥)</label><input id="fx-cny" type="number" step="0.01" value="'+(FX.CNY?FX.CNY.toFixed(2):'')+'"></div>'+
+    '</div>'+
+    '<label>EUR (€)</label><input id="fx-eur" type="number" step="0.01" value="'+(FX.EUR?FX.EUR.toFixed(2):'')+'">'+
+    '<div style="display:flex;gap:8px;margin-top:16px;">'+
+      '<button class="btn btn-p" style="flex:1" onclick="saveFx()">저장</button>'+
+      '<button class="btn btn-o" onclick="refetchFx()">API 재조회</button>'+
+      '<button class="btn btn-g" onclick="closeModal()">취소</button>'+
+    '</div>';
+  openModal('환율 설정', html);
+}
+function saveFx(){
+  var u = Number(document.getElementById('fx-usd').value||0);
+  var c = Number(document.getElementById('fx-cny').value||0);
+  var e = Number(document.getElementById('fx-eur').value||0);
+  if(u <= 0 || c <= 0 || e <= 0) return toast('세 통화 모두 0보다 큰 값을 입력하세요');
+  var t = todayStr();
+  FX.USD = u; FX.CNY = c; FX.EUR = e; FX_DATE = t; FX_SRC = '수동입력';
+  sb('sw_fx?date=eq.'+t, { method:'DELETE' }).catch(function(){})
+   .then(function(){ return sb('sw_fx', { method:'POST', body:{ date:t, usd:u, cny:c, eur:e, src:'수동입력' } }); })
+   .then(function(){
+     closeModal(); toast('환율이 저장되었습니다'); renderFxBar();
+     if(PLOADED.bear) loadParts('bear', true);
+     if(PLOADED.etc)  loadParts('etc', true);
+     renderStock();
+   })
+   .catch(function(err){ toast('저장 실패: '+err.message); });
+}
+function refetchFx(){
+  toast('환율 조회 중…');
+  fetchFxApi().then(function(ok){
+    if(!ok) return toast('조회 실패 — 직접 입력해 주세요');
+    document.getElementById('fx-usd').value = FX.USD.toFixed(2);
+    document.getElementById('fx-cny').value = FX.CNY.toFixed(2);
+    document.getElementById('fx-eur').value = FX.EUR.toFixed(2);
+    toast('조회 완료 — [저장]을 눌러 확정하세요');
+  });
+}
+
+var _tstTmr;
+function toast(msg){
+  var t = document.getElementById('tst');
+  if(!t){ t = document.createElement('div'); t.id='tst'; t.className='tst'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(_tstTmr); _tstTmr = setTimeout(function(){ t.classList.remove('on'); }, 2200);
+}
+
+function partShell(k){
+  return ''+
+  fxBarHtml(k)+
+  '<div class="kpi-wrap"><div class="kpi-strip" style="grid-template-rows:auto">'+
+    '<div class="kpi"><div class="n" id="pk-cnt-'+k+'">0</div><div class="l">품목</div></div>'+
+    '<div class="kpi"><div class="n" id="pk-val-'+k+'">0</div><div class="l">재고금액(원)</div></div>'+
+    '<div class="kpi warn"><div class="n" id="pk-low-'+k+'">0</div><div class="l">재고부족</div></div>'+
+    '<div class="kpi" id="kpi-pl-'+k+'"><div class="n" id="pk-pl-'+k+'">0</div><div class="l">평가 환차손익</div></div>'+
+    '<div class="kpi ok"><div class="n" id="pk-mon-'+k+'">0</div><div class="l">이달 입출고</div></div>'+
+  '</div></div>'+
+  '<div class="card">'+
+    '<h3>'+PKIND[k].icon+' '+PKIND[k].label+' 재고 <span class="badge b-blue">품목 단위</span></h3>'+
+    '<div class="pbar2">'+
+      '<input type="text" id="pq-'+k+'" placeholder="품명 · 규격 · 위치 · 거래처 검색" oninput="renderParts(\''+k+'\')">'+
+      '<select id="pcat-'+k+'" onchange="renderParts(\''+k+'\')"><option value="">전체 분류</option></select>'+
+      '<button class="lowtg" id="plow-'+k+'" onclick="togglePLow(\''+k+'\')">⚠ 부족만</button>'+
+    '</div>'+
+    '<div class="pbar2">'+
+      '<button class="btn btn-p btn-sm" onclick="editPart(\''+k+'\',null)">＋ 품목 등록</button>'+
+      '<button class="btn btn-o btn-sm" onclick="exportPartCSV(\''+k+'\')">엑셀 내려받기</button>'+
+      '<button class="btn btn-g btn-sm" onclick="loadParts(\''+k+'\',true)">새로고침</button>'+
+    '</div>'+
+    '<div id="plist-'+k+'"><div class="pempty">불러오는 중…</div></div>'+
+  '</div>'+
+  '<div class="card">'+
+    '<h3>최근 입출고 <span class="badge b-blue">최근 30건</span></h3>'+
+    '<div id="prl-'+k+'"></div>'+
+    '<div id="phist-'+k+'"></div>'+
+  '</div>';
+}
+function initPartUI(){
+  document.getElementById('sub-stk-bear').innerHTML = partShell('bear');
+  document.getElementById('sub-stk-etc').innerHTML  = partShell('etc');
+  renderFxBar();
+}
+
+function goStockSub(btn){
+  var bs = btn.parentNode.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++) bs[i].classList.remove('on');
+  btn.classList.add('on');
+  var subs = document.querySelectorAll('#pg-stock .sub');
+  for(var j=0;j<subs.length;j++) subs[j].classList.remove('on');
+  var id = btn.getAttribute('data-sub');
+  document.getElementById('sub-'+id).classList.add('on');
+  window.scrollTo(0,0);
+  var k = id === 'stk-bear' ? 'bear' : (id === 'stk-etc' ? 'etc' : null);
+  if(k && !PLOADED[k]){
+    (FX_DATE ? Promise.resolve() : loadFx()).then(function(){ loadParts(k); });
+  }
+}
+function goStock(kind){
+  selectTab('stock');
+  var map = { mat:'stk-mat', bear:'stk-bear', etc:'stk-etc' };
+  var btns = document.querySelectorAll('#pg-stock .subtab button');
+  for(var i=0;i<btns.length;i++){
+    if(btns[i].getAttribute('data-sub') === map[kind||'mat']){ goStockSub(btns[i]); return; }
+  }
+}
+function togglePLow(k){
+  PLOW[k] = !PLOW[k];
+  document.getElementById('plow-'+k).classList.toggle('on', PLOW[k]);
+  renderParts(k);
+}
+function isLowPart(i){ return Number(i.min_stock) > 0 && Number(i.stock) <= Number(i.min_stock); }
+/* 평가 환차손익: 보유수량 × 외화단가 × (오늘환율 − 매입환율) */
+function evalPL(it){
+  var cur = it.currency || 'KRW';
+  if(cur === 'KRW') return 0;
+  var buy = Number(it.fx_buy)||0, now = fxOf(cur);
+  if(!buy || !now) return 0;
+  return Number(it.stock||0) * Number(it.price||0) * (now - buy);
+}
+function plHtml(v, big){
+  var n = Math.round(v);
+  if(!n) return big ? '0' : '';
+  var col = n > 0 ? 'var(--ok)' : 'var(--danger)';
+  var txt = (n > 0 ? '+' : '−') + fmt(Math.abs(n));
+  return big ? '<span style="color:'+col+'">'+txt+'</span>'
+             : '<span class="plchip" style="color:'+col+'">'+txt+'원</span>';
+}
+
+function loadParts(k, silent){
+  if(!silent) document.getElementById('plist-'+k).innerHTML = '<div class="pempty">불러오는 중…</div>';
+  var mon = new Date(); mon.setDate(1); mon.setHours(0,0,0,0);
+  return Promise.all([
+    sb('sw_part?select=*&kind=eq.'+k+'&order=name.asc'),
+    sb('sw_part_log?select=*&kind=eq.'+k+'&order=id.desc&limit=30'),
+    sb('sw_part_log?select=id&kind=eq.'+k+'&created_at=gte.'+mon.toISOString()),
+    sb('sw_part_log?select=fx_pl&kind=eq.'+k+'&type=eq.out&created_at=gte.'+mon.toISOString())
+  ]).then(function(r){
+    PARTS[k] = r[0]||[]; PLOG[k] = r[1]||[]; PLOADED[k] = true;
+    var cats = [], seen = {};
+    for(var i=0;i<PARTS[k].length;i++){
+      var c = PARTS[k][i].category;
+      if(c && !seen[c]){ seen[c] = 1; cats.push(c); }
+    }
+    cats.sort();
+    var sel = document.getElementById('pcat-'+k), cur = sel.value, h = '<option value="">전체 분류</option>';
+    for(var j=0;j<cats.length;j++) h += '<option'+(cats[j]===cur?' selected':'')+'>'+esc(cats[j])+'</option>';
+    sel.innerHTML = h;
+    var low = 0, val = 0, pl = 0;
+    for(var m=0;m<PARTS[k].length;m++){
+      var it = PARTS[k][m];
+      if(isLowPart(it)) low++;
+      val += Number(it.stock||0) * toKRW(it.price, it.currency||'KRW');
+      pl  += evalPL(it);
+    }
+    document.getElementById('pk-cnt-'+k).textContent = PARTS[k].length;
+    document.getElementById('pk-val-'+k).textContent = fmt(Math.round(val));
+    document.getElementById('pk-low-'+k).textContent = low;
+    document.getElementById('pk-pl-'+k).innerHTML = plHtml(pl, true);
+    document.getElementById('pk-mon-'+k).textContent = (r[2]||[]).length;
+    var real = 0, rl = r[3]||[];
+    for(var q=0;q<rl.length;q++) real += Number(rl[q].fx_pl)||0;
+    document.getElementById('prl-'+k).innerHTML = Math.round(real)
+      ? '<div class="plsum">이달 실현 환차손익 '+plHtml(real, true)+' 원</div>' : '';
+    renderParts(k); renderPartLog(k);
+  }).catch(function(err){
+    document.getElementById('plist-'+k).innerHTML =
+      '<div class="pempty">재고 테이블이 없습니다.<br>Supabase에서 <b>sw_part / sw_part_log / sw_fx</b> 테이블을 먼저 생성하세요.<br><span style="font-size:11px;opacity:.7">'+esc(err.message)+'</span></div>';
+    document.getElementById('phist-'+k).innerHTML = '';
+  });
+}
+function renderParts(k){
+  var q = (document.getElementById('pq-'+k).value||'').trim().toLowerCase();
+  var cat = document.getElementById('pcat-'+k).value;
+  var h = '';
+  for(var i=0;i<PARTS[k].length;i++){
+    var it = PARTS[k][i];
+    var blob = [it.name,it.spec,it.location,it.vendor,it.memo].join(' ').toLowerCase();
+    if(q && blob.indexOf(q) < 0) continue;
+    if(cat && it.category !== cat) continue;
+    var low = isLowPart(it);
+    if(PLOW[k] && !low) continue;
+    var cur = it.currency || 'KRW';
+    var unitKrw = toKRW(it.price, cur);
+    var priceTxt = Number(it.price)
+      ? (cur === 'KRW' ? '<span>@'+fmt(it.price)+'원</span>'
+                       : '<span class="curtag">'+cur+'</span><span>@'+money(it.price,cur)+' → ₩'+fmt(Math.round(unitKrw))+'</span>')
+      : '';
+    var pl = evalPL(it);
+    h += '<div class="pcard'+(low?' low':'')+'">'+
+      '<div class="pico">'+PKIND[k].icon+'</div>'+
+      '<div class="pinf">'+
+        '<div class="pnm" onclick="editPart(\''+k+'\','+it.id+')">'+esc(it.name)+(low?'<span class="lowbadge">부족</span>':'')+'</div>'+
+        '<div class="pmeta">'+
+          (it.category?'<span class="tag">'+esc(it.category)+'</span>':'')+
+          (it.spec?'<span>'+esc(it.spec)+'</span>':'')+
+          (it.location?'<span>📍'+esc(it.location)+'</span>':'')+
+          priceTxt+
+          (Math.round(pl)?'<span>평가 '+plHtml(pl)+'</span>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="pqty"><div class="q'+(low?' low':'')+'">'+fmt(it.stock)+'</div>'+
+        '<div class="m">'+esc(it.unit||'EA')+(Number(it.min_stock)?' · 안전 '+fmt(it.min_stock):'')+'</div></div>'+
+      '<div class="pbtns">'+
+        '<button class="in" onclick="openPartIO(\''+k+'\','+it.id+',\'in\')">입고</button>'+
+        '<button class="out" onclick="openPartIO(\''+k+'\','+it.id+',\'out\')">출고</button>'+
+      '</div></div>';
+  }
+  document.getElementById('plist-'+k).innerHTML = h ||
+    '<div class="pempty">품목이 없습니다. [＋ 품목 등록]으로 시작하세요.</div>';
+}
+function renderPartLog(k){
+  var h = '';
+  for(var i=0;i<PLOG[k].length;i++){
+    var g = PLOG[k][i];
+    var d = g.created_at ? String(g.created_at).slice(0,16).replace('T',' ') : '';
+    var pl = Number(g.fx_pl)||0;
+    h += '<div class="prow">'+
+      '<span class="tp '+g.type+'">'+(g.type==='in'?'입고':'출고')+'</span>'+
+      '<span class="nm2">'+esc(g.item_name)+(g.memo?' · '+esc(g.memo):'')+
+        (g.currency && g.currency!=='KRW' ? ' <span class="curtag">'+esc(g.currency)+' '+(Number(g.fx)||0).toFixed(0)+'</span>' : '')+
+        (Math.round(pl)?' '+plHtml(pl):'')+
+      '</span>'+
+      '<span class="qt" style="color:var('+(g.type==='in'?'--gold':'--amber')+')">'+(g.type==='in'?'+':'−')+fmt(g.qty)+'</span>'+
+      '<span class="dt2">'+esc(d)+'</span></div>';
+  }
+  document.getElementById('phist-'+k).innerHTML = h || '<div class="pempty">입출고 이력이 없습니다</div>';
+}
+
+/* ---- 품목 등록 / 수정 ---- */
+function editPart(k, id){
+  PEDIT = { kind:k, id:id };
+  var m = null;
+  if(id){ for(var i=0;i<PARTS[k].length;i++) if(PARTS[k][i].id===id) m = PARTS[k][i]; }
+  var v = function(x){ return m && m[x] != null ? esc(m[x]) : ''; };
+  var mcur = (m && m.currency) || 'KRW';
+  var units = ['EA','SET','BOX','PCS','KG','M','개','조','통','기타'], uh = '';
+  for(var u=0;u<units.length;u++)
+    uh += '<option'+(m && m.unit===units[u]?' selected':'')+'>'+units[u]+'</option>';
+  var chh = '';
+  for(var q=0;q<CURS.length;q++)
+    chh += '<option value="'+CURS[q]+'"'+(mcur===CURS[q]?' selected':'')+'>'+CURS[q]+' '+CUR_SYM[CURS[q]]+'</option>';
+  var cats = PKIND[k].cats, ch = '';
+  for(var c=0;c<cats.length;c++) ch += '<option value="'+cats[c]+'">';
+  var fxVal = m && Number(m.fx_buy) ? Number(m.fx_buy) : (mcur==='KRW' ? '' : (fxOf(mcur)?fxOf(mcur).toFixed(2):''));
+  var html =
+    '<label>품명 *</label><input id="pe-name" value="'+v('name')+'" placeholder="예) 6205 ZZ 볼베어링">'+
+    '<div class="grid2">'+
+      '<div><label>분류</label><input id="pe-cat" list="dl-pcat" value="'+v('category')+'"><datalist id="dl-pcat">'+ch+'</datalist></div>'+
+      '<div><label>단위</label><select id="pe-unit"><option value="">선택</option>'+uh+'</select></div>'+
+    '</div>'+
+    '<label>규격</label><input id="pe-spec" value="'+v('spec')+'" placeholder="예) 内25 × 外52 × 15T">'+
+    '<div class="grid2">'+
+      '<div><label>현재고</label><input id="pe-stock" type="number" min="0" inputmode="numeric" value="'+(m?Number(m.stock):'')+'"></div>'+
+      '<div><label>안전재고</label><input id="pe-min" type="number" min="0" inputmode="numeric" value="'+(m?Number(m.min_stock):'')+'"></div>'+
+    '</div>'+
+    '<div class="grid2">'+
+      '<div><label>통화</label><select id="pe-cur" onchange="onCurChange()">'+chh+'</select></div>'+
+      '<div><label>단가</label><input id="pe-price" type="number" min="0" step="0.01" inputmode="decimal" value="'+(m?Number(m.price):'')+'" oninput="calcKrwPreview()"></div>'+
+    '</div>'+
+    '<div id="pe-fxwrap" style="display:'+(mcur==='KRW'?'none':'block')+'">'+
+      '<label>매입 환율 <span style="font-weight:600;color:var(--sub)">(1 외화당 원화 · 손익 기준)</span></label>'+
+      '<input id="pe-fx" type="number" min="0" step="0.01" value="'+fxVal+'" oninput="calcKrwPreview()">'+
+    '</div>'+
+    '<div class="krwpv" id="pe-pv"></div>'+
+    '<div class="grid2">'+
+      '<div><label>위치(랙)</label><input id="pe-loc" value="'+v('location')+'" placeholder="예) A랙-3"></div>'+
+      '<div><label>거래처</label><input id="pe-vendor" value="'+v('vendor')+'"></div>'+
+    '</div>'+
+    '<label>비고</label><input id="pe-memo" value="'+v('memo')+'">'+
+    '<div style="display:flex;gap:8px;margin-top:16px;">'+
+      '<button class="btn btn-p" style="flex:1" onclick="savePart()">저장</button>'+
+      (id?'<button class="btn btn-g" onclick="deletePart()">삭제</button>':'')+
+      '<button class="btn btn-g" onclick="closeModal()">취소</button>'+
+    '</div>';
+  openModal((id?'품목 수정':'품목 등록')+' · '+PKIND[k].label, html);
+  calcKrwPreview();
+}
+function onCurChange(){
+  var cur = document.getElementById('pe-cur').value;
+  document.getElementById('pe-fxwrap').style.display = cur === 'KRW' ? 'none' : 'block';
+  var fx = document.getElementById('pe-fx');
+  if(cur !== 'KRW' && !Number(fx.value) && fxOf(cur)) fx.value = fxOf(cur).toFixed(2);
+  calcKrwPreview();
+}
+function calcKrwPreview(){
+  var el = document.getElementById('pe-pv'); if(!el) return;
+  var cur = document.getElementById('pe-cur').value;
+  var p = Number(document.getElementById('pe-price').value||0);
+  if(!p){ el.innerHTML = ''; return; }
+  if(cur === 'KRW'){ el.innerHTML = '원화 단가 <b>₩'+fmt(p)+'</b>'; return; }
+  var buy = Number(document.getElementById('pe-fx').value||0);
+  var now = fxOf(cur);
+  var h = '매입 기준 <b>₩'+fmt(Math.round(p*(buy||now)))+'</b>';
+  if(now) h += ' · 오늘(₩'+ (cur==='CNY'?now.toFixed(1):fmt(Math.round(now))) +') 기준 <b>₩'+fmt(Math.round(p*now))+'</b>';
+  if(buy && now) h += ' · 단가차 '+plHtml(p*(now-buy));
+  el.innerHTML = h;
+}
+function savePart(){
+  var k = PEDIT.kind;
+  var name = (document.getElementById('pe-name').value||'').trim();
+  if(name.length < 1) return toast('품명을 입력하세요');
+  var num = function(id){ return Number(document.getElementById(id).value||0); };
+  var txt = function(id){ var t=(document.getElementById(id).value||'').trim(); return t||null; };
+  var cur = document.getElementById('pe-cur').value || 'KRW';
+  var fxb = cur === 'KRW' ? 1 : num('pe-fx');
+  if(cur !== 'KRW' && fxb <= 0) return toast('매입 환율을 입력하세요');
+  var body = {
+    kind:k, name:name, category:txt('pe-cat'), spec:txt('pe-spec'),
+    unit:document.getElementById('pe-unit').value||'EA',
+    stock:num('pe-stock'), min_stock:num('pe-min'), price:num('pe-price'),
+    currency:cur, fx_buy:fxb,
+    location:txt('pe-loc'), vendor:txt('pe-vendor'), memo:txt('pe-memo')
+  };
+  var p = PEDIT.id
+    ? sb('sw_part?id=eq.'+PEDIT.id, { method:'PATCH', body:body })
+    : sb('sw_part', { method:'POST', body:body });
+  p.then(function(){ closeModal(); toast('저장되었습니다'); return loadParts(k, true); })
+   .catch(function(e){ toast('저장 실패: '+e.message); });
+}
+function deletePart(){
+  if(!PEDIT.id) return;
+  if(!confirm('이 품목을 삭제할까요? 입출고 이력은 남습니다.')) return;
+  var k = PEDIT.kind;
+  sb('sw_part?id=eq.'+PEDIT.id, { method:'DELETE' })
+    .then(function(){ closeModal(); toast('삭제되었습니다'); return loadParts(k, true); })
+    .catch(function(e){ toast('삭제 실패: '+e.message); });
+}
+
+/* ---- 입고 / 출고 ---- */
+function openPartIO(k, id, type){
+  PIOKIND = k; PIO = id; PIOTYPE = type;
+  var m = null;
+  for(var i=0;i<PARTS[k].length;i++) if(PARTS[k][i].id===id) m = PARTS[k][i];
+  if(!m) return;
+  var cur = m.currency || 'KRW', now = fxOf(cur), buy = Number(m.fx_buy)||0;
+  var fxBox = '';
+  if(cur !== 'KRW'){
+    fxBox =
+      '<div class="fxbox">'+
+        '<div class="fxln"><span>단가</span><b>'+money(m.price,cur)+'</b></div>'+
+        '<div class="fxln"><span>매입 환율</span><b>₩'+(buy?fmt(buy.toFixed(2)):'-')+'</b></div>'+
+        '<div class="fxln"><span>오늘 환율 <i>'+esc(FX_DATE||'')+'</i></span>'+
+          '<b>₩'+(now?fmt(now.toFixed(2)):'-')+'</b></div>'+
+        '<div class="fxln tot"><span>'+(type==='in'?'환산 매입액':'환차손익 (출고분)')+'</span>'+
+          '<b id="pio-pl">-</b></div>'+
+      '</div>';
+  }
+  var who = (typeof CURRENT_USER !== 'undefined' && CURRENT_USER) ? CURRENT_USER : '';
+  var html =
+    '<div class="iotype">'+
+      '<button class="in" id="pio-in" onclick="setPIOType(\'in\')">📥 입고</button>'+
+      '<button class="out" id="pio-out" onclick="setPIOType(\'out\')">📤 출고</button>'+
+    '</div>'+
+    '<label>수량</label>'+
+    '<div class="qtyrow">'+
+      '<button onclick="pioQty(-1)">−</button>'+
+      '<input id="pio-qty" type="number" min="1" value="1" oninput="calcIOPL()">'+
+      '<button onclick="pioQty(1)">＋</button>'+
+    '</div>'+
+    '<p class="help" style="text-align:center">현재고 <b>'+fmt(m.stock)+' '+esc(m.unit||'EA')+'</b>'+
+      (Number(m.min_stock)?' · 안전재고 '+fmt(m.min_stock):'')+'</p>'+
+    fxBox+
+    '<label>작업자 · 비고</label><input id="pio-memo" value="'+esc(who)+'" placeholder="담당자 또는 사유">'+
+    '<div style="display:flex;gap:8px;margin-top:16px;">'+
+      '<button class="btn btn-p" style="flex:1" onclick="savePartIO()">처리</button>'+
+      '<button class="btn btn-g" onclick="closeModal()">취소</button>'+
+    '</div>';
+  openModal(m.name, html);
+  setPIOType(type);
+}
+function curIOItem(){
+  for(var i=0;i<PARTS[PIOKIND].length;i++)
+    if(PARTS[PIOKIND][i].id === PIO) return PARTS[PIOKIND][i];
+  return null;
+}
+function ioPL(m, qty){
+  var cur = m.currency || 'KRW';
+  if(cur === 'KRW' || PIOTYPE !== 'out') return 0;
+  var buy = Number(m.fx_buy)||0, now = fxOf(cur);
+  if(!buy || !now) return 0;
+  return qty * Number(m.price||0) * (now - buy);
+}
+function calcIOPL(){
+  var el = document.getElementById('pio-pl'); if(!el) return;
+  var m = curIOItem(); if(!m) return;
+  var qty = Number(document.getElementById('pio-qty').value||0);
+  var cur = m.currency || 'KRW', now = fxOf(cur);
+  if(PIOTYPE === 'in'){
+    el.innerHTML = '₩'+fmt(Math.round(qty * Number(m.price||0) * (now || Number(m.fx_buy)||0)));
+  }else{
+    var v = ioPL(m, qty);
+    el.innerHTML = Math.round(v) ? plHtml(v, true)+' 원' : '0 원';
+  }
+}
+function setPIOType(t){
+  PIOTYPE = t;
+  document.getElementById('pio-in').classList.toggle('on', t==='in');
+  document.getElementById('pio-out').classList.toggle('on', t==='out');
+  var lbl = document.querySelector('.fxbox .fxln.tot span');
+  if(lbl) lbl.textContent = t === 'in' ? '환산 매입액' : '환차손익 (출고분)';
+  calcIOPL();
+}
+function pioQty(d){
+  var el = document.getElementById('pio-qty');
+  el.value = Math.max(1, Number(el.value||1) + d);
+  calcIOPL();
+}
+function savePartIO(){
+  var k = PIOKIND, m = curIOItem();
+  if(!m) return;
+  var qty = Number(document.getElementById('pio-qty').value||0);
+  if(!qty || qty < 1) return toast('수량을 입력하세요');
+  if(PIOTYPE === 'out' && qty > Number(m.stock))
+    return toast('현재고('+fmt(m.stock)+')보다 많이 출고할 수 없습니다');
+  var ns = PIOTYPE === 'in' ? Number(m.stock) + qty : Number(m.stock) - qty;
+  var memo = (document.getElementById('pio-memo').value||'').trim() || null;
+  var cur = m.currency || 'KRW', now = fxOf(cur) || Number(m.fx_buy) || 1;
+  var pl = ioPL(m, qty);
+  sb('sw_part?id=eq.'+m.id, { method:'PATCH', body:{ stock:ns } })
+    .then(function(){
+      return sb('sw_part_log', { method:'POST', body:{
+        kind:k, item_id:m.id, item_name:m.name, type:PIOTYPE, qty:qty, memo:memo,
+        currency:cur, unit_price:Number(m.price||0), fx:cur==='KRW'?1:now,
+        fx_buy:Number(m.fx_buy)||0, fx_pl:Math.round(pl),
+        amount_krw:Math.round(qty * Number(m.price||0) * (cur==='KRW'?1:now)) } });
+    })
+    .then(function(){
+      closeModal();
+      var msg = (PIOTYPE==='in'?'입고':'출고')+' 완료 · 재고 '+fmt(ns)+' '+(m.unit||'EA');
+      if(Math.round(pl)) msg += ' · 환차손익 '+(pl>0?'+':'−')+fmt(Math.abs(Math.round(pl)))+'원';
+      toast(msg);
+      return loadParts(k, true);
+    })
+    .catch(function(e){ toast('처리 실패: '+e.message); });
+}
+
+/* ---- 엑셀(CSV) ---- */
+function exportPartCSV(k){
+  var head = ['품명','분류','규격','단위','현재고','안전재고','통화','단가(외화)','매입환율','오늘환율',
+              '매입단가(원)','현재단가(원)','재고금액(원)','평가환차손익(원)','위치','거래처','비고'];
+  var rows = [], total = 0, totPL = 0;
+  for(var i=0;i<PARTS[k].length;i++){
+    var it = PARTS[k][i], cur = it.currency||'KRW';
+    var buy = cur==='KRW'?1:(Number(it.fx_buy)||0), now = cur==='KRW'?1:fxOf(cur);
+    var upBuy = Math.round(Number(it.price||0)*buy), upNow = Math.round(Number(it.price||0)*now);
+    var amt = Number(it.stock||0)*upNow, pl = Math.round(evalPL(it));
+    total += amt; totPL += pl;
+    rows.push([it.name, it.category||'', it.spec||'', it.unit||'EA', Number(it.stock||0),
+               Number(it.min_stock||0), cur, Number(it.price||0), buy, now,
+               upBuy, upNow, amt, pl, it.location||'', it.vendor||'', it.memo||'']);
+  }
+  var today = todayStr();
+  var all = [[PKIND[k].label+' 재고현황 - '+today+' (환율 '+(FX_DATE||'-')+' '+(FX_SRC||'')+')'], head]
+    .concat(rows, [[]], [['합계','','','','','','','','','','','',total,totPL]]);
+  var csv = all.map(function(r){
+    return r.map(function(c){ return '"'+String(c==null?'':c).replace(/"/g,'""')+'"'; }).join(',');
+  }).join('\r\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], { type:'text/csv' }));
+  a.download = PKIND[k].label+'재고_'+today+'.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+initPartUI();
+loadFx().then(function(){ try{ renderStock(); }catch(e){} });
 
 function renderAll(){
   renderDash();
