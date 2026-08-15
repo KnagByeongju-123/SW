@@ -301,6 +301,9 @@ body.locked{overflow:hidden;}
 .pbtns .del{background:rgba(239,116,102,.12);border:1px solid rgba(239,116,102,.45);color:var(--danger);}
 .lowbadge{font-size:10px;font-weight:800;color:var(--danger);background:rgba(239,116,102,.15);
   border:1px solid rgba(239,116,102,.4);border-radius:5px;padding:1px 7px;margin-left:5px;}
+.agebadge{font-size:10px;font-weight:800;border-radius:5px;padding:1px 6px;margin-left:5px;}
+.agebadge.wn{color:var(--amber);background:rgba(242,160,60,.14);border:1px solid rgba(242,160,60,.4);}
+.agebadge.dg{color:var(--danger);background:rgba(239,116,102,.15);border:1px solid rgba(239,116,102,.4);}
 /* ===== 재고 한 줄 리스트 · 정렬 · 펼치기 ===== */
 .sortbar{display:flex;gap:4px;background:#12141d;border:1px solid var(--line);border-radius:10px;padding:3px;flex:1;min-width:0;}
 .sortbar button{flex:1;min-width:0;padding:7px 2px;border:1px solid transparent;background:transparent;
@@ -717,6 +720,8 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       <div class="kpi"><div class="n" id="k-item">-</div><div class="l">재고 품목</div></div>
       <div class="kpi"><div class="n" id="k-ord">-</div><div class="l">진행중 수주</div></div>
       <div class="kpi warn"><div class="n" id="k-short">-</div><div class="l">수주대비 부족</div></div>
+      <div class="kpi warn"><div class="n" id="k-aged">-</div><div class="l">장기재고(180일+)</div></div>
+      <div class="kpi ok"><div class="n" id="k-transit">-</div><div class="l">미착 금액(원)</div></div>
       <div class="kpi ok"><div class="n" id="k-ship">-</div><div class="l">출하 진행중</div></div>
       <div class="kpi"><div class="n" id="k-recv">-</div><div class="l">이달 입고</div></div>
       <div class="kpi warn"><div class="n" id="k-low">-</div><div class="l">잔량 부족</div></div>
@@ -771,6 +776,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
         <button class="on" data-so="recent" onclick="setMSort(this)">최종입고순</button>
         <button data-so="name" onclick="setMSort(this)">가나다순</button>
         <button data-so="stock" onclick="setMSort(this)">재고순</button>
+        <button data-so="aged" onclick="setMSort(this)">장기재고순</button>
       </div>
       <button class="expbtn" id="mexp" onclick="toggleMAll()">▼ 펼쳐보기</button>
     </div>
@@ -819,6 +825,47 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       <button class="btn btn-p" onclick="doPrintShipLabel()">인쇄</button>
       <button class="btn btn-g" onclick="closeShipLabel()">닫기</button>
     </div>
+  </div>
+</div>
+
+<!-- ========== 발주 · 입항 ========== -->
+<div class="page" id="pg-po">
+  <div class="subtab">
+    <button class="on" data-k="mat"  onclick="goPoKind(this)">소재</button>
+    <button           data-k="bear" onclick="goPoKind(this)">베어링</button>
+    <button           data-k="etc"  onclick="goPoKind(this)">기타</button>
+  </div>
+  <div class="sub on" id="sub-po-mat"></div>
+  <div class="sub"    id="sub-po-bear"></div>
+  <div class="sub"    id="sub-po-etc"></div>
+</div>
+
+<!-- ========== 미수금 ========== -->
+<div class="page" id="pg-pay">
+  <div class="kpi-wrap"><div class="kpi-strip">
+    <div class="kpi warn"><div class="n" id="pk-out">0</div><div class="l">미수 잔액(원)</div></div>
+    <div class="kpi"><div class="n" id="pk-cnt2">0</div><div class="l">미수 건수</div></div>
+    <div class="kpi warn"><div class="n" id="pk-over">0</div><div class="l">연체 건</div></div>
+    <div class="kpi ok"><div class="n" id="pk-in">0</div><div class="l">이달 입금(원)</div></div>
+    <div class="kpi"><div class="n" id="pk-sale">0</div><div class="l">이달 매출(원)</div></div>
+  </div></div>
+
+  <div class="card">
+    <h3>거래처별 미수 현황</h3>
+    <div id="pay-cust"></div>
+  </div>
+
+  <div class="card">
+    <h3>출하 건별 수금</h3>
+    <div class="pbar2">
+      <input type="text" id="payq" placeholder="거래처 · 수주번호 · 품목 검색" oninput="renderPay()">
+      <select id="payf" onchange="renderPay()">
+        <option value="open">미수만</option>
+        <option value="over">연체만</option>
+        <option value="all">전체</option>
+      </select>
+    </div>
+    <div id="pay-list"></div>
   </div>
 </div>
 
@@ -1421,6 +1468,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <button data-pg="dash" onclick="go(this)"><span class="ic">&#127968;</span><span>대시보드</span></button>
 
     <div class="sheet-sec">구매 · 입고</div>
+    <button data-pg="po" onclick="goPo()"><span class="ic">&#128667;</span><span>발주 · 입항</span></button>
     <button data-pg="recv" onclick="go(this)"><span class="ic">&#128229;</span><span>입고</span></button>
     <button data-pg="mtc" onclick="go(this)"><span class="ic">&#128196;</span><span>밀시트</span></button>
 
@@ -1433,6 +1481,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <button data-pg="order" onclick="goOrder()"><span class="ic">&#128221;</span><span>수주</span></button>
     <button data-pg="ship" onclick="goShip()"><span class="ic">&#128666;</span><span>출하</span></button>
     <button data-pg="doc" onclick="go(this)"><span class="ic">&#129534;</span><span>거래명세서</span></button>
+    <button data-pg="pay" onclick="go(this)"><span class="ic">&#128176;</span><span>미수금 · 수금</span></button>
 
     <div class="sheet-sec">지원</div>
     <button data-pg="board" onclick="go(this)"><span class="ic">&#128203;</span><span>게시판</span></button>
@@ -1508,13 +1557,17 @@ function loadData(){
     sb('sw_order?select=*&order=id.asc'),
     sb('sw_cut_log?select=*&order=id.desc'),
     sb('sw_board?select=*&order=id.desc'),
-    sb('sw_receipt?select=*&order=id.desc')
+    sb('sw_receipt?select=*&order=id.desc'),
+    sb('sw_ship?select=*&order=id.desc').catch(function(){return [];}),
+    sb('sw_po?select=*&order=eta.asc').catch(function(){return [];})
   ]).then(function(r){
     STOCK=r[0]||[];
     ORDERS=r[1]||[];
     CUTS=r[2]||[];
     BOARD=r[3]||[];
     RECV=r[4]||[];
+    SHIPS=r[5]||[];
+    POS=r[6]||[];
     STOCK_BY_ID={};
     for(var i=0;i<STOCK.length;i++)STOCK_BY_ID[STOCK[i].id]=STOCK[i];
     renderAll();
@@ -1527,7 +1580,7 @@ function showLoading(on){
 }
 
 /* ================= 공통 ================= */
-var PAGE_TITLES={dash:'대시보드',stock:'재고',recv:'입고',qr:'QR 스캔·라벨',cut:'절단·잔재',order:'수주',ship:'출하',mtc:'밀시트',doc:'거래명세서',board:'게시판',master:'마스터',guide:'사용안내'};
+var PAGE_TITLES={dash:'대시보드',stock:'재고',recv:'입고',qr:'QR 스캔·라벨',cut:'절단·잔재',order:'수주',ship:'출하',pay:'미수금 · 수금',po:'발주 · 입항',mtc:'밀시트',doc:'거래명세서',board:'게시판',master:'마스터',guide:'사용안내'};
 function setPageTitle(t){var el=document.getElementById('htitle');if(el)el.textContent=t;}
 function setTitle(pg){
   var el=document.getElementById('htitle');
@@ -1697,6 +1750,18 @@ function renderDash(){
   document.getElementById('k-recv').textContent=waitn;
   var SH=renderShortage();
   document.getElementById('k-short').textContent=SH.length;
+  /* 장기재고 · 미착 */
+  var aged=0;
+  for(var a=0;a<STOCK.length;a++)
+    if(Number(STOCK[a].qty)>0 && agedDays(lastInMat(STOCK[a].id))>=AGE_DANGER) aged++;
+  ['bear','etc'].forEach(function(kk){
+    for(var b2=0;b2<PARTS[kk].length;b2++)
+      if(Number(PARTS[kk][b2].stock)>0 && agedDays(lastInOf(kk,PARTS[kk][b2].id))>=AGE_DANGER) aged++;
+  });
+  document.getElementById('k-aged').textContent=aged;
+  var tr=0;
+  for(var t2=0;t2<POS.length;t2++) if(Number(POS[t2].status)<3) tr+=poKRW(POS[t2]);
+  document.getElementById('k-transit').textContent=fmt(tr);
   renderDashKinds(SH);
 
   var now=new Date();
@@ -1794,6 +1859,7 @@ function renderStock(){
   list.sort(function(a,b){
     if(MSORT==='name') return String(a.alloy||'').localeCompare(String(b.alloy||''),'ko');
     if(MSORT==='stock')return Number(b.qty||0)-Number(a.qty||0);
+    if(MSORT==='aged') return agedDays(lastInMat(b.id))-agedDays(lastInMat(a.id));
     var da=lastInMat(a.id), db=lastInMat(b.id);
     if(da&&db)return da<db?1:(da>db?-1:0);
     if(da)return -1; if(db)return 1;
@@ -1809,7 +1875,7 @@ function renderStock(){
     h+='<div class="prowc'+(low?' low':'')+(open?' open':'')+'">'+
       '<div class="prh" onclick="toggleMRow('+t.id+')">'+
         '<span class="pra">'+(open?'▾':'▸')+'</span>'+
-        '<span class="prn">'+esc(t.alloy||'')+(low?'<span class="lowbadge">부족</span>':'')+'</span>'+
+        '<span class="prn">'+esc(t.alloy||'')+(low?'<span class="lowbadge">부족</span>':'')+agedBadge(li,t.qty)+'</span>'+
         '<span class="prs">'+esc(t.form||'')+' · '+esc(t.spec||'')+'</span>'+
         '<span class="prq'+(low?' low':'')+'">'+fmt(t.qty)+'<i>'+esc(t.unit||'')+'</i></span>'+
       '</div>';
@@ -1829,6 +1895,8 @@ function renderStock(){
           ' · 재고금액 <b>₩'+fmt(Math.round(Number(t.qty||0)*unitKrw))+'</b>'+
           (Math.round(pl)?' · 평가 '+plHtml(pl):'')+
         '</div>':'')+
+        (Number(t.landed_unit)?'<div class="prp" style="color:var(--ok);">실제 단가(Landed) <b style="color:var(--ok);">₩'+
+          fmt(t.landed_unit)+'</b>'+(Number(t.oh_rate)?' · 부대비용률 '+t.oh_rate+'%':'')+'</div>':'')+
         '<div class="pract">'+
           '<button class="edit" onclick="matDetail('+t.id+')">상세</button>'+
           '<button class="edit" onclick="matEditJump('+t.id+')">수정</button>'+
@@ -2849,7 +2917,7 @@ function printDoc(){
 
 
 /* ================= 절단·잔재 ================= */
-var CUTS=[];
+var CUTS=[], SHIPS=[], POS=[];
 var CUT_FORMS=['Round Bar','Plate','Sheet','Seamless Pipe','Welded Pipe','Seamless Tube','Welded Tube','Wire'];
 
 function goCutSub(btn){
@@ -3664,7 +3732,11 @@ function renderRecvLog(){
       '<span>'+esc(r.recv_date||'-')+'</span>'+
       (r.supplier?'<span>'+esc(r.supplier)+'</span>':'')+
       (r.po_no?'<span class="mono">'+esc(r.po_no)+'</span>':'')+
-      (r.inspector?'<span style="color:var(--gold);">'+esc(r.inspector)+'</span>':'')+'</div>';
+      (r.inspector?'<span style="color:var(--gold);">'+esc(r.inspector)+'</span>':'')+
+      (landedTotal(r)>0
+        ? '<span style="color:var(--ok);font-weight:700;">부대비용 ₩'+fmt(landedTotal(r))+'</span>'
+        : '<span style="color:var(--amber);">부대비용 미정산</span>')+'</div>'+
+      '<div style="margin-top:8px;"><button class="btn btn-o btn-sm" style="width:100%;" onclick="event.stopPropagation();openLanded('+r.id+')">💰 부대비용 정산</button></div>';
     (function(item){
       d.addEventListener('click',function(){
         if(item.insp_status===0)openInspect(item);
@@ -3838,7 +3910,8 @@ function renderFxBar(){
     : '<span class="fxd">💱 환율을 불러오지 못했습니다</span>'+
       '<button class="fxedit" onclick="editFx()">직접 입력</button>';
   ['mat','bear','etc','rvmat','rvbear','rvetc',
-   'ordmat','ordbear','ordetc','shpmat','shpbear','shpetc'].forEach(function(k){
+   'ordmat','ordbear','ordetc','shpmat','shpbear','shpetc',
+   'pomat','pobear','poetc'].forEach(function(k){
     var el = document.getElementById('fxbar-'+k);
     if(el) el.innerHTML = h;
   });
@@ -3916,6 +3989,7 @@ function partShell(k){
         '<button class="on" data-so="recent" onclick="setPSort(\''+k+'\',this)">최종입고순</button>'+
         '<button data-so="name" onclick="setPSort(\''+k+'\',this)">가나다순</button>'+
         '<button data-so="stock" onclick="setPSort(\''+k+'\',this)">재고순</button>'+
+        '<button data-so="aged" onclick="setPSort(\''+k+'\',this)">장기재고순</button>'+
       '</div>'+
       '<button class="expbtn" id="pexp-'+k+'" onclick="togglePAll(\''+k+'\')">▼ 펼쳐보기</button>'+
     '</div>'+
@@ -4311,11 +4385,29 @@ function togglePRow(k,id){
   renderParts(k);
 }
 function lastInOf(k,id){ return (PLAST[k]&&PLAST[k][id])||''; }
+/* 장기재고 판정 (최종 입고일 경과일) */
+var AGE_WARN=90, AGE_DANGER=180;
+function agedDays(d){
+  if(!d)return 9999;
+  return Math.round((new Date(todayStr())-new Date(String(d).slice(0,10)))/86400000);
+}
+function agedBadge(d,stock){
+  if(!Number(stock))return '';
+  var n=agedDays(d);
+  if(n>=9999)return '';
+  if(n>=AGE_DANGER)return '<span class="agebadge dg">장기 '+n+'일</span>';
+  if(n>=AGE_WARN)  return '<span class="agebadge wn">'+n+'일</span>';
+  return '';
+}
 function sortParts(k,arr){
   var so=PSORT[k];
   return arr.sort(function(a,b){
     if(so==='name')  return String(a.name||'').localeCompare(String(b.name||''),'ko');
     if(so==='stock') return Number(b.stock||0)-Number(a.stock||0);
+    if(so==='aged'){
+      var aa=agedDays(lastInOf(k,a.id)), ab=agedDays(lastInOf(k,b.id));
+      return ab-aa;
+    }
     var da=lastInOf(k,a.id), db=lastInOf(k,b.id);       /* recent */
     if(da&&db) return da<db?1:(da>db?-1:0);
     if(da) return -1;
@@ -4348,7 +4440,7 @@ function renderParts(k){
     h+='<div class="prowc'+(low?' low':'')+(open?' open':'')+'">'+
       '<div class="prh" onclick="togglePRow(\''+k+'\','+t.id+')">'+
         '<span class="pra">'+(open?'▾':'▸')+'</span>'+
-        '<span class="prn">'+esc(t.name)+(low?'<span class="lowbadge">부족</span>':'')+'</span>'+
+        '<span class="prn">'+esc(t.name)+(low?'<span class="lowbadge">부족</span>':'')+agedBadge(lastIn,t.stock)+'</span>'+
         '<span class="prs">'+esc(t.spec||'')+'</span>'+
         '<span class="prq'+(low?' low':'')+'">'+fmt(t.stock)+'<i>'+esc(t.unit||'EA')+'</i></span>'+
       '</div>';
@@ -4650,7 +4742,7 @@ initPartUI();
 loadFx().then(function(){ try{ renderStock(); }catch(e){} });
 
 /* ================= 수주 · 출하 (소재 · 베어링 · 기타 공통) ================= */
-var OKIND = { mat:{label:'소재',icon:'📦'}, bear:{label:'베어링',icon:'⚙️'}, etc:{label:'기타',icon:'🛠️'} };
+var OKIND = { mat:{label:'소재',icon:'📦',cats0:''}, bear:{label:'베어링',icon:'⚙️',cats0:'볼베어링'}, etc:{label:'기타',icon:'🛠️',cats0:'소모공구'} };
 var ORD_SUB = { mat:'new', bear:'new', etc:'new' };
 var SHP_SUB = { mat:'new', bear:'new', etc:'new' };
 
@@ -4918,14 +5010,17 @@ function onOrdItem(k){
   if(!C.buy){ cb.innerHTML='<span style="color:var(--sub);">매입단가가 등록되지 않아 원가를 계산할 수 없습니다. 재고에서 단가를 입력하세요.</span>'; return; }
   var oh=Number(document.getElementById('o-oh-'+k).value||0);
   var mg=Number(document.getElementById('o-mg-'+k).value||0);
-  var landed=Math.round(C.buy*(1+oh/100));
+  var realLanded=Number(it.landed_unit)||0;
+  var landed=realLanded>0?realLanded:Math.round(C.buy*(1+oh/100));
   var sug=Math.round(landed*(1+mg/100));
 
   var t='';
   t+='<div class="cline"><span>매입단가 <i>(매입환율 기준)</i></span><b>₩'+fmt(C.buy)+'</b></div>';
   if(C.cur!=='KRW')
     t+='<div class="cline sub2"><span>'+esc(C.cur)+' '+money(C.fc,C.cur)+' × 매입환율 '+fmt(Math.round(C.fxBuy))+'</span><span></span></div>';
-  t+='<div class="cline"><span>＋ 부대비용 '+oh+'%</span><b>₩'+fmt(landed)+'</b></div>';
+  t+= realLanded>0
+    ? '<div class="cline"><span>＋ 실제 부대비용 <i>(정산 반영)</i></span><b style="color:var(--ok)">₩'+fmt(landed)+'</b></div>'
+    : '<div class="cline"><span>＋ 부대비용 '+oh+'% <i>(추정)</i></span><b>₩'+fmt(landed)+'</b></div>';
   t+='<div class="cline tot"><span>권장 판매단가 <i>(마진 '+mg+'%)</i></span><b>₩'+fmt(sug)+'</b>'+
      '<button class="cbtn" onclick="applySuggest(\''+k+'\','+sug+')">적용</button></div>';
 
@@ -5127,16 +5222,20 @@ function renderShipK(k){
     live++;
     var it=ordItem(o);
     var warn=(k==='mat'&&it.id&&!it.mtc);
-    h+='<div class="rc-item" data-id="'+o.id+'">'+
-      '<div class="rc-top"><span class="rc-title">'+esc(o.customer)+'</span>'+stBadge(o.status)+
+    var dn=shippedQty(o.id), rm=remainQty(o), uu=(it.unit||'');
+    h+='<div class="rc-item">'+
+      '<div class="rc-top" data-id="'+o.id+'"><span class="rc-title">'+esc(o.customer)+'</span>'+stBadge(o.status)+
       '<span style="color:#999fb3;font-weight:800;">›</span></div>'+
-      '<div class="rc-meta">'+
+      '<div class="rc-meta" data-id="'+o.id+'">'+
         '<span class="mono">'+esc(o.order_no)+'</span>'+
-        '<span>'+esc(ordItemName(o))+' × '+esc(o.qty)+'</span>'+
+        '<span>'+esc(ordItemName(o))+' × '+esc(o.qty)+uu+'</span>'+
         (ordItemSub(o)?'<span class="heat">'+esc(ordItemSub(o))+'</span>':'')+
         '<span>납기 '+esc(o.due_date)+'</span>'+
+        (dn>0?'<span style="color:var(--amber);font-weight:700;">출하 '+fmt(dn)+' · 잔여 '+fmt(rm)+'</span>':'')+
         (warn?'<span style="color:var(--danger);font-weight:700;">MTC 미등록</span>':'')+
-      '</div></div>';
+      '</div>'+
+      '<div style="margin-top:8px;"><button class="btn btn-p btn-sm" style="width:100%;" onclick="event.stopPropagation();openShipReg('+o.id+')">🚚 출하 등록'+(dn>0?' (잔여 '+fmt(rm)+uu+')':'')+'</button></div>'+
+      '</div>';
   }
   box.innerHTML=h||'<div class="pempty">진행 중인 출하가 없습니다.</div>';
   bindShipRows(box);
@@ -5188,10 +5287,16 @@ function showOrderDetail(o){
   flow+='</div>';
   var warn=(k==='mat'&&it.id&&!it.mtc)
     ?'<p style="margin-top:10px;font-size:12.5px;color:var(--danger);font-weight:600;">⚠ 이 Heat No.는 밀시트가 미등록 상태입니다. 출하 전 등록이 필요합니다.</p>':'';
-  var btn=o.status<3
-    ?'<button class="btn btn-p" style="width:100%;margin-top:14px;" id="m-next">다음 단계 → '+ST_NAMES[o.status+1]+'</button>'
-    :'<p style="margin-top:12px;font-size:13px;color:var(--ok);font-weight:600;">출하 완료된 건입니다.</p>'+
-      '<button class="btn btn-o" style="width:100%;margin-top:10px;" onclick="closeModal();openShipLabel('+o.id+')">🏷 출하 라벨 출력</button>';
+  var done=shippedQty(o.id), rem=remainQty(o), u=(it.unit||'');
+  var btn='';
+  if(o.status<2)
+    btn+='<button class="btn btn-p" style="width:100%;margin-top:14px;" id="m-next">다음 단계 → '+ST_NAMES[o.status+1]+'</button>';
+  if(o.status<3&&rem>0)
+    btn+='<button class="btn btn-p" style="width:100%;margin-top:10px;" onclick="closeModal();openShipReg('+o.id+')">🚚 출하 등록 (잔여 '+fmt(rem)+u+')</button>';
+  if(done>0)
+    btn+='<button class="btn btn-o" style="width:100%;margin-top:10px;" onclick="closeModal();openShipLabel('+o.id+')">🏷 출하 라벨 출력</button>';
+  if(o.status>=3)
+    btn+='<p style="margin-top:12px;font-size:13px;color:var(--ok);font-weight:600;">출하 완료된 건입니다.</p>';
   var spec = k==='mat'
     ? '<dt>규격</dt><dd class="mono">'+esc(it.spec||'-')+'</dd>'+
       '<dt>Heat No.</dt><dd><span class="heat">'+esc(it.heat_no||'-')+'</span></dd>'
@@ -5203,7 +5308,8 @@ function showOrderDetail(o){
     '<dt>구분</dt><dd>'+OKIND[k].icon+' '+OKIND[k].label+'</dd>'+
     '<dt>품목</dt><dd>'+esc(ordItemName(o))+'</dd>'+
     spec+
-    '<dt>수량</dt><dd>'+esc(o.qty)+' '+esc(it.unit||'')+'</dd>'+
+    '<dt>수량</dt><dd>'+esc(o.qty)+' '+esc(it.unit||'')+
+      (done>0?' <span style="color:var(--sub);font-size:12px;">(출하 '+fmt(done)+' · 잔여 '+fmt(rem)+')</span>':'')+'</dd>'+
     '<dt>판매단가</dt><dd>'+fmt(o.price)+' 원</dd>'+
     '<dt>수주금액</dt><dd>'+fmt(Math.round(Number(o.qty||0)*Number(o.price||0)))+' 원</dd>'+
     matCostRow(it,Number(o.qty))+
@@ -5214,55 +5320,162 @@ function showOrderDetail(o){
     b.addEventListener('click',function(){ b.disabled=true; advanceOrder(o,it); });
   }
 }
+/* ---------- 단계 진행 (재고 차감 없음) ---------- */
 function advanceOrder(o,it){
-  var next=o.status+1, k=ordKindOf(o);
-  var opatch={status:next};
-  if(next===3)opatch.ship_date=todayStr();
-  sb('sw_order?id=eq.'+o.id,{method:'PATCH',body:opatch})
+  var next=Math.min(2,o.status+1), k=ordKindOf(o);
+  sb('sw_order?id=eq.'+o.id,{method:'PATCH',body:{status:next}})
+  .then(function(){ closeModal(); return loadData(); })
   .then(function(){
-    if(next!==3)return;
-    LAST_SHIP_PL=matShipPL(it,Number(o.qty));
-    if(k==='mat'){
-      if(!it.id)return;
-      var nq=Math.max(0,Number(it.qty)-Number(o.qty));
-      return sb('sw_stock?id=eq.'+it.id,{method:'PATCH',body:{qty:nq}})
-        .then(function(){return logMatShip(o,it,Number(o.qty),LAST_SHIP_PL);});
-    }
-    if(!it.id)return;
-    var ns=Math.max(0,Number(it.stock)-Number(o.qty));
-    var cur=it.currency||'KRW', now=cur==='KRW'?1:(fxOf(cur)||Number(it.fx_buy)||1);
-    return sb('sw_part?id=eq.'+it.id,{method:'PATCH',body:{stock:ns}})
-      .then(function(){
-        return sb('sw_part_log',{method:'POST',body:{
-          kind:k, item_id:it.id, item_name:it.name, type:'out', qty:Number(o.qty),
-          memo:(o.order_no||'')+' · '+(o.customer||''),
-          currency:cur, unit_price:Number(it.price)||0, fx:now,
-          fx_buy:Number(it.fx_buy)||1, fx_pl:Math.round(LAST_SHIP_PL),
-          amount_krw:Math.round(Number(o.qty)*Number(it.price||0)*now)
-        }});
-      });
-  })
-  .then(function(){
-    closeModal();
-    if(next===3){
-      var ex='';
-      if(Math.round(LAST_SHIP_PL))
-        ex='\nํ환차손익: '.replace('ํ','')+(LAST_SHIP_PL>0?'+':'−')+fmt(Math.abs(Math.round(LAST_SHIP_PL)))+'원 (매입환율 대비)';
-      alert('출하 완료 처리되었습니다.\n재고가 차감되었습니다.'+ex);
-      LAST_SHIP_PL=0;
-    }
-    return loadData();
-  })
-  .then(function(){
-    if(next>=1){
-      var b=document.querySelector('#pg-ship > .subtab button[data-k="'+k+'"]');
-      if(b&&document.getElementById('pg-ship').classList.contains('on'))goShpKind(b);
-    }
+    var b=document.querySelector('#pg-ship > .subtab button[data-k="'+k+'"]');
+    if(b&&document.getElementById('pg-ship').classList.contains('on'))goShpKind(b);
   })
   .catch(function(err){ alert('처리 실패: '+err.message); closeModal(); });
 }
+/* ---------- 부분 출하 ---------- */
+function shippedQty(orderId){
+  var t=0;
+  for(var i=0;i<SHIPS.length;i++) if(String(SHIPS[i].order_id)===String(orderId)) t+=Number(SHIPS[i].qty)||0;
+  return Math.round(t*100)/100;
+}
+function remainQty(o){ return Math.round((Number(o.qty||0)-shippedQty(o.id))*100)/100; }
+function shipsOf(orderId){
+  var r=[];
+  for(var i=0;i<SHIPS.length;i++) if(String(SHIPS[i].order_id)===String(orderId)) r.push(SHIPS[i]);
+  r.sort(function(a,b){return b.id-a.id;});
+  return r;
+}
+function openShipReg(id){
+  var o=orderById(id); if(!o)return;
+  var k=ordKindOf(o), it=ordItem(o);
+  var rem=remainQty(o), done=shippedQty(o.id);
+  var avail=Number(k==='mat'?it.qty:it.stock)||0;
+  var u=esc(it.unit||'');
+  if(rem<=0) return toast('이미 전량 출하된 수주입니다');
+  var his='';
+  var hs=shipsOf(o.id);
+  if(hs.length){
+    his='<div class="rsvlist">';
+    for(var i=0;i<hs.length;i++){
+      var sh=hs[i];
+      his+='<div class="rsvrow"><span class="rc1">'+esc(sh.ship_date||'')+'</span>'+
+           '<span class="rc2">'+fmt(sh.qty)+u+'</span>'+
+           '<span class="rc3">'+(Math.round(sh.fx_pl)?plHtml(sh.fx_pl):'')+'</span></div>';
+    }
+    his+='</div>';
+  }
+  var html=
+    '<dl class="dl" style="margin-bottom:10px;">'+
+      '<dt>수주</dt><dd class="mono">'+esc(o.order_no||'')+' · '+esc(o.customer||'')+'</dd>'+
+      '<dt>품목</dt><dd>'+esc(ordItemName(o))+(ordItemSub(o)?' <span class="heat">'+esc(ordItemSub(o))+'</span>':'')+'</dd>'+
+      '<dt>진행</dt><dd>출하 '+fmt(done)+u+' / 총 '+fmt(o.qty)+u+
+        ' · <b style="color:var(--gold-lt);">잔여 '+fmt(rem)+u+'</b></dd>'+
+      '<dt>현재고</dt><dd>'+fmt(avail)+u+'</dd>'+
+    '</dl>'+his+
+    '<label>출하 수량</label>'+
+    '<div class="qtyrow">'+
+      '<button onclick="shipQtySet('+id+',-1)">−</button>'+
+      '<input id="sr-qty" type="number" min="0" step="0.01" value="'+rem+'" oninput="shipPreview('+id+')">'+
+      '<button onclick="shipQtySet('+id+',1)">＋</button>'+
+    '</div>'+
+    '<div style="display:flex;gap:6px;margin:6px 0 2px;">'+
+      '<button class="btn btn-g btn-sm" style="flex:1" onclick="document.getElementById(\'sr-qty\').value='+rem+';shipPreview('+id+')">잔여 전량</button>'+
+    '</div>'+
+    '<div class="grid2">'+
+      '<div><label>출하일</label><input id="sr-date" type="date" value="'+todayStr()+'"></div>'+
+      '<div><label>비고</label><input id="sr-memo" placeholder="차량·기사·특이사항"></div>'+
+    '</div>'+
+    '<div class="costbox" id="sr-pv"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;">'+
+      '<button class="btn btn-p" style="flex:1" onclick="saveShip('+id+')">출하 처리</button>'+
+      '<button class="btn btn-g" onclick="closeModal()">취소</button>'+
+    '</div>';
+  openModal('출하 등록 · '+(o.order_no||''), html);
+  shipPreview(id);
+}
+function shipQtySet(id,d){
+  var el=document.getElementById('sr-qty');
+  el.value=Math.max(0,Math.round((Number(el.value||0)+d)*100)/100);
+  shipPreview(id);
+}
+function shipPreview(id){
+  var o=orderById(id), box=document.getElementById('sr-pv');
+  if(!o||!box)return;
+  var k=ordKindOf(o), it=ordItem(o);
+  var q=Number(document.getElementById('sr-qty').value||0);
+  var rem=remainQty(o), avail=Number(k==='mat'?it.qty:it.stock)||0;
+  var u=esc(it.unit||'');
+  var t='';
+  var pl=(function(){
+    var cur=it.currency||'KRW';
+    if(cur==='KRW')return 0;
+    var buy=Number(it.fx_buy)||0, now=fxOf(cur);
+    if(!buy||!now)return 0;
+    return q*Number(it.price||0)*(now-buy);
+  })();
+  t+='<div class="cline"><span>출하 후 잔여 수주</span><b>'+fmt(Math.round((rem-q)*100)/100)+u+'</b></div>';
+  t+='<div class="cline"><span>출하 후 재고</span><b'+((avail-q)<0?' style="color:var(--danger)"':'')+'>'+
+     fmt(Math.round((avail-q)*100)/100)+u+'</b></div>';
+  t+='<div class="cline"><span>출하 금액</span><b>₩'+fmt(Math.round(q*Number(o.price||0)))+'</b></div>';
+  if(Math.round(pl))
+    t+='<div class="cline tot"><span>환차손익</span><b>'+plHtml(pl,true)+' 원</b></div>';
+  if(q>rem)  t+='<div class="cline"><span style="color:var(--danger);font-weight:700;">잔여 수주 수량을 초과했습니다</span><b></b></div>';
+  if(q>avail)t+='<div class="cline"><span style="color:var(--danger);font-weight:700;">현재고를 초과했습니다</span><b></b></div>';
+  box.innerHTML=t;
+}
+function saveShip(id){
+  var o=orderById(id); if(!o)return;
+  var k=ordKindOf(o), it=ordItem(o);
+  var q=Number(document.getElementById('sr-qty').value||0);
+  var sdate=document.getElementById('sr-date').value||todayStr();
+  var memo=(document.getElementById('sr-memo').value||'').trim()||null;
+  var rem=remainQty(o), avail=Number(k==='mat'?it.qty:it.stock)||0;
+  if(!q||q<=0)   return toast('출하 수량을 입력하세요');
+  if(q>rem)      return toast('잔여 수주('+fmt(rem)+')를 초과할 수 없습니다');
+  if(q>avail)    return toast('현재고('+fmt(avail)+')를 초과할 수 없습니다');
+
+  var cur=it.currency||'KRW';
+  var now=cur==='KRW'?1:(fxOf(cur)||Number(it.fx_buy)||1);
+  var buy=Number(it.fx_buy)||1;
+  var pl=(cur==='KRW')?0:Math.round(q*Number(it.price||0)*(now-buy));
+  var amt=Math.round(q*Number(o.price||0));
+
+  sb('sw_ship',{method:'POST',body:{
+    order_id:o.id, order_no:o.order_no, kind:k, item_id:it.id,
+    item_name:ordItemName(o), heat_no:(k==='mat'?(it.heat_no||null):null),
+    customer:o.customer, qty:q, unit:it.unit||'', price:Number(o.price)||0, amount:amt,
+    ship_date:sdate, memo:memo,
+    currency:cur, unit_cost:Number(it.price)||0, fx:now, fx_buy:buy, fx_pl:pl
+  }})
+  .then(function(){
+    /* 재고 차감 */
+    if(k==='mat') return sb('sw_stock?id=eq.'+it.id,{method:'PATCH',body:{qty:Math.round((avail-q)*100)/100}});
+    return sb('sw_part?id=eq.'+it.id,{method:'PATCH',body:{stock:Math.round((avail-q)*100)/100}})
+      .then(function(){
+        return sb('sw_part_log',{method:'POST',body:{
+          kind:k,item_id:it.id,item_name:it.name,type:'out',qty:q,
+          memo:(o.order_no||'')+' · '+(o.customer||''),
+          currency:cur,unit_price:Number(it.price)||0,fx:now,fx_buy:buy,fx_pl:pl,
+          amount_krw:Math.round(q*Number(it.price||0)*now)}});
+      });
+  })
+  .then(function(){
+    var doneAll=(rem-q)<=0.0001;
+    var patch={status:doneAll?3:2};
+    if(doneAll)patch.ship_date=sdate;
+    return sb('sw_order?id=eq.'+o.id,{method:'PATCH',body:patch});
+  })
+  .then(function(){
+    closeModal();
+    var msg=(rem-q<=0.0001?'전량 출하 완료':'부분 출하 등록')+' · '+fmt(q)+(it.unit||'');
+    if(Math.round(pl))msg+=' · 환차손익 '+(pl>0?'+':'−')+fmt(Math.abs(Math.round(pl)))+'원';
+    toast(msg);
+    return loadData();
+  })
+  .catch(function(e){ toast('출하 실패: '+e.message); });
+}
 
 initOrderUI();
+initPoUI();
 
 
 /* ================= 출하 라벨 ================= */
@@ -5340,6 +5553,532 @@ function doPrintShipLabel(){
   setTimeout(function(){ document.body.classList.remove('pm-shiplbl'); },600);
 }
 
+
+/* ================= 미수금 · 수금 ================= */
+var PAY_TERM_DEF=30;   /* 기본 여신일수 */
+function shipDue(sh){
+  var t=Number(sh.pay_term)||PAY_TERM_DEF;
+  var d=new Date(sh.ship_date||todayStr());
+  d.setDate(d.getDate()+t);
+  return d.toISOString().slice(0,10);
+}
+function shipBal(sh){ return Math.round((Number(sh.amount)||0)-(Number(sh.paid_amt)||0)); }
+function shipOverdue(sh){ return shipBal(sh)>0 && shipDue(sh)<todayStr(); }
+function daysLate(sh){
+  var a=new Date(shipDue(sh)), b=new Date(todayStr());
+  return Math.round((b-a)/86400000);
+}
+function renderPay(){
+  var box=document.getElementById('pay-list'); if(!box)return;
+  var q=(document.getElementById('payq').value||'').trim().toLowerCase();
+  var fl=document.getElementById('payf').value;
+  var mon=new Date(); mon.setDate(1); mon.setHours(0,0,0,0);
+  var monS=mon.toISOString().slice(0,10);
+
+  var outTot=0,outCnt=0,overCnt=0,inMon=0,saleMon=0;
+  var byCust={};
+  var list=SHIPS.slice().sort(function(a,b){
+    return String(shipDue(a)).localeCompare(String(shipDue(b)));
+  });
+  var h='';
+  for(var i=0;i<list.length;i++){
+    var sh=list[i];
+    var bal=shipBal(sh), over=shipOverdue(sh);
+    if(bal>0){
+      outTot+=bal; outCnt++;
+      if(over)overCnt++;
+      var c=sh.customer||'미지정';
+      if(!byCust[c])byCust[c]={bal:0,cnt:0,over:0};
+      byCust[c].bal+=bal; byCust[c].cnt++;
+      if(over)byCust[c].over++;
+    }
+    if((sh.ship_date||'')>=monS) saleMon+=Number(sh.amount)||0;
+    if((sh.paid_date||'')>=monS) inMon+=Number(sh.paid_amt)||0;
+
+    if(fl==='open'&&bal<=0)continue;
+    if(fl==='over'&&!over)continue;
+    var blob=[sh.customer,sh.order_no,sh.item_name,sh.heat_no].join(' ').toLowerCase();
+    if(q&&blob.indexOf(q)<0)continue;
+
+    var st = bal<=0 ? '<span class="badge b-ok">수금완료</span>'
+           : (over ? '<span class="badge b-danger">연체 '+daysLate(sh)+'일</span>'
+                   : '<span class="badge b-warn">미수</span>');
+    h+='<div class="prowc'+(over?' low':'')+'">'+
+      '<div class="prh" style="cursor:default;">'+
+        '<span class="prn">'+esc(sh.customer||'')+'</span>'+
+        '<span class="prs">'+esc(sh.item_name||'')+' '+fmt(sh.qty)+esc(sh.unit||'')+'</span>'+
+        '<span class="prb2">'+st+'</span>'+
+      '</div>'+
+      '<div class="prb" style="border-top:1px solid var(--line);">'+
+        '<div class="prm">'+
+          '<span class="tag">'+esc(sh.order_no||'')+'</span>'+
+          '<span>출하 '+esc(sh.ship_date||'')+'</span>'+
+          '<span>여신 '+(Number(sh.pay_term)||PAY_TERM_DEF)+'일</span>'+
+          '<span>만기 '+esc(shipDue(sh))+'</span>'+
+        '</div>'+
+        '<div class="prp">출하금액 <b>₩'+fmt(sh.amount)+'</b>'+
+          ' · 입금 ₩'+fmt(sh.paid_amt||0)+
+          ' · 잔액 <b style="color:'+(bal>0?(over?'var(--danger)':'var(--amber)'):'var(--ok)')+'">₩'+fmt(bal)+'</b></div>'+
+        '<div class="pract">'+
+          '<button class="edit" onclick="openPayReg('+sh.id+')">입금 등록</button>'+
+          '<button class="edit" onclick="openPayTerm('+sh.id+')">여신 설정</button>'+
+        '</div>'+
+      '</div></div>';
+  }
+  box.innerHTML=h||'<div class="pempty">해당 조건의 출하 건이 없습니다.</div>';
+
+  document.getElementById('pk-out').textContent=fmt(outTot);
+  document.getElementById('pk-cnt2').textContent=outCnt;
+  document.getElementById('pk-over').textContent=overCnt;
+  document.getElementById('pk-in').textContent=fmt(Math.round(inMon));
+  document.getElementById('pk-sale').textContent=fmt(Math.round(saleMon));
+
+  var cb=document.getElementById('pay-cust');
+  if(cb){
+    var names=Object.keys(byCust).sort(function(a,b){return byCust[b].bal-byCust[a].bal;});
+    var ch='';
+    for(var n=0;n<names.length;n++){
+      var v=byCust[names[n]];
+      ch+='<div class="rsvrow" style="padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px;">'+
+        '<span class="rc1">'+esc(names[n])+'</span>'+
+        (v.over?'<span class="badge b-danger" style="flex-shrink:0;">연체 '+v.over+'</span>':'')+
+        '<span class="rc2" style="font-size:14px;">₩'+fmt(v.bal)+'</span>'+
+        '<span class="rc3">'+v.cnt+'건</span></div>';
+    }
+    cb.innerHTML=ch||'<div style="color:var(--ok);font-size:13px;">미수 잔액이 없습니다 ✓</div>';
+  }
+}
+function shipById(id){
+  for(var i=0;i<SHIPS.length;i++) if(SHIPS[i].id===id) return SHIPS[i];
+  return null;
+}
+function openPayReg(id){
+  var sh=shipById(id); if(!sh)return;
+  var bal=shipBal(sh);
+  var html=
+    '<dl class="dl" style="margin-bottom:10px;">'+
+      '<dt>거래처</dt><dd><b>'+esc(sh.customer||'')+'</b></dd>'+
+      '<dt>출하</dt><dd>'+esc(sh.ship_date||'')+' · '+esc(sh.item_name||'')+' '+fmt(sh.qty)+esc(sh.unit||'')+'</dd>'+
+      '<dt>출하금액</dt><dd>₩'+fmt(sh.amount)+'</dd>'+
+      '<dt>기입금</dt><dd>₩'+fmt(sh.paid_amt||0)+'</dd>'+
+      '<dt>잔액</dt><dd><b style="color:var(--amber);">₩'+fmt(bal)+'</b></dd>'+
+    '</dl>'+
+    '<label>입금액 (원)</label><input id="py-amt" type="number" min="0" value="'+Math.max(0,bal)+'">'+
+    '<div style="display:flex;gap:6px;margin:6px 0 2px;">'+
+      '<button class="btn btn-g btn-sm" style="flex:1" onclick="document.getElementById(\'py-amt\').value='+Math.max(0,bal)+'">전액</button>'+
+    '</div>'+
+    '<div class="grid2">'+
+      '<div><label>입금일</label><input id="py-date" type="date" value="'+todayStr()+'"></div>'+
+      '<div><label>비고</label><input id="py-memo" placeholder="계좌·어음 등"></div>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;">'+
+      '<button class="btn btn-p" style="flex:1" onclick="savePay('+id+')">입금 처리</button>'+
+      '<button class="btn btn-g" onclick="closeModal()">취소</button>'+
+    '</div>';
+  openModal('입금 등록', html);
+}
+function savePay(id){
+  var sh=shipById(id); if(!sh)return;
+  var add=Number(document.getElementById('py-amt').value||0);
+  if(!add||add<=0)return toast('입금액을 입력하세요');
+  var total=Math.round((Number(sh.paid_amt)||0)+add);
+  if(total>Number(sh.amount)+1) if(!confirm('출하금액을 초과합니다. 그대로 처리할까요?'))return;
+  sb('sw_ship?id=eq.'+id,{method:'PATCH',body:{
+    paid_amt:total,
+    paid_date:document.getElementById('py-date').value||todayStr(),
+    pay_memo:(document.getElementById('py-memo').value||'').trim()||null
+  }})
+  .then(function(){ closeModal(); toast('입금 ₩'+fmt(add)+' 처리 완료'); return loadData(); })
+  .catch(function(e){ toast('처리 실패: '+e.message); });
+}
+function openPayTerm(id){
+  var sh=shipById(id); if(!sh)return;
+  var t=Number(sh.pay_term)||PAY_TERM_DEF;
+  var html=
+    '<p class="help">출하일로부터 몇 일 뒤가 결제 만기인지 설정합니다. 만기가 지나면 <b>연체</b>로 표시됩니다.</p>'+
+    '<label>여신 일수</label><input id="pt-days" type="number" min="0" value="'+t+'">'+
+    '<div style="display:flex;gap:6px;margin:8px 0 2px;flex-wrap:wrap;">'+
+      '<button class="btn btn-g btn-sm" onclick="document.getElementById(\'pt-days\').value=0">현금</button>'+
+      '<button class="btn btn-g btn-sm" onclick="document.getElementById(\'pt-days\').value=30">30일</button>'+
+      '<button class="btn btn-g btn-sm" onclick="document.getElementById(\'pt-days\').value=60">60일</button>'+
+      '<button class="btn btn-g btn-sm" onclick="document.getElementById(\'pt-days\').value=90">90일</button>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;">'+
+      '<button class="btn btn-p" style="flex:1" onclick="savePayTerm('+id+')">저장</button>'+
+      '<button class="btn btn-g" onclick="closeModal()">취소</button>'+
+    '</div>';
+  openModal('여신 설정 · '+(sh.customer||''), html);
+}
+function savePayTerm(id){
+  var d=Number(document.getElementById('pt-days').value||0);
+  sb('sw_ship?id=eq.'+id,{method:'PATCH',body:{pay_term:d}})
+    .then(function(){ closeModal(); toast('여신 '+d+'일로 설정되었습니다'); return loadData(); })
+    .catch(function(e){ toast('저장 실패: '+e.message); });
+}
+
+
+/* ================= 부대비용 실제 정산 (Landed Cost) ================= */
+function landedTotal(r){
+  return Math.round((Number(r.cost_freight)||0)+(Number(r.cost_duty)||0)+
+                    (Number(r.cost_clear)||0)+(Number(r.cost_etc)||0));
+}
+function recvById(id){ for(var i=0;i<RECV.length;i++) if(RECV[i].id===id) return RECV[i]; return null; }
+function openLanded(id){
+  var r=recvById(id); if(!r)return;
+  var cur=r.currency||'KRW', fx=Number(r.fx_buy)||1;
+  var goods=Math.round(Number(r.qty||0)*Number(r.price||0)*(cur==='KRW'?1:fx));
+  var html=
+    '<dl class="dl" style="margin-bottom:10px;">'+
+      '<dt>품목</dt><dd>'+esc(r.alloy||'')+' '+esc(r.form||'')+
+        (r.heat_no?' <span class="heat">'+esc(r.heat_no)+'</span>':'')+'</dd>'+
+      '<dt>입고</dt><dd>'+fmt(r.qty)+esc(r.unit||'')+' · '+esc(r.recv_date||'')+'</dd>'+
+      '<dt>물품대</dt><dd><b>₩'+fmt(goods)+'</b>'+
+        (cur!=='KRW'?' <span style="color:var(--sub);font-size:11.5px;">('+esc(cur)+' '+money(r.price,cur)+' × '+fmt(Math.round(fx))+')</span>':'')+'</dd>'+
+    '</dl>'+
+    '<p class="help" style="margin-bottom:8px;">운임·관세 인보이스가 도착하면 실제 금액을 입력하세요. 재고 단가에 반영됩니다.</p>'+
+    '<div class="grid2">'+
+      '<div><label>운임·보험 (원)</label><input id="ld-fr" type="number" min="0" value="'+(Number(r.cost_freight)||0)+'" oninput="landedPv('+goods+','+Number(r.qty||0)+')"></div>'+
+      '<div><label>관세·부가세 (원)</label><input id="ld-du" type="number" min="0" value="'+(Number(r.cost_duty)||0)+'" oninput="landedPv('+goods+','+Number(r.qty||0)+')"></div>'+
+    '</div>'+
+    '<div class="grid2">'+
+      '<div><label>통관·하역 (원)</label><input id="ld-cl" type="number" min="0" value="'+(Number(r.cost_clear)||0)+'" oninput="landedPv('+goods+','+Number(r.qty||0)+')"></div>'+
+      '<div><label>기타 (원)</label><input id="ld-et" type="number" min="0" value="'+(Number(r.cost_etc)||0)+'" oninput="landedPv('+goods+','+Number(r.qty||0)+')"></div>'+
+    '</div>'+
+    '<label>비고</label><input id="ld-memo" value="'+esc(r.cost_memo||'')+'" placeholder="포워더·인보이스 번호 등">'+
+    '<div class="costbox" id="ld-pv"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;">'+
+      '<button class="btn btn-p" style="flex:1" onclick="saveLanded('+id+','+goods+')">저장 · 재고단가 반영</button>'+
+      '<button class="btn btn-g" onclick="closeModal()">취소</button>'+
+    '</div>';
+  openModal('부대비용 정산', html);
+  landedPv(goods, Number(r.qty||0));
+}
+function landedPv(goods,qty){
+  var box=document.getElementById('ld-pv'); if(!box)return;
+  var n=function(id){return Number(document.getElementById(id).value||0);};
+  var oh=n('ld-fr')+n('ld-du')+n('ld-cl')+n('ld-et');
+  var total=goods+oh;
+  var rate=goods>0?(oh/goods*100):0;
+  box.innerHTML=
+    '<div class="cline"><span>물품대</span><b>₩'+fmt(goods)+'</b></div>'+
+    '<div class="cline"><span>＋ 부대비용 합계</span><b>₩'+fmt(oh)+'</b></div>'+
+    '<div class="cline sub2"><span>부대비용률</span><b>'+rate.toFixed(1)+'%</b></div>'+
+    '<div class="cline tot"><span>Landed Cost 총액</span><b>₩'+fmt(total)+'</b></div>'+
+    (qty>0?'<div class="cline tot"><span>실제 단가 (원/'+'단위)</span><b>₩'+fmt(Math.round(total/qty))+'</b></div>':'');
+}
+function saveLanded(id,goods){
+  var r=recvById(id); if(!r)return;
+  var n=function(k){return Number(document.getElementById(k).value||0);};
+  var fr=n('ld-fr'), du=n('ld-du'), cl=n('ld-cl'), et=n('ld-et');
+  var oh=fr+du+cl+et, qty=Number(r.qty||0);
+  var unitLanded=qty>0?Math.round((goods+oh)/qty):0;
+  sb('sw_receipt?id=eq.'+id,{method:'PATCH',body:{
+    cost_freight:fr, cost_duty:du, cost_clear:cl, cost_etc:et,
+    cost_memo:(document.getElementById('ld-memo').value||'').trim()||null,
+    landed_unit:unitLanded
+  }})
+  .then(function(){
+    /* 연결된 소재 재고에 실제 단가 반영 (원화 기준으로 고정) */
+    if(!r.stock_id)return;
+    return sb('sw_stock?id=eq.'+r.stock_id,{method:'PATCH',body:{
+      landed_unit:unitLanded, oh_rate: goods>0?Math.round(oh/goods*1000)/10 : 0
+    }});
+  })
+  .then(function(){
+    closeModal();
+    toast('부대비용 정산 완료 · 실제 단가 ₩'+fmt(unitLanded));
+    return loadData();
+  })
+  .catch(function(e){ toast('저장 실패: '+e.message); });
+}
+
+/* ================= 발주 · 입항 (미착품) ================= */
+var PO_ST=['발주','선적','통관','입고완료'];
+var PO_SUB={mat:'new',bear:'new',etc:'new'}, PO_OPEN={mat:null,bear:null,etc:null};
+function poShell(k){
+  var K=OKIND[k];
+  var isMat=(k==='mat');
+  return ''+
+  '<div class="subtab">'+
+    '<button class="on" data-ps="new" onclick="goPoSub(this,\''+k+'\')">발주 등록</button>'+
+    '<button data-ps="list" onclick="goPoSub(this,\''+k+'\')">발주 현황</button>'+
+  '</div>'+
+  '<div class="sub on" id="sub-ponew-'+k+'">'+
+    fxBarHtml('po'+k)+
+    '<div class="card">'+
+      '<h3>'+K.icon+' '+K.label+' 발주 등록</h3>'+
+      '<div id="msg-po-'+k+'" class="msg"></div>'+
+      '<div class="grid2">'+
+        '<div><label>공급처</label><input id="p-sup-'+k+'" placeholder="밀 또는 상사명"></div>'+
+        '<div><label>P/O 번호</label><input id="p-no-'+k+'" placeholder="PO-2026-084"></div>'+
+      '</div>'+
+      (isMat
+        ? '<div class="grid2">'+
+            '<div><label>합금</label><input id="p-alloy-'+k+'" list="dl-alloy" placeholder="Inconel 625"></div>'+
+            '<div><label>형상</label><input id="p-form-'+k+'" placeholder="Seamless Pipe"></div>'+
+          '</div>'+
+          '<label>규격</label><input id="p-spec-'+k+'" placeholder=\'2" SCH40 x 6M\'>'
+        : '<div class="grid2">'+
+            '<div><label>품명</label><input id="p-alloy-'+k+'" placeholder="6205 ZZ"></div>'+
+            '<div><label>분류</label><input id="p-form-'+k+'" placeholder="'+K.cats0+'"></div>'+
+          '</div>'+
+          '<label>규격</label><input id="p-spec-'+k+'" placeholder="内25 × 外52 × 15T">')+
+      '<div class="grid3">'+
+        '<div><label>발주 수량</label><input id="p-qty-'+k+'" type="number" min="0" step="0.01" placeholder="0" oninput="poPv(\''+k+'\')"></div>'+
+        '<div><label>단위</label><select id="p-unit-'+k+'">'+
+          '<option>EA</option><option>M</option><option>KG</option><option>SET</option><option>BOX</option><option>통</option></select></div>'+
+        '<div><label>통화</label><select id="p-cur-'+k+'" onchange="poCur(\''+k+'\')">'+
+          '<option value="KRW">KRW</option><option value="USD" selected>USD</option>'+
+          '<option value="CNY">CNY</option><option value="EUR">EUR</option></select></div>'+
+      '</div>'+
+      '<div class="grid2">'+
+        '<div><label>발주 단가</label><input id="p-price-'+k+'" type="number" min="0" step="0.01" placeholder="0" oninput="poPv(\''+k+'\')"></div>'+
+        '<div id="p-fxwrap-'+k+'"><label>예상 환율</label><input id="p-fx-'+k+'" type="number" min="0" step="0.01" oninput="poPv(\''+k+'\')"></div>'+
+      '</div>'+
+      '<div class="grid2">'+
+        '<div><label>발주일</label><input id="p-od-'+k+'" type="date"></div>'+
+        '<div><label>입항 예정 (ETA)</label><input id="p-eta-'+k+'" type="date"></div>'+
+      '</div>'+
+      '<label>비고</label><input id="p-memo-'+k+'" placeholder="B/L·선사·특이사항">'+
+      '<div class="costbox" id="p-pv-'+k+'"></div>'+
+      '<div style="margin-top:12px;"><button class="btn btn-p" id="btn-po-'+k+'" onclick="savePo(\''+k+'\')">발주 등록</button></div>'+
+      '<p class="help">등록하면 <b>미착품</b>으로 잡혀 수주 화면의 입항 예정에 표시됩니다.</p>'+
+    '</div>'+
+  '</div>'+
+  '<div class="sub" id="sub-polist-'+k+'">'+
+    '<div class="kpi-wrap"><div class="kpi-strip">'+
+      '<div class="kpi"><div class="n" id="po-cnt-'+k+'">0</div><div class="l">진행 발주</div></div>'+
+      '<div class="kpi"><div class="n" id="po-qty-'+k+'">0</div><div class="l">미착 수량</div></div>'+
+      '<div class="kpi warn"><div class="n" id="po-amt-'+k+'">0</div><div class="l">미착 금액(원)</div></div>'+
+    '</div></div>'+
+    '<div class="card">'+
+      '<h3>발주 현황 <span class="badge b-blue">ETA 순</span></h3>'+
+      '<div class="pbar2">'+
+        '<input type="text" id="poq-'+k+'" placeholder="P/O · 공급처 · 품목 검색" oninput="renderPo(\''+k+'\')">'+
+        '<select id="pof-'+k+'" onchange="renderPo(\''+k+'\')">'+
+          '<option value="live">진행중</option><option value="done">입고완료</option><option value="all">전체</option></select>'+
+      '</div>'+
+      '<div id="po-list-'+k+'"></div>'+
+    '</div>'+
+  '</div>';
+}
+function initPoUI(){
+  ['mat','bear','etc'].forEach(function(k){
+    var el=document.getElementById('sub-po-'+k);
+    if(el)el.innerHTML=poShell(k);
+    var d=document.getElementById('p-od-'+k); if(d)d.value=todayStr();
+    poCur(k);
+  });
+}
+function goPoKind(btn){
+  var bs=btn.parentNode.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');
+  var k=btn.getAttribute('data-k');
+  ['mat','bear','etc'].forEach(function(x){
+    document.getElementById('sub-po-'+x).classList.toggle('on',x===k);
+  });
+  setPageTitle('발주 · '+OKIND[k].label);
+  window.scrollTo(0,0);
+  (FX_DATE?Promise.resolve():loadFx()).then(function(){ renderFxBar(); renderPo(k); });
+}
+function goPoSub(btn,k){
+  var bs=btn.parentNode.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');
+  PO_SUB[k]=btn.getAttribute('data-ps');
+  document.getElementById('sub-ponew-'+k).classList.toggle('on',PO_SUB[k]==='new');
+  document.getElementById('sub-polist-'+k).classList.toggle('on',PO_SUB[k]==='list');
+  window.scrollTo(0,0);
+  if(PO_SUB[k]==='list')renderPo(k);
+}
+function goPo(){
+  selectTab('po');
+  var b=document.querySelector('#pg-po > .subtab button.on')||document.querySelector('#pg-po > .subtab button');
+  if(b)goPoKind(b);
+}
+function poCur(k){
+  var el=document.getElementById('p-cur-'+k); if(!el)return;
+  var cur=el.value;
+  document.getElementById('p-fxwrap-'+k).style.display=cur==='KRW'?'none':'block';
+  var fx=document.getElementById('p-fx-'+k);
+  if(cur!=='KRW'&&!Number(fx.value)&&fxOf(cur))fx.value=fxOf(cur).toFixed(2);
+  poPv(k);
+}
+function poPv(k){
+  var box=document.getElementById('p-pv-'+k); if(!box)return;
+  var cur=document.getElementById('p-cur-'+k).value;
+  var q=Number(document.getElementById('p-qty-'+k).value||0);
+  var p=Number(document.getElementById('p-price-'+k).value||0);
+  if(!q||!p){box.innerHTML='';return;}
+  var fx=cur==='KRW'?1:(Number(document.getElementById('p-fx-'+k).value||0)||fxOf(cur)||1);
+  box.innerHTML='<div class="cline"><span>발주 금액</span><b>'+
+    (cur==='KRW'?'₩'+fmt(q*p):money(q*p,cur))+'</b></div>'+
+    (cur!=='KRW'?'<div class="cline tot"><span>예상 원화 (환율 '+fmt(Math.round(fx))+')</span><b>₩'+
+      fmt(Math.round(q*p*fx))+'</b></div>':'');
+}
+function poMsg(k,t,type){
+  var el=document.getElementById('msg-po-'+k); if(!el)return;
+  el.textContent=t; el.className='msg on '+type;
+  setTimeout(function(){el.className='msg';},3500);
+}
+function savePo(k){
+  var g=function(id){return (document.getElementById(id+'-'+k).value||'').trim();};
+  var name=g('p-alloy'), qty=Number(document.getElementById('p-qty-'+k).value||0);
+  if(!name)return poMsg(k,(k==='mat'?'합금':'품명')+'을 입력하세요','err');
+  if(!qty||qty<=0)return poMsg(k,'발주 수량을 입력하세요','err');
+  var cur=document.getElementById('p-cur-'+k).value||'KRW';
+  var price=Number(document.getElementById('p-price-'+k).value||0);
+  var fx=cur==='KRW'?1:Number(document.getElementById('p-fx-'+k).value||0)||fxOf(cur)||1;
+  var btn=document.getElementById('btn-po-'+k); btn.disabled=true;
+  sb('sw_po',{method:'POST',body:{
+    kind:k, po_no:g('p-no')||null, supplier:g('p-sup')||null,
+    alloy:name, form:g('p-form')||null, spec:g('p-spec')||null,
+    qty:qty, unit:document.getElementById('p-unit-'+k).value||'EA',
+    currency:cur, price:price, fx_est:fx,
+    order_date:document.getElementById('p-od-'+k).value||todayStr(),
+    eta:document.getElementById('p-eta-'+k).value||null,
+    status:0, memo:g('p-memo')||null
+  }})
+  .then(function(){
+    ['p-qty','p-price','p-memo','p-spec','p-alloy','p-form','p-no'].forEach(function(id){
+      var e=document.getElementById(id+'-'+k); if(e)e.value='';
+    });
+    document.getElementById('p-pv-'+k).innerHTML='';
+    poMsg(k,'✓ 발주 등록 완료 · 미착품으로 반영됩니다','ok');
+    return loadData();
+  })
+  .catch(function(e){ poMsg(k,'등록 실패: '+e.message,'err'); })
+  .then(function(){ btn.disabled=false; });
+}
+function posOf(k){
+  var r=[];
+  for(var i=0;i<POS.length;i++) if((POS[i].kind||'mat')===k) r.push(POS[i]);
+  return r;
+}
+function poById(id){ for(var i=0;i<POS.length;i++) if(POS[i].id===id) return POS[i]; return null; }
+function poKRW(p){
+  var cur=p.currency||'KRW';
+  return Math.round(Number(p.qty||0)*Number(p.price||0)*(cur==='KRW'?1:(Number(p.fx_est)||fxOf(cur)||1)));
+}
+function etaTag(p){
+  if(Number(p.status)>=3) return '';
+  if(!p.eta) return '<span style="opacity:.6;">ETA 미정</span>';
+  var d=Math.round((new Date(p.eta)-new Date(todayStr()))/86400000);
+  if(d<0)  return '<span style="color:var(--danger);font-weight:700;">ETA '+esc(p.eta)+' · '+(-d)+'일 지연</span>';
+  if(d<=7) return '<span style="color:var(--amber);font-weight:700;">ETA '+esc(p.eta)+' · D-'+d+'</span>';
+  return '<span>ETA '+esc(p.eta)+' · D-'+d+'</span>';
+}
+function renderPo(k){
+  var box=document.getElementById('po-list-'+k); if(!box)return;
+  var q=(document.getElementById('poq-'+k).value||'').trim().toLowerCase();
+  var fl=document.getElementById('pof-'+k).value;
+  var list=posOf(k).slice().sort(function(a,b){
+    return String(a.eta||'9999').localeCompare(String(b.eta||'9999'));
+  });
+  var cnt=0,tq=0,ta=0,h='';
+  for(var i=0;i<list.length;i++){
+    var p=list[i], live=Number(p.status)<3;
+    if(live){ cnt++; tq+=Number(p.qty)||0; ta+=poKRW(p); }
+    if(fl==='live'&&!live)continue;
+    if(fl==='done'&&live)continue;
+    var blob=[p.po_no,p.supplier,p.alloy,p.form,p.spec].join(' ').toLowerCase();
+    if(q&&blob.indexOf(q)<0)continue;
+    var open=PO_OPEN[k]===p.id;
+    h+='<div class="prowc'+(open?' open':'')+'">'+
+      '<div class="prh" onclick="togglePoRow(\''+k+'\','+p.id+')">'+
+        '<span class="pra">'+(open?'▾':'▸')+'</span>'+
+        '<span class="prn">'+esc(p.alloy||'')+'</span>'+
+        '<span class="prs">'+esc(p.spec||p.form||'')+'</span>'+
+        '<span class="prb2"><span class="badge '+(live?'b-warn':'b-ok')+'">'+PO_ST[Number(p.status)||0]+'</span></span>'+
+      '</div>';
+    if(open){
+      h+='<div class="prb">'+
+        '<div class="prm">'+
+          (p.po_no?'<span class="tag">'+esc(p.po_no)+'</span>':'')+
+          (p.supplier?'<span>🏭'+esc(p.supplier)+'</span>':'')+
+          '<span>수량 '+fmt(p.qty)+esc(p.unit||'')+'</span>'+
+          '<span>발주 '+esc(p.order_date||'')+'</span>'+
+          etaTag(p)+
+        '</div>'+
+        '<div class="prp">단가 '+(p.currency==='KRW'?'₩'+fmt(p.price):'<span class="curtag">'+esc(p.currency)+'</span> '+money(p.price,p.currency)+' @'+fmt(Math.round(p.fx_est||0)))+
+          ' · 발주금액 <b>₩'+fmt(poKRW(p))+'</b></div>'+
+        (p.memo?'<div class="prp" style="opacity:.8;">'+esc(p.memo)+'</div>':'')+
+        '<div class="pract">'+
+          (live?'<button class="edit" onclick="poNext('+p.id+')">'+
+                 (Number(p.status)<2?'다음 → '+PO_ST[Number(p.status)+1]:'입고 처리')+'</button>':'')+
+          '<button class="del" onclick="poDelete('+p.id+')">삭제</button>'+
+        '</div>'+
+      '</div>';
+    }
+    h+='</div>';
+  }
+  box.innerHTML=h||'<div class="pempty">해당 조건의 발주가 없습니다.</div>';
+  document.getElementById('po-cnt-'+k).textContent=cnt;
+  document.getElementById('po-qty-'+k).textContent=fmt(tq);
+  document.getElementById('po-amt-'+k).textContent=fmt(ta);
+}
+function togglePoRow(k,id){ PO_OPEN[k]=(PO_OPEN[k]===id)?null:id; renderPo(k); }
+function poNext(id){
+  var p=poById(id); if(!p)return;
+  var st=Number(p.status)||0;
+  if(st<2){
+    sb('sw_po?id=eq.'+id,{method:'PATCH',body:{status:st+1}})
+      .then(function(){ toast(PO_ST[st+1]+' 처리되었습니다'); return loadData(); })
+      .catch(function(e){ toast('실패: '+e.message); });
+    return;
+  }
+  /* 통관 → 입고: 입고 화면으로 값 전달 */
+  var k=p.kind||'mat';
+  sb('sw_po?id=eq.'+id,{method:'PATCH',body:{status:3}})
+    .then(function(){
+      toast('입고완료로 전환 · 입고 화면에서 실입고를 등록하세요');
+      return loadData();
+    })
+    .then(function(){
+      selectTab('recv');
+      var b=document.querySelector('#pg-recv > .subtab button[data-sub="rcv-'+k+'"]');
+      if(b)goRecvKind(b);
+      setTimeout(function(){ prefillRecv(p); },300);
+    })
+    .catch(function(e){ toast('실패: '+e.message); });
+}
+/* 발주 정보를 입고 폼에 자동 채움 */
+function prefillRecv(p){
+  var k=p.kind||'mat';
+  var set=function(id,v){ var e=document.getElementById(id); if(e&&v!=null)e.value=v; };
+  if(k==='mat'){
+    set('rc-alloy',p.alloy); set('rc-spec',p.spec); set('rc-qty',p.qty);
+    set('rc-supplier',p.supplier); set('rc-po',p.po_no);
+    set('rc-cur',p.currency); set('rc-price',p.price); set('rc-fx',p.fx_est);
+    if(typeof onRecvCur==='function')onRecvCur();
+  }else{
+    set('rv-name-'+k,p.alloy); set('rv-cat-'+k,p.form); set('rv-spec-'+k,p.spec);
+    set('rv-qty-'+k,p.qty); set('rv-vendor-'+k,p.supplier); set('rv-po-'+k,p.po_no);
+    set('rv-cur-'+k,p.currency); set('rv-price-'+k,p.price); set('rv-fx-'+k,p.fx_est);
+    if(typeof onRvCur==='function')onRvCur(k);
+  }
+}
+function poDelete(id){
+  var p=poById(id); if(!p)return;
+  if(!confirm('['+(p.po_no||'')+' '+(p.alloy||'')+'] 발주를 삭제할까요?'))return;
+  sb('sw_po?id=eq.'+id,{method:'DELETE'})
+    .then(function(){ toast('삭제되었습니다'); return loadData(); })
+    .catch(function(e){ toast('삭제 실패: '+e.message); });
+}
+/* 품목별 미착 수량 (수주 화면 표시용) */
+function inTransitQty(k,name){
+  var t=0;
+  for(var i=0;i<POS.length;i++){
+    var p=POS[i];
+    if((p.kind||'mat')!==k)continue;
+    if(Number(p.status)>=3)continue;
+    if(String(p.alloy||'').trim()!==String(name||'').trim())continue;
+    t+=Number(p.qty)||0;
+  }
+  return Math.round(t*100)/100;
+}
+
 /* renderAll 호환 래퍼 */
 function renderOrder(){
   ['mat','bear','etc'].forEach(function(k){
@@ -5355,6 +6094,8 @@ function renderShip(){
 
 function renderAll(){
   renderDash();
+  renderPay();
+  ['mat','bear','etc'].forEach(function(k){ if(document.getElementById('po-list-'+k))renderPo(k); });
   renderStock();
   renderOrder();
   renderMtc();
