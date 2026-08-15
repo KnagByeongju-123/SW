@@ -304,6 +304,15 @@ body.locked{overflow:hidden;}
 .agebadge{font-size:10px;font-weight:800;border-radius:5px;padding:1px 6px;margin-left:5px;}
 .agebadge.wn{color:var(--amber);background:rgba(242,160,60,.14);border:1px solid rgba(242,160,60,.4);}
 .agebadge.dg{color:var(--danger);background:rgba(239,116,102,.15);border:1px solid rgba(239,116,102,.4);}
+.filepath{font-family:var(--num);font-size:11.5px;color:var(--gold-lt);cursor:pointer;
+  word-break:break-all;background:rgba(226,176,74,.07);border:1px dashed var(--goldbd);
+  border-radius:8px;padding:5px 8px;margin-top:5px;}
+.filepath:active{background:rgba(226,176,74,.16);}
+/* ===== 칩 버튼 ===== */
+.chiprow{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 2px;}
+.chipb{padding:7px 12px;border-radius:9px;border:1.5px solid var(--line);background:var(--card2);
+  color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.chipb.on{background:var(--goldbg);border-color:var(--goldbd);color:var(--gold);}
 /* ===== 전자결재 ===== */
 .apsteps{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
 .apst{font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;
@@ -6394,7 +6403,7 @@ function delRoute(id){
 /* ---- 상신 ---- */
 function openSubmit(docType,refId,title){
   if(!ROUTES.length)return toast('결재선을 먼저 만드세요 (결재선 탭)');
-  SUBMITCTX={docType:docType||'일반',refId:refId||null,title:title||''};
+  SUBMITCTX={docType:docType||'일반',refId:refId||null,title:title||'',path:''};
   var ro='';
   for(var i=0;i<ROUTES.length;i++){
     var names='';
@@ -6415,7 +6424,15 @@ function openSubmit(docType,refId,title){
     '<label>결재선 *</label><select id="sa-route" onchange="saPreview()">'+ro+'</select>'+
     '<div class="krwpv" id="sa-preview"></div>'+
     '<label>관련 링크 <span style="font-weight:600;color:var(--sub);">(견적서·도면·드라이브 등)</span></label>'+
-    '<input id="sa-url" placeholder="https://... (여러 개는 줄바꿈 없이 쉼표로)">'+
+    '<input id="sa-url" placeholder="https://... (여러 개는 쉼표로)">'+
+    '<label>파일 위치 <span style="font-weight:600;color:var(--sub);">(사내 서버·NAS·폴더 경로)</span></label>'+
+    '<input id="sa-path" value="'+esc(SUBMITCTX.path||'')+'" placeholder="예: \\\\NAS\\영업\\2026\\발주\\PO-2026-084.pdf">'+
+    '<div class="chiprow" style="margin-top:6px;">'+
+      '<button class="chipb" onclick="saPath(\'\\\\\\\\NAS\\\\\')">NAS</button>'+
+      '<button class="chipb" onclick="saPath(\'D:\\\\공유\\\\\')">공유폴더</button>'+
+      '<button class="chipb" onclick="saPath(\'구글드라이브 › \')">드라이브</button>'+
+      '<button class="chipb" onclick="saPath(\'사무실 캐비닛 \')">실물문서</button>'+
+    '</div>'+
     '<label>상신 의견</label><input id="sa-memo" placeholder="배경·요청 사항">'+
     '<div style="display:flex;gap:8px;margin-top:14px;">'+
       '<button class="btn btn-p" style="flex:1" onclick="doSubmitAppr()">상신</button>'+
@@ -6423,6 +6440,11 @@ function openSubmit(docType,refId,title){
     '</div>';
   openModal('결재 상신', html);
   saPreview();
+}
+function saPath(pre){
+  var el=document.getElementById('sa-path'); if(!el)return;
+  if(el.value.indexOf(pre)!==0) el.value=pre+el.value;
+  el.focus();
 }
 function saPreview(){
   var el=document.getElementById('sa-preview'); if(!el)return;
@@ -6446,7 +6468,8 @@ function doSubmitAppr(){
     doc_type:document.getElementById('sa-type').value,
     ref_id:SUBMITCTX?SUBMITCTX.refId:null,
     title:title, steps:steps, cur:1, status:'진행', requested_by:myName(),
-    doc_url:(document.getElementById('sa-url').value||'').trim()||null
+    doc_url:(document.getElementById('sa-url').value||'').trim()||null,
+    doc_path:(document.getElementById('sa-path').value||'').trim()||null
   }})
   .then(function(){ closeModal(); toast('결재 상신 완료 — 다음: '+steps[1].name); return loadAppr(); })
   .catch(function(e){ toast('상신 실패: '+e.message); });
@@ -6490,6 +6513,7 @@ function renderAppr(){
       '<div class="apsteps" style="margin-top:8px;">'+st+'</div>'+
       (a.reject_reason?'<div class="prp" style="color:var(--danger);">반려 사유 · '+esc(a.reject_reason)+'</div>':'')+
       (a.doc_url?'<div class="prp">'+urlLinks(a.doc_url)+'</div>':'')+
+      (a.doc_path?'<div class="prp filepath" onclick="copyPath(this,\''+esc(String(a.doc_path).replace(/\\/g,'\\\\').replace(/'/g,"\\'"))+'\')" title="탭하면 경로 복사">📁 '+esc(a.doc_path)+'</div>':'')+
       '<div class="prm" style="margin-top:6px;"><span>상신 '+esc(a.requested_by||'')+'</span>'+
         '<span>'+esc(String(a.created_at||'').slice(0,16).replace('T',' '))+'</span></div>'+
       '<div class="pract">'+
@@ -6497,7 +6521,8 @@ function renderAppr(){
           ? '<button class="edit" onclick="openSign('+a.id+')">✍️ 결재</button>'+
             '<button class="del" onclick="doReject('+a.id+')">반려</button>'
           : '')+
-        '<button class="edit" onclick="apprPDF('+a.id+')">📄 PDF</button>'+
+        '<button class="edit" onclick="apprPDF('+a.id+',\'save\')">📄 PDF 저장</button>'+
+        '<button class="edit" onclick="apprPDF('+a.id+')">🖨 인쇄</button>'+
         (a.requested_by===myName()&&a.status!=='완료'
           ? '<button class="del" onclick="delAppr('+a.id+')">취소</button>' : '')+
       '</div>'+
@@ -6592,7 +6617,13 @@ function doApprove(){
     }}).then(function(){
       closeModal();
       toast(last?'최종 승인 완료':'승인 완료 — 다음: '+steps[a.cur+1].name);
-      return loadAppr();
+      return loadAppr().then(function(){
+        if(last){
+          setTimeout(function(){
+            if(confirm('결재가 완료되었습니다.\n결재 문서를 PDF로 저장/출력할까요?')) apprPDF(a.id,'save');
+          },350);
+        }
+      });
     });
   }).catch(function(e){ toast('처리 실패: '+e.message); });
 }
@@ -6607,6 +6638,20 @@ function doReject(id){
     .then(function(){ closeModal(); toast('반려 처리되었습니다'); return loadAppr(); })
     .catch(function(e){ toast('처리 실패: '+e.message); });
 }
+/* ---- 파일 위치 복사 ---- */
+function copyPath(el,path){
+  var done=function(){ toast('파일 위치를 복사했습니다'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(path).then(done).catch(function(){ fallbackCopy(path); done(); });
+  }else{ fallbackCopy(path); done(); }
+}
+function fallbackCopy(t){
+  var ta=document.createElement('textarea');
+  ta.value=t; ta.style.cssText='position:fixed;opacity:0;';
+  document.body.appendChild(ta); ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+}
 /* ---- 링크 렌더 ---- */
 function urlLinks(u){
   var arr=String(u||'').split(','), h='';
@@ -6618,7 +6663,7 @@ function urlLinks(u){
   return h;
 }
 /* ---- 결재 문서 PDF (A4 · 결재란 + 이력) ---- */
-function apprPDF(id){
+function apprPDF(id,mode){
   var a=apprById(id); if(!a)return;
   var roles=['작성','검토','확인','승인'];
   var cells='';
@@ -6685,6 +6730,7 @@ function apprPDF(id){
       '<tr><th>진행상태</th><td colspan="3"><span class="stmp">'+esc(a.status||'')+'</span>'+
         (a.reject_reason?' &nbsp; 반려사유: '+esc(a.reject_reason):'')+'</td></tr>'+
       (links?'<tr><th>관련 링크</th><td colspan="3">'+links+'</td></tr>':'')+
+      (a.doc_path?'<tr><th>파일 위치</th><td colspan="3"><span class="lk" style="color:#333">'+esc(a.doc_path)+'</span></td></tr>':'')+
       (a.steps[0]&&a.steps[0].memo?'<tr><th>상신 의견</th><td colspan="3">'+esc(a.steps[0].memo)+'</td></tr>':'')+
     '</table>'+
     '<div class="sect">결재 이력 <span style="font-weight:400;font-size:9px;color:#666">SHA-256 무결성 해시 적용</span></div>'+
@@ -6694,7 +6740,26 @@ function apprPDF(id){
     '<div class="ft"><span>출력 '+todayStr()+' · 출력자 '+esc(myName())+'</span>'+
       '<span>ShinWoo Smart Materials System</span></div>'+
     '</body></html>';
-  printHtml(html);
+  var fname='APR-'+String(a.id).padStart(4,'0')+'_'+String(a.title||'').replace(/[\\/:*?"<>|]/g,'').slice(0,40);
+  if(mode==='save') savePdf(html,fname); else printHtml(html);
+}
+/* PDF 저장 — 새 탭에서 열고 인쇄 대화상자(대상: PDF로 저장) 호출 */
+function savePdf(html,fname){
+  var doc=html.replace('<title>','<title>'+fname+' | ');
+  var w=window.open('','_blank');
+  if(!w){ toast('팝업이 차단되었습니다 — 인쇄 버튼을 사용하세요'); return printHtml(html); }
+  w.document.open();
+  w.document.write(doc.replace('</body>',
+    '<div class="noprt" style="position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px;'+
+    'background:#1a1d27;border-top:1px solid #3a4152;">'+
+    '<button onclick="window.print()" style="flex:1;padding:13px;border:none;border-radius:11px;'+
+    'background:linear-gradient(160deg,#f6d365,#e2b04a);color:#241a05;font-size:14px;font-weight:800;cursor:pointer;">'+
+    'PDF로 저장 · 인쇄</button>'+
+    '<button onclick="window.close()" style="padding:13px 18px;border:none;border-radius:11px;'+
+    'background:#2b3a48;color:#c6d4e1;font-size:14px;font-weight:800;cursor:pointer;">닫기</button></div>'+
+    '<style>@media print{.noprt{display:none!important}}body{padding-bottom:70px}</style></body>'));
+  w.document.close();
+  setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} },600);
 }
 /* 공통 인쇄 (iframe srcdoc) */
 function printHtml(html){
