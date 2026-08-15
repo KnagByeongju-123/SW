@@ -319,6 +319,7 @@ body.locked{overflow:hidden;}
   overflow:hidden;text-overflow:ellipsis;}
 .prh .prs{flex:1;min-width:0;font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .prh .prq{font-family:var(--num);font-size:17px;font-weight:700;color:var(--gold-lt);flex-shrink:0;}
+.prh .prb2{flex-shrink:0;}
 .prh .prq.low{color:var(--danger);}
 .prh .prq i{font-style:normal;font-size:10px;color:var(--sub);margin-left:2px;font-family:inherit;}
 .prb{padding:0 11px 11px;border-top:1px solid var(--line2,#2a3040);}
@@ -411,6 +412,11 @@ body.locked{overflow:hidden;}
 .lblbtn{flex-shrink:0;padding:4px 10px;border-radius:7px;border:1px solid var(--goldbd);
   background:var(--goldbg);color:var(--gold);font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;}
 label.lb1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rsvlist{margin-top:8px;border-top:1px dashed var(--line);padding-top:6px;}
+.rsvrow{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--sub);padding:2.5px 0;white-space:nowrap;}
+.rsvrow .rc1{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--ink);font-weight:600;}
+.rsvrow .rc2{font-family:var(--num);font-weight:700;color:var(--amber);flex-shrink:0;}
+.rsvrow .rc3{font-size:10.5px;flex-shrink:0;opacity:.75;}
 .costbox{background:var(--card2);border:1px solid var(--line);border-radius:11px;
   padding:9px 12px;margin:9px 0 2px;}
 .costbox:empty{display:none;}
@@ -4716,10 +4722,16 @@ function ordShell(k){
         '<div><b id="os-live-'+k+'">0</b><span>진행중</span></div>'+
         '<div><b id="os-amt-'+k+'">0</b><span>수주금액(원)</span></div>'+
       '</div>'+
-      '<div class="tbl-wrap"><table class="tbl">'+
-        '<thead><tr><th>수주번호</th><th>거래처</th><th>품목</th><th>상태</th></tr></thead>'+
-        '<tbody id="tb-ord-'+k+'"></tbody>'+
-      '</table></div>'+
+      '<div class="pbar2">'+
+        '<div class="sortbar">'+
+          '<button class="on" data-so="recent" onclick="setOSort(\''+k+'\',this)">최근순</button>'+
+          '<button data-so="due" onclick="setOSort(\''+k+'\',this)">납기순</button>'+
+          '<button data-so="cust" onclick="setOSort(\''+k+'\',this)">거래처순</button>'+
+        '</div>'+
+        '<button class="expbtn" id="oexp-'+k+'" onclick="toggleOAll(\''+k+'\')">▼ 펼쳐보기</button>'+
+      '</div>'+
+      '<p class="help" style="margin:-2px 0 10px;">행을 누르면 상세가 펼쳐지고 <b>수정 · 삭제</b>할 수 있습니다.</p>'+
+      '<div id="tb-ord-'+k+'"></div>'+
     '</div>'+
   '</div>';
 }
@@ -4870,9 +4882,35 @@ function onOrdItem(k){
   var price=Number(document.getElementById('o-price-'+k).value||0);
   var avail=Number(k==='mat'?it.qty:it.stock)||0;
 
-  var h='가용 재고 <b>'+fmt(avail)+' '+esc(it.unit||'EA')+'</b>';
+  /* 진행중 수주(출하완료 전) 예약 수량 */
+  var rsv=0, olist=[];
+  for(var r=0;r<ORDERS.length;r++){
+    var oo=ORDERS[r];
+    if(ordKindOf(oo)!==k)continue;
+    if(Number(oo.status)>=3)continue;
+    var oid=(k==='mat')?oo.stock_id:oo.part_id;
+    if(String(oid)!==String(it.id))continue;
+    rsv+=Number(oo.qty)||0;
+    olist.push(oo);
+  }
+  var free=Math.round((avail-rsv)*100)/100;
+  var u=esc(it.unit||'EA');
+  var h='현재고 '+fmt(avail)+u+' − 수주 '+fmt(rsv)+u+
+        ' = 가용 <b style="color:'+(free<0?'var(--danger)':'var(--gold-lt)')+'">'+fmt(free)+' '+u+'</b>';
   if(qty&&price) h+=' · 수주금액 <b>₩'+fmt(Math.round(qty*price))+'</b>';
-  if(qty>avail) h+=' <span style="color:var(--danger);font-weight:700;">· 재고 부족</span>';
+  if(qty>free) h+=' <span style="color:var(--danger);font-weight:700;">· 가용재고 초과</span>';
+  if(olist.length){
+    olist.sort(function(a,b){return String(a.due_date||'').localeCompare(String(b.due_date||''));});
+    h+='<div class="rsvlist">';
+    for(var p=0;p<olist.length;p++){
+      var oo2=olist[p];
+      h+='<div class="rsvrow">'+stBadge(oo2.status)+
+         '<span class="rc1">'+esc(oo2.customer||'')+'</span>'+
+         '<span class="rc2">'+fmt(oo2.qty)+u+'</span>'+
+         '<span class="rc3">'+esc(oo2.due_date||'')+'</span></div>';
+    }
+    h+='</div>';
+  }
   box.innerHTML=h;
 
   if(!cb)return;
@@ -4941,43 +4979,140 @@ function addOrderK(k){
 }
 
 /* ---------- 수주 이력 ---------- */
+var OSORT={mat:'recent',bear:'recent',etc:'recent'};
+var OOPEN={mat:null,bear:null,etc:null}, OALL={mat:false,bear:false,etc:false};
+function setOSort(k,btn){
+  var bs=btn.parentNode.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');
+  OSORT[k]=btn.getAttribute('data-so');
+  renderOrdK(k);
+}
+function toggleOAll(k){
+  OALL[k]=!OALL[k]; OOPEN[k]=null;
+  var b=document.getElementById('oexp-'+k);
+  if(b){ b.textContent=OALL[k]?'▲ 접기':'▼ 펼쳐보기'; b.classList.toggle('on',OALL[k]); }
+  renderOrdK(k);
+}
+function toggleORow(k,id){ OOPEN[k]=(OOPEN[k]===id)?null:id; renderOrdK(k); }
+function orderById(id){
+  for(var i=0;i<ORDERS.length;i++) if(ORDERS[i].id===id) return ORDERS[i];
+  return null;
+}
 function renderOrdK(k){
   fillOrdItems(k);
-  var tb=document.getElementById('tb-ord-'+k); if(!tb)return;
+  var box=document.getElementById('tb-ord-'+k); if(!box)return;
   var q=(document.getElementById('oq-'+k).value||'').trim().toLowerCase();
-  var list=ordersOf(k).slice().sort(function(a,b){return b.id-a.id;});
+  var list=ordersOf(k).slice();
+  list.sort(function(a,b){
+    if(OSORT[k]==='due')  return String(a.due_date||'').localeCompare(String(b.due_date||''));
+    if(OSORT[k]==='cust') return String(a.customer||'').localeCompare(String(b.customer||''),'ko');
+    return b.id-a.id;
+  });
   var n=0,live=0,amt=0,h='';
   for(var i=0;i<list.length;i++){
     var o=list[i];
-    var blob=[o.order_no,o.customer,ordItemName(o),ordItemSub(o)].join(' ').toLowerCase();
+    var blob=[o.order_no,o.customer,ordItemName(o),ordItemSub(o),o.po_no].join(' ').toLowerCase();
     if(q&&blob.indexOf(q)<0)continue;
     n++; if(o.status<3)live++; amt+=Number(o.qty||0)*Number(o.price||0);
-    h+='<tr class="row-click" data-id="'+o.id+'">'+
-      '<td class="mono" style="font-size:12.5px;">'+esc(o.order_no)+'</td>'+
-      '<td>'+esc(o.customer)+'</td>'+
-      '<td>'+esc(ordItemName(o))+'<br><span style="font-size:11.5px;color:var(--sub);">'+
-        esc(ordItemSub(o))+' × '+esc(o.qty)+'</span></td>'+
-      '<td>'+stBadge(o.status)+'</td></tr>';
+    var open=OALL[k]||OOPEN[k]===o.id;
+    var it=ordItem(o);
+    h+='<div class="prowc'+(open?' open':'')+'">'+
+      '<div class="prh" onclick="toggleORow(\''+k+'\','+o.id+')">'+
+        '<span class="pra">'+(open?'▾':'▸')+'</span>'+
+        '<span class="prn">'+esc(o.customer||'')+'</span>'+
+        '<span class="prs">'+esc(ordItemName(o))+' × '+esc(o.qty)+'</span>'+
+        '<span class="prb2">'+stBadge(o.status)+'</span>'+
+      '</div>';
+    if(open){
+      h+='<div class="prb">'+
+        '<div class="prm">'+
+          '<span class="tag">'+esc(o.order_no||'')+'</span>'+
+          (ordItemSub(o)?'<span class="heat">'+esc(ordItemSub(o))+'</span>':'')+
+          (it.spec&&ordKindOf(o)!=='mat'?'<span>'+esc(it.spec)+'</span>':'')+
+          '<span>납기 '+esc(o.due_date||'-')+'</span>'+
+          (o.po_no?'<span>고객PO '+esc(o.po_no)+'</span>':'')+
+          (o.ship_date?'<span>출하 '+esc(o.ship_date)+'</span>':'')+
+        '</div>'+
+        '<div class="prp">단가 ₩'+fmt(o.price)+' · 수주금액 <b>₩'+
+          fmt(Math.round(Number(o.qty||0)*Number(o.price||0)))+'</b></div>'+
+        '<div class="pract">'+
+          '<button class="edit" onclick="showOrderDetail(orderById('+o.id+'))">상세</button>'+
+          '<button class="edit" onclick="editOrder('+o.id+')">수정</button>'+
+          '<button class="del" onclick="deleteOrder('+o.id+')">삭제</button>'+
+        '</div>'+
+      '</div>';
+    }
+    h+='</div>';
   }
-  tb.innerHTML=h||'<tr><td colspan="4" style="color:var(--sub);text-align:center;">수주 이력이 없습니다.</td></tr>';
-  bindOrdRows(tb);
+  box.innerHTML=h||'<div class="pempty">수주 이력이 없습니다.</div>';
   document.getElementById('os-cnt-'+k).textContent=n;
   document.getElementById('os-live-'+k).textContent=live;
   document.getElementById('os-amt-'+k).textContent=fmt(Math.round(amt));
   renderShipK(k);
 }
-function bindOrdRows(tb){
-  var rows=tb.querySelectorAll('tr[data-id]');
-  for(var i=0;i<rows.length;i++){
-    (function(tr){
-      tr.addEventListener('click',function(){
-        var id=Number(tr.getAttribute('data-id'));
-        for(var j=0;j<ORDERS.length;j++) if(ORDERS[j].id===id) return showOrderDetail(ORDERS[j]);
-      });
-    })(rows[i]);
-  }
+/* ---------- 수주 수정 ---------- */
+function editOrder(id){
+  var o=orderById(id); if(!o)return;
+  var k=ordKindOf(o), it=ordItem(o);
+  var warn = o.status>=3
+    ? '<p class="help" style="color:var(--danger);">이미 출하완료된 건입니다. 수정해도 차감된 재고는 변경되지 않습니다.</p>'
+    : '';
+  var stOpt='';
+  for(var i=0;i<ST_NAMES.length;i++)
+    stOpt+='<option value="'+i+'"'+(Number(o.status)===i?' selected':'')+'>'+ST_NAMES[i]+'</option>';
+  var html=
+    '<dl class="dl" style="margin-bottom:10px;">'+
+      '<dt>수주번호</dt><dd class="mono">'+esc(o.order_no||'')+'</dd>'+
+      '<dt>품목</dt><dd>'+OKIND[k].icon+' '+esc(ordItemName(o))+
+        (ordItemSub(o)?' <span class="heat">'+esc(ordItemSub(o))+'</span>':'')+'</dd>'+
+    '</dl>'+
+    '<label>거래처</label><input id="oe-cust" value="'+esc(o.customer||'')+'">'+
+    '<div class="grid2">'+
+      '<div><label>수량</label><input id="oe-qty" type="number" min="0" step="0.01" value="'+Number(o.qty||0)+'"></div>'+
+      '<div><label>판매단가 (원)</label><input id="oe-price" type="number" min="0" value="'+Number(o.price||0)+'"></div>'+
+    '</div>'+
+    '<div class="grid2">'+
+      '<div><label>납기일</label><input id="oe-due" type="date" value="'+esc(o.due_date||'')+'"></div>'+
+      '<div><label>진행 상태</label><select id="oe-st">'+stOpt+'</select></div>'+
+    '</div>'+
+    '<label>고객 P/O 번호</label><input id="oe-po" value="'+esc(o.po_no||'')+'">'+
+    warn+
+    '<div style="display:flex;gap:8px;margin-top:16px;">'+
+      '<button class="btn btn-p" style="flex:1" onclick="saveOrderEdit('+id+')">저장</button>'+
+      '<button class="btn btn-g" onclick="closeModal()">취소</button>'+
+    '</div>';
+  openModal('수주 수정 · '+(o.order_no||''), html);
 }
-
+function saveOrderEdit(id){
+  var o=orderById(id); if(!o)return;
+  var cust=(document.getElementById('oe-cust').value||'').trim();
+  var qty=Number(document.getElementById('oe-qty').value||0);
+  var price=Number(document.getElementById('oe-price').value||0);
+  var due=document.getElementById('oe-due').value||null;
+  var st=Number(document.getElementById('oe-st').value);
+  var po=(document.getElementById('oe-po').value||'').trim()||null;
+  if(!cust)return toast('거래처를 입력하세요');
+  if(!qty||qty<=0)return toast('수량을 입력하세요');
+  var body={customer:cust,qty:qty,price:price,due_date:due,status:st,po_no:po};
+  if(st===3&&!o.ship_date)body.ship_date=todayStr();
+  if(st<3)body.ship_date=null;
+  sb('sw_order?id=eq.'+id,{method:'PATCH',body:body})
+    .then(function(){ closeModal(); toast('수정되었습니다'); return loadData(); })
+    .catch(function(e){ toast('수정 실패: '+e.message); });
+}
+/* ---------- 수주 삭제 ---------- */
+function deleteOrder(id){
+  var o=orderById(id); if(!o)return;
+  var msg='['+(o.order_no||'')+' · '+(o.customer||'')+'] 수주를 삭제할까요?';
+  if(Number(o.status)>=3)
+    msg+='\n\n※ 출하완료 건입니다. 삭제해도 차감된 재고는 자동 복원되지 않습니다.\n   재고를 되돌리려면 입고로 별도 처리하세요.';
+  if(!confirm(msg))return;
+  sb('sw_order?id=eq.'+id,{method:'DELETE'})
+    .then(function(){ toast('삭제되었습니다'); return loadData(); })
+    .catch(function(e){ toast('삭제 실패: '+e.message); });
+}
+function bindOrdRows(tb){ /* 리스트 방식으로 대체됨 */ }
 /* ---------- 출하 ---------- */
 function renderShipK(k){
   var box=document.getElementById('shp-list-'+k); if(!box)return;
