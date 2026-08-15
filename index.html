@@ -755,6 +755,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       <div class="kpi"><div class="n" id="k-recv">-</div><div class="l">이달 입고</div></div>
       <div class="kpi warn"><div class="n" id="k-low">-</div><div class="l">잔량 부족</div></div>
       <div class="kpi"><div class="n" id="k-heat">-</div><div class="l">보유 Heat No.</div></div>
+      <div class="kpi warn"><div class="n" id="k-heat0">-</div><div class="l">Heat No. 미상</div></div>
       <div class="kpi warn"><div class="n" id="k-mtc">-</div><div class="l">밀시트 미등록</div></div>
     </div>
   </div>
@@ -1938,12 +1939,22 @@ function renderDashKinds(SH){
   });
   tb.innerHTML=h;
 }
+/* Heat No. 보유 여부 — 공란·'-'·미상·N/A 는 미보유로 본다 */
+function hasHeat(v){
+  var t=String(v==null?'':v).trim();
+  if(!t)return false;
+  return ['-','--','미상','불명','없음','n/a','na','tbd','?'].indexOf(t.toLowerCase())<0;
+}
 function renderDash(){
-  var heats={},low=0,noMtc=0;
+  var heats={},noHeat=0,low=0,noMtc=0;
   for(var i=0;i<STOCK.length;i++){
-    heats[STOCK[i].heat_no]=1;
-    if(STOCK[i].total>0&&STOCK[i].qty/STOCK[i].total<=0.3)low++;
-    if(!STOCK[i].mtc)noMtc++;
+    var s0=STOCK[i];
+    if(Number(s0.qty)>0){
+      if(hasHeat(s0.heat_no)) heats[String(s0.heat_no).trim()]=1;
+      else noHeat++;                     /* 잔량은 있는데 Heat No. 미상 */
+    }
+    if(s0.total>0&&s0.qty/s0.total<=0.3)low++;
+    if(!s0.mtc)noMtc++;
   }
   var live=0,ship=0;
   for(var k=0;k<ORDERS.length;k++){
@@ -1952,6 +1963,7 @@ function renderDash(){
   }
   document.getElementById('k-item').textContent=STOCK.length;
   document.getElementById('k-heat').textContent=Object.keys(heats).length;
+  document.getElementById('k-heat0').textContent=noHeat;
   document.getElementById('k-ship').textContent=ship;
   document.getElementById('k-mtc').textContent=noMtc;
   document.getElementById('k-ord').textContent=live;
@@ -1985,6 +1997,7 @@ function renderDash(){
   var parts=[];
   if(SH.length>0)parts.push('<span style="color:var(--danger);">수주대비 재고부족 <b>'+SH.length+'품목</b></span>');
   if(ship>0)parts.push('출하 진행 <b>'+ship+'건</b>');
+  if(noHeat>0)parts.push('<span style="color:var(--amber);">Heat No. 미상 <b>'+noHeat+'건</b></span>');
   if(noMtc>0)parts.push('밀시트 미등록 <b>'+noMtc+'건</b>');
   if(low>0)parts.push('잔량 부족 <b>'+low+'건</b>');
   document.getElementById('hero-sum').innerHTML=
