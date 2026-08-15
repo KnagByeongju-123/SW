@@ -297,8 +297,39 @@ body.locked{overflow:hidden;}
 .pbtns button{border-radius:7px;font-size:11.5px;font-weight:800;cursor:pointer;padding:6px 11px;font-family:inherit;}
 .pbtns .in{background:rgba(226,176,74,.16);border:1px solid var(--goldbd);color:var(--gold);}
 .pbtns .out{background:rgba(242,160,60,.14);border:1px solid rgba(242,160,60,.5);color:var(--amber);}
+.pbtns .edit{background:rgba(226,176,74,.14);border:1px solid var(--goldbd);color:var(--gold);}
+.pbtns .del{background:rgba(239,116,102,.12);border:1px solid rgba(239,116,102,.45);color:var(--danger);}
 .lowbadge{font-size:10px;font-weight:800;color:var(--danger);background:rgba(239,116,102,.15);
   border:1px solid rgba(239,116,102,.4);border-radius:5px;padding:1px 7px;margin-left:5px;}
+/* ===== 재고 한 줄 리스트 · 정렬 · 펼치기 ===== */
+.sortbar{display:flex;gap:4px;background:#12141d;border:1px solid var(--line);border-radius:10px;padding:3px;flex:1;min-width:0;}
+.sortbar button{flex:1;min-width:0;padding:7px 2px;border:1px solid transparent;background:transparent;
+  color:var(--sub);border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sortbar button.on{background:var(--goldbg);color:var(--gold);border-color:var(--goldbd);}
+.expbtn{padding:8px 11px;border-radius:10px;border:1px solid var(--line);background:var(--card);
+  color:var(--sub);font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;}
+.expbtn.on{background:var(--goldbg);border-color:var(--goldbd);color:var(--gold);}
+.prowc{background:var(--card);border:1px solid var(--line);border-radius:11px;margin-bottom:6px;overflow:hidden;}
+.prowc.low{border-color:rgba(239,116,102,.5);}
+.prowc.open{border-color:var(--goldbd);}
+.prh{display:flex;align-items:center;gap:7px;padding:10px 11px;cursor:pointer;}
+.prh .pra{color:var(--gold);font-size:11px;width:11px;flex-shrink:0;}
+.prh .prn{font-size:13.5px;font-weight:800;color:var(--ink);white-space:nowrap;flex-shrink:0;max-width:42%;
+  overflow:hidden;text-overflow:ellipsis;}
+.prh .prs{flex:1;min-width:0;font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prh .prq{font-family:var(--num);font-size:17px;font-weight:700;color:var(--gold-lt);flex-shrink:0;}
+.prh .prq.low{color:var(--danger);}
+.prh .prq i{font-style:normal;font-size:10px;color:var(--sub);margin-left:2px;font-family:inherit;}
+.prb{padding:0 11px 11px;border-top:1px solid var(--line2,#2a3040);}
+.prm{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px;font-size:11px;color:var(--sub);align-items:center;}
+.prm .tag{background:var(--card2);border:1px solid var(--line);border-radius:5px;padding:1px 7px;font-weight:600;}
+.prp{font-size:11.5px;color:var(--sub);margin-top:6px;line-height:1.6;}
+.prp b{color:var(--gold-lt);font-family:var(--num);font-size:13px;}
+.pract{display:flex;gap:6px;margin-top:10px;}
+.pract button{flex:1;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;padding:8px 0;font-family:inherit;}
+.pract .edit{background:rgba(226,176,74,.14);border:1px solid var(--goldbd);color:var(--gold);}
+.pract .del{background:rgba(239,116,102,.12);border:1px solid rgba(239,116,102,.45);color:var(--danger);}
 .prow{display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);
   border-radius:10px;padding:8px 11px;margin-bottom:6px;font-size:12.5px;}
 .prow .tp{font-weight:800;font-size:11px;padding:1.5px 8px;border-radius:5px;flex-shrink:0;}
@@ -693,17 +724,27 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <div class="kpi ok"><div class="n" id="mk-mon">0</div><div class="l">이달 입출고</div></div>
   </div></div>
   <div class="card">
-    <h3>소재 재고 <span class="badge b-blue">Heat No. 단위</span></h3>
-    <div class="search-bar">
-      <input id="q-stock" placeholder="합금·형상·Heat No. 검색  예) 625, PIPE, 2K48" oninput="renderStock()">
+    <h3>📦 소재 재고 <span class="badge b-blue">Heat No. 단위</span></h3>
+    <div class="pbar2">
+      <input type="text" id="q-stock" placeholder="합금 · 형상 · 규격 · Heat No. 검색" oninput="renderStock()">
+      <select id="mcat" onchange="renderStock()"><option value="">전체 형상</option></select>
+      <button class="lowtg" id="mlow" onclick="toggleMLow()">⚠ 부족만</button>
+    </div>
+    <div class="pbar2">
+      <div class="sortbar">
+        <button class="on" data-so="recent" onclick="setMSort(this)">최종입고순</button>
+        <button data-so="name" onclick="setMSort(this)">가나다순</button>
+        <button data-so="stock" onclick="setMSort(this)">재고순</button>
+      </div>
+      <button class="expbtn" id="mexp" onclick="toggleMAll()">▼ 펼쳐보기</button>
+    </div>
+    <div class="pbar2">
+      <button class="btn btn-o btn-sm" onclick="exportMatCSV()">엑셀 내려받기</button>
       <button class="btn btn-o btn-sm" onclick="selectTab('qr')">QR 스캔</button>
+      <button class="btn btn-g btn-sm" onclick="loadData()">새로고침</button>
     </div>
-    <div class="tbl-wrap">
-      <table class="tbl">
-        <thead><tr><th>합금 / 형상</th><th>규격</th><th>Heat No.</th><th>잔량</th><th>매입단가</th><th>MTC</th></tr></thead>
-        <tbody id="tb-stock"></tbody>
-      </table>
-    </div>
+    <p class="help" style="margin:-2px 0 10px;">행을 누르면 상세가 펼쳐집니다. 수량 변경은 <b>입고</b> · <b>출하</b> 메뉴에서 처리됩니다.</p>
+    <div id="tb-stock"></div>
   </div>
   </div>
 
@@ -1644,31 +1685,150 @@ function renderDash(){
 }
 
 /* ================= 재고 ================= */
-function renderStock(){
-  var q=(document.getElementById('q-stock').value||'').toLowerCase();
-  var tb=document.getElementById('tb-stock');
-  tb.innerHTML='';
-  for(var i=0;i<STOCK.length;i++){
-    var s=STOCK[i];
-    var hay=(s.alloy+' '+s.form+' '+s.spec+' '+s.heat_no).toLowerCase();
-    if(q&&hay.indexOf(q)<0)continue;
-    var ratio=s.total>0?s.qty/s.total:1;
-    var qtyBadge=ratio<=0.3?'b-warn':'b-ok';
-    var tr=document.createElement('tr');
-    tr.className='row-click';
-    tr.innerHTML='<td><b>'+esc(s.alloy)+'</b><br><span style="font-size:12px;color:var(--sub);">'+esc(s.form)+'</span></td>'+
-      '<td class="mono" style="font-size:12.5px;">'+esc(s.spec)+'</td>'+
-      '<td><span class="heat">'+esc(s.heat_no)+'</span></td>'+
-      '<td><span class="badge '+qtyBadge+'">'+esc(s.qty)+' '+esc(s.unit)+'</span></td>'+
-      '<td style="font-size:12px;">'+matPriceHtml(s)+'</td>'+
-      '<td>'+(s.mtc?'<span class="badge b-ok">등록</span>':'<span class="badge b-danger">미등록</span>')+'</td>';
-    (function(item){
-      tr.addEventListener('click',function(){showStockDetail(item);});
-    })(s);
-    tb.appendChild(tr);
+var MSORT='recent', MLOW=false, MOPEN=null, MALL=false;
+function setMSort(btn){
+  var bs=btn.parentNode.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');
+  MSORT=btn.getAttribute('data-so');
+  renderStock();
+}
+function toggleMLow(){
+  MLOW=!MLOW;
+  document.getElementById('mlow').classList.toggle('on',MLOW);
+  renderStock();
+}
+function toggleMAll(){
+  MALL=!MALL; MOPEN=null;
+  var b=document.getElementById('mexp');
+  if(b){ b.textContent=MALL?'▲ 접기':'▼ 펼쳐보기'; b.classList.toggle('on',MALL); }
+  renderStock();
+}
+function toggleMRow(id){ MOPEN=(MOPEN===id)?null:id; renderStock(); }
+function isLowMat(s2){ return Number(s2.total)>0 && Number(s2.qty)/Number(s2.total)<=0.3; }
+/* 소재 최종 입고일 (sw_receipt 기준) */
+function lastInMat(id){
+  var best='';
+  for(var i=0;i<RECV.length;i++){
+    var r=RECV[i];
+    if(String(r.stock_id)!==String(id))continue;
+    var d=r.recv_date||r.created_at||'';
+    if(d>best)best=d;
   }
-  if(!tb.children.length)tb.innerHTML='<tr><td colspan="6" style="color:var(--sub);text-align:center;">검색 결과가 없습니다.</td></tr>';
+  return best;
+}
+function renderStock(){
+  var box=document.getElementById('tb-stock'); if(!box)return;
+  var q=(document.getElementById('q-stock').value||'').toLowerCase();
+  var cat=(document.getElementById('mcat')||{value:''}).value;
+
+  /* 형상 목록 채우기 */
+  var sel=document.getElementById('mcat');
+  if(sel){
+    var forms=[],seen={};
+    for(var f=0;f<STOCK.length;f++){
+      var fo=STOCK[f].form;
+      if(fo&&!seen[fo]){seen[fo]=1;forms.push(fo);}
+    }
+    forms.sort();
+    var oh='<option value="">전체 형상</option>';
+    for(var g=0;g<forms.length;g++)oh+='<option'+(forms[g]===cat?' selected':'')+'>'+esc(forms[g])+'</option>';
+    sel.innerHTML=oh;
+  }
+
+  var list=[];
+  for(var i=0;i<STOCK.length;i++){
+    var s2=STOCK[i];
+    var hay=(s2.alloy+' '+s2.form+' '+s2.spec+' '+s2.heat_no).toLowerCase();
+    if(q&&hay.indexOf(q)<0)continue;
+    if(cat&&s2.form!==cat)continue;
+    if(MLOW&&!isLowMat(s2))continue;
+    list.push(s2);
+  }
+  list.sort(function(a,b){
+    if(MSORT==='name') return String(a.alloy||'').localeCompare(String(b.alloy||''),'ko');
+    if(MSORT==='stock')return Number(b.qty||0)-Number(a.qty||0);
+    var da=lastInMat(a.id), db=lastInMat(b.id);
+    if(da&&db)return da<db?1:(da>db?-1:0);
+    if(da)return -1; if(db)return 1;
+    return String(a.alloy||'').localeCompare(String(b.alloy||''),'ko');
+  });
+
+  var h='';
+  for(var m=0;m<list.length;m++){
+    var t=list[m];
+    var low=isLowMat(t), open=MALL||MOPEN===t.id;
+    var cur=t.currency||'KRW', unitKrw=toKRW(t.price,cur), pl=evalMatPL(t);
+    var li=lastInMat(t.id);
+    h+='<div class="prowc'+(low?' low':'')+(open?' open':'')+'">'+
+      '<div class="prh" onclick="toggleMRow('+t.id+')">'+
+        '<span class="pra">'+(open?'▾':'▸')+'</span>'+
+        '<span class="prn">'+esc(t.alloy||'')+(low?'<span class="lowbadge">부족</span>':'')+'</span>'+
+        '<span class="prs">'+esc(t.form||'')+' · '+esc(t.spec||'')+'</span>'+
+        '<span class="prq'+(low?' low':'')+'">'+fmt(t.qty)+'<i>'+esc(t.unit||'')+'</i></span>'+
+      '</div>';
+    if(open){
+      h+='<div class="prb">'+
+        '<div class="prm">'+
+          '<span class="heat">'+esc(t.heat_no||'-')+'</span>'+
+          (t.mtc?'<span class="badge b-ok">MTC 등록</span>':'<span class="badge b-danger">MTC 미등록</span>')+
+          (t.mill?'<span>🏭'+esc(t.mill)+'</span>':'')+
+          (t.std?'<span>'+esc(t.std)+'</span>':'')+
+          '<span>누적입고 '+fmt(t.total)+esc(t.unit||'')+'</span>'+
+          (li?'<span>최종입고 '+esc(String(li).slice(0,10))+'</span>':'<span style="opacity:.6;">입고이력 없음</span>')+
+        '</div>'+
+        (Number(t.price)?'<div class="prp">'+
+          (cur==='KRW'?'매입단가 ₩'+fmt(t.price)
+                      :'<span class="curtag">'+cur+'</span> @'+money(t.price,cur)+' → ₩'+fmt(Math.round(unitKrw)))+
+          ' · 재고금액 <b>₩'+fmt(Math.round(Number(t.qty||0)*unitKrw))+'</b>'+
+          (Math.round(pl)?' · 평가 '+plHtml(pl):'')+
+        '</div>':'')+
+        '<div class="pract">'+
+          '<button class="edit" onclick="matDetail('+t.id+')">상세</button>'+
+          '<button class="edit" onclick="matEditJump('+t.id+')">수정</button>'+
+        '</div>'+
+      '</div>';
+    }
+    h+='</div>';
+  }
+  box.innerHTML=h||'<div class="pempty">검색 결과가 없습니다.</div>';
   renderMatKpi();
+}
+function matDetail(id){
+  var it=STOCK_BY_ID[id]; if(it)showStockDetail(it);
+}
+function matEditJump(id){
+  var it=STOCK_BY_ID[id]; if(!it)return;
+  selectTab('master');
+  setTimeout(function(){
+    var b=document.querySelector('#pg-master .subtab button[data-sub="mat"]');
+    if(b)goSub(b);
+    startMatEdit(it);
+  },250);
+}
+function exportMatCSV(){
+  var head=['합금','형상','규격','Heat No.','잔량','누적입고','단위','통화','매입단가(외화)','매입환율',
+            '오늘환율','매입단가(원)','현재단가(원)','재고금액(원)','평가환차손익(원)','제조밀','적용규격','MTC'];
+  var rows=[],total=0,totPL=0;
+  for(var i=0;i<STOCK.length;i++){
+    var t=STOCK[i], cur=t.currency||'KRW';
+    var buy=cur==='KRW'?1:(Number(t.fx_buy)||0), now=cur==='KRW'?1:fxOf(cur);
+    var upBuy=Math.round(Number(t.price||0)*buy), upNow=Math.round(Number(t.price||0)*now);
+    var amt=Number(t.qty||0)*upNow, pl=Math.round(evalMatPL(t));
+    total+=amt; totPL+=pl;
+    rows.push([t.alloy||'',t.form||'',t.spec||'',t.heat_no||'',Number(t.qty||0),Number(t.total||0),t.unit||'',
+               cur,Number(t.price||0),buy,now,upBuy,upNow,amt,pl,t.mill||'',t.std||'',t.mtc?'등록':'미등록']);
+  }
+  var today=todayStr();
+  var all=[['소재 재고현황 - '+today+' (환율 '+(FX_DATE||'-')+' '+(FX_SRC||'')+')'],head]
+    .concat(rows,[[]],[['합계','','','','','','','','','','','','',total,totPL]]);
+  var csv=all.map(function(r){
+    return r.map(function(c){return '"'+String(c==null?'':c).replace(/"/g,'""')+'"';}).join(',');
+  }).join('\r\n');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv'}));
+  a.download='소재재고_'+today+'.csv';
+  a.click(); URL.revokeObjectURL(a.href);
 }
 /* 소재 매입단가 표기 · KPI · 환차손익 */
 function matPriceHtml(s){
@@ -3548,6 +3708,10 @@ var PKIND = { bear:{ key:'bear', label:'베어링', icon:'⚙️',
                      cats:['소모공구','체결부품','윤활·유지류','포장자재','안전용품','기타'] } };
 var PARTS = { bear:[], etc:[] }, PLOG = { bear:[], etc:[] };
 var PLOW  = { bear:false, etc:false }, PLOADED = { bear:false, etc:false };
+var PLAST = { bear:{}, etc:{} };                       /* 품목별 최종 입고일 */
+var PSORT = { bear:'recent', etc:'recent' };           /* recent | name | stock */
+var POPEN = { bear:null, etc:null };                   /* 펼쳐진 품목 id */
+var PALL  = { bear:false, etc:false };                 /* 전체 펼치기 */
 var PEDIT = null, PIO = null, PIOTYPE = 'in', PIOKIND = 'bear';
 
 /* ---- 환율 ---- */
@@ -3701,11 +3865,19 @@ function partShell(k){
       '<button class="lowtg" id="plow-'+k+'" onclick="togglePLow(\''+k+'\')">⚠ 부족만</button>'+
     '</div>'+
     '<div class="pbar2">'+
+      '<div class="sortbar">'+
+        '<button class="on" data-so="recent" onclick="setPSort(\''+k+'\',this)">최종입고순</button>'+
+        '<button data-so="name" onclick="setPSort(\''+k+'\',this)">가나다순</button>'+
+        '<button data-so="stock" onclick="setPSort(\''+k+'\',this)">재고순</button>'+
+      '</div>'+
+      '<button class="expbtn" id="pexp-'+k+'" onclick="togglePAll(\''+k+'\')">▼ 펼쳐보기</button>'+
+    '</div>'+
+    '<div class="pbar2">'+
       '<button class="btn btn-p btn-sm" onclick="editPart(\''+k+'\',null)">＋ 품목 등록</button>'+
       '<button class="btn btn-o btn-sm" onclick="exportPartCSV(\''+k+'\')">엑셀 내려받기</button>'+
       '<button class="btn btn-g btn-sm" onclick="loadParts(\''+k+'\',true)">새로고침</button>'+
     '</div>'+
-    '<p class="help" style="margin:-2px 0 10px;">품목을 누르면 정보를 수정합니다. 수량 변경은 <b>입고</b> · <b>출하</b> 메뉴에서 처리됩니다.</p>'+
+    '<p class="help" style="margin:-2px 0 10px;">품목 정보는 <b>수정</b> · <b>삭제</b>로 관리합니다. 수량 변경은 <b>입고</b> · <b>출하</b> 메뉴에서 처리됩니다.</p>'+
     '<div id="plist-'+k+'"><div class="pempty">불러오는 중…</div></div>'+
   '</div>'+
   '<div class="card">'+
@@ -4031,9 +4203,16 @@ function loadParts(k, silent){
     sb('sw_part?select=*&kind=eq.'+k+'&order=name.asc'),
     sb('sw_part_log?select=*&kind=eq.'+k+'&order=id.desc&limit=30'),
     sb('sw_part_log?select=id&kind=eq.'+k+'&created_at=gte.'+mon.toISOString()),
-    sb('sw_part_log?select=fx_pl&kind=eq.'+k+'&type=eq.out&created_at=gte.'+mon.toISOString())
+    sb('sw_part_log?select=fx_pl&kind=eq.'+k+'&type=eq.out&created_at=gte.'+mon.toISOString()),
+    sb('sw_part_log?select=item_id,created_at&kind=eq.'+k+'&type=eq.in&order=created_at.desc&limit=300')
   ]).then(function(r){
     PARTS[k] = r[0]||[]; PLOG[k] = r[1]||[]; PLOADED[k] = true;
+    PLAST[k] = {};
+    var lg = r[4]||[];
+    for(var q=0;q<lg.length;q++){
+      var iid = lg[q].item_id;
+      if(iid!=null && !PLAST[k][iid]) PLAST[k][iid] = lg[q].created_at;   /* desc 정렬이므로 첫 건이 최신 */
+    }
     var cats = [], seen = {};
     for(var i=0;i<PARTS[k].length;i++){
       var c = PARTS[k][i].category;
@@ -4066,39 +4245,90 @@ function loadParts(k, silent){
     document.getElementById('phist-'+k).innerHTML = '';
   });
 }
+function setPSort(k,btn){
+  var bs=btn.parentNode.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');
+  PSORT[k]=btn.getAttribute('data-so');
+  renderParts(k);
+}
+function togglePAll(k){
+  PALL[k]=!PALL[k];
+  POPEN[k]=null;
+  var b=document.getElementById('pexp-'+k);
+  if(b){ b.textContent=PALL[k]?'▲ 접기':'▼ 펼쳐보기'; b.classList.toggle('on',PALL[k]); }
+  renderParts(k);
+}
+function togglePRow(k,id){
+  POPEN[k]=(POPEN[k]===id)?null:id;
+  renderParts(k);
+}
+function lastInOf(k,id){ return (PLAST[k]&&PLAST[k][id])||''; }
+function sortParts(k,arr){
+  var so=PSORT[k];
+  return arr.sort(function(a,b){
+    if(so==='name')  return String(a.name||'').localeCompare(String(b.name||''),'ko');
+    if(so==='stock') return Number(b.stock||0)-Number(a.stock||0);
+    var da=lastInOf(k,a.id), db=lastInOf(k,b.id);       /* recent */
+    if(da&&db) return da<db?1:(da>db?-1:0);
+    if(da) return -1;
+    if(db) return 1;
+    return String(a.name||'').localeCompare(String(b.name||''),'ko');
+  });
+}
 function renderParts(k){
   var q = (document.getElementById('pq-'+k).value||'').trim().toLowerCase();
   var cat = document.getElementById('pcat-'+k).value;
-  var h = '';
+  var list = [];
   for(var i=0;i<PARTS[k].length;i++){
     var it = PARTS[k][i];
     var blob = [it.name,it.spec,it.location,it.vendor,it.memo].join(' ').toLowerCase();
     if(q && blob.indexOf(q) < 0) continue;
     if(cat && it.category !== cat) continue;
-    var low = isLowPart(it);
-    if(PLOW[k] && !low) continue;
-    var cur = it.currency || 'KRW';
-    var unitKrw = toKRW(it.price, cur);
-    var priceTxt = Number(it.price)
-      ? (cur === 'KRW' ? '<span>@'+fmt(it.price)+'원</span>'
-                       : '<span class="curtag">'+cur+'</span><span>@'+money(it.price,cur)+' → ₩'+fmt(Math.round(unitKrw))+'</span>')
-      : '';
-    var pl = evalPL(it);
-    h += '<div class="pcard'+(low?' low':'')+'">'+
-      '<div class="pico">'+PKIND[k].icon+'</div>'+
-      '<div class="pinf">'+
-        '<div class="pnm" onclick="editPart(\''+k+'\','+it.id+')">'+esc(it.name)+(low?'<span class="lowbadge">부족</span>':'')+'</div>'+
-        '<div class="pmeta">'+
-          (it.category?'<span class="tag">'+esc(it.category)+'</span>':'')+
-          (it.spec?'<span>'+esc(it.spec)+'</span>':'')+
-          (it.location?'<span>📍'+esc(it.location)+'</span>':'')+
-          priceTxt+
-          (Math.round(pl)?'<span>평가 '+plHtml(pl)+'</span>':'')+
-        '</div>'+
-      '</div>'+
-      '<div class="pqty"><div class="q'+(low?' low':'')+'">'+fmt(it.stock)+'</div>'+
-        '<div class="m">'+esc(it.unit||'EA')+(Number(it.min_stock)?' · 안전 '+fmt(it.min_stock):'')+'</div></div>'+
+    if(PLOW[k] && !isLowPart(it)) continue;
+    list.push(it);
+  }
+  sortParts(k,list);
+
+  var h='';
+  for(var m=0;m<list.length;m++){
+    var t=list[m];
+    var low=isLowPart(t);
+    var open=PALL[k]||POPEN[k]===t.id;
+    var cur=t.currency||'KRW';
+    var unitKrw=toKRW(t.price,cur);
+    var lastIn=lastInOf(k,t.id);
+    h+='<div class="prowc'+(low?' low':'')+(open?' open':'')+'">'+
+      '<div class="prh" onclick="togglePRow(\''+k+'\','+t.id+')">'+
+        '<span class="pra">'+(open?'▾':'▸')+'</span>'+
+        '<span class="prn">'+esc(t.name)+(low?'<span class="lowbadge">부족</span>':'')+'</span>'+
+        '<span class="prs">'+esc(t.spec||'')+'</span>'+
+        '<span class="prq'+(low?' low':'')+'">'+fmt(t.stock)+'<i>'+esc(t.unit||'EA')+'</i></span>'+
       '</div>';
+    if(open){
+      var pl=evalPL(t);
+      h+='<div class="prb">'+
+        '<div class="prm">'+
+          (t.category?'<span class="tag">'+esc(t.category)+'</span>':'')+
+          (t.location?'<span>📍'+esc(t.location)+'</span>':'')+
+          (t.vendor?'<span>🏢'+esc(t.vendor)+'</span>':'')+
+          (Number(t.min_stock)?'<span>안전 '+fmt(t.min_stock)+'</span>':'')+
+          (lastIn?'<span>최종입고 '+esc(String(lastIn).slice(0,10))+'</span>':'<span style="opacity:.6;">입고이력 없음</span>')+
+        '</div>'+
+        (Number(t.price)?'<div class="prp">'+
+          (cur==='KRW'?'단가 ₩'+fmt(t.price)
+                      :'<span class="curtag">'+cur+'</span> @'+money(t.price,cur)+' → ₩'+fmt(Math.round(unitKrw)))+
+          ' · 재고금액 <b>₩'+fmt(Math.round(Number(t.stock||0)*unitKrw))+'</b>'+
+          (Math.round(pl)?' · 평가 '+plHtml(pl):'')+
+        '</div>':'')+
+        (t.memo?'<div class="prp" style="opacity:.8;">'+esc(t.memo)+'</div>':'')+
+        '<div class="pract">'+
+          '<button class="edit" onclick="editPart(\''+k+'\','+t.id+')">수정</button>'+
+          '<button class="del" onclick="askDeletePart(\''+k+'\','+t.id+')">삭제</button>'+
+        '</div>'+
+      '</div>';
+    }
+    h+='</div>';
   }
   document.getElementById('plist-'+k).innerHTML = h ||
     '<div class="pempty">품목이 없습니다. [＋ 품목 등록]으로 시작하세요.</div>';
@@ -4211,6 +4441,18 @@ function savePart(){
     : sb('sw_part', { method:'POST', body:body });
   p.then(function(){ closeModal(); toast('저장되었습니다'); return loadParts(k, true); })
    .catch(function(e){ toast('저장 실패: '+e.message); });
+}
+/* 재고 카드에서 바로 삭제 */
+function askDeletePart(k,id){
+  var it=partById(k,id); if(!it)return;
+  if(Number(it.stock)>0){
+    if(!confirm('['+it.name+'] 현재고가 '+fmt(it.stock)+' '+(it.unit||'EA')+' 남아 있습니다.\n그래도 품목을 삭제할까요?\n(입출고 이력은 남습니다)'))return;
+  }else{
+    if(!confirm('['+it.name+'] 품목을 삭제할까요?\n(입출고 이력은 남습니다)'))return;
+  }
+  sb('sw_part?id=eq.'+id,{method:'DELETE'})
+    .then(function(){ toast('삭제되었습니다'); return loadParts(k,true); })
+    .catch(function(e){ toast('삭제 실패: '+e.message); });
 }
 function deletePart(){
   if(!PEDIT.id) return;
