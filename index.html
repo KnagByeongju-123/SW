@@ -1355,13 +1355,12 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   </div>
   <div class="sheet-grid">
     <button data-pg="dash" onclick="go(this)"><span class="ic">&#127968;</span><span>대시보드</span></button>
-    <button data-pg="stock" onclick="goStock('mat')"><span class="ic">&#128230;</span><span>재고 · 소재</span></button>
-    <button data-pg="stock" onclick="goStock('bear')"><span class="ic">&#9881;&#65039;</span><span>재고 · 베어링</span></button>
-    <button data-pg="stock" onclick="goStock('etc')"><span class="ic">&#128736;&#65039;</span><span>재고 · 기타</span></button>
+    <button data-pg="stock" onclick="go(this)"><span class="ic">&#128230;</span><span>재고</span></button>
     <button data-pg="recv" onclick="go(this)"><span class="ic">&#128229;</span><span>입고</span></button>
     <button data-pg="qr" onclick="go(this)"><span class="ic">&#128307;</span><span>QR 스캔·라벨</span></button>
     <button data-pg="cut" onclick="go(this)"><span class="ic">&#9986;&#65039;</span><span>절단·잔재</span></button>
-    <button data-pg="order" onclick="go(this)"><span class="ic">&#128666;</span><span>수주·출하</span></button>
+    <button data-pg="order" onclick="goOrder('ordnew')"><span class="ic">&#128221;</span><span>수주</span></button>
+    <button data-pg="order" onclick="goOrder('ship')"><span class="ic">&#128666;</span><span>출하</span></button>
     <button data-pg="mtc" onclick="go(this)"><span class="ic">&#128196;</span><span>밀시트</span></button>
     <button data-pg="doc" onclick="go(this)"><span class="ic">&#129534;</span><span>거래명세서</span></button>
     <button data-pg="board" onclick="go(this)"><span class="ic">&#128203;</span><span>게시판</span></button>
@@ -1456,6 +1455,7 @@ function showLoading(on){
 
 /* ================= 공통 ================= */
 var PAGE_TITLES={dash:'대시보드',stock:'재고',recv:'입고',qr:'QR 스캔·라벨',cut:'절단·잔재',order:'수주·출하',mtc:'밀시트',doc:'거래명세서',board:'게시판',master:'마스터',guide:'사용안내'};
+function setPageTitle(t){var el=document.getElementById('htitle');if(el)el.textContent=t;}
 function setTitle(pg){
   var el=document.getElementById('htitle');
   if(el)el.textContent=PAGE_TITLES[pg]||pg;
@@ -1729,6 +1729,15 @@ function goOrderSub(btn){
   var subs=document.querySelectorAll('#pg-order > .sub');
   for(var j=0;j<subs.length;j++)subs[j].classList.remove('on');
   document.getElementById('sub-'+btn.getAttribute('data-sub')).classList.add('on');
+  setPageTitle(btn.getAttribute('data-sub')==='ship'?'출하':'수주');
+}
+/* 드로어에서 수주 / 출하 직접 진입 */
+function goOrder(sub){
+  selectTab('order');
+  var btns=document.querySelectorAll('#pg-order > .subtab button');
+  for(var i=0;i<btns.length;i++){
+    if(btns[i].getAttribute('data-sub')===(sub||'ordnew')){goOrderSub(btns[i]);return;}
+  }
 }
 var shipFilter='live';
 function filterShip(btn){
@@ -3273,6 +3282,7 @@ function goRecvKind(btn){
   var id=btn.getAttribute('data-sub');
   document.getElementById('sub-'+id).classList.add('on');
   window.scrollTo(0,0);
+  setPageTitle(id==='rcv-bear'?'입고 · 베어링':(id==='rcv-etc'?'입고 · 기타':'입고 · 소재'));
   var k=id==='rcv-bear'?'bear':(id==='rcv-etc'?'etc':null);
   if(k){
     (FX_DATE?Promise.resolve():loadFx()).then(function(){
@@ -3867,6 +3877,7 @@ function goStockSub(btn){
   var id = btn.getAttribute('data-sub');
   document.getElementById('sub-'+id).classList.add('on');
   window.scrollTo(0,0);
+  setPageTitle(id==='stk-bear'?'재고 · 베어링':(id==='stk-etc'?'재고 · 기타':'재고 · 소재'));
   var k = id === 'stk-bear' ? 'bear' : (id === 'stk-etc' ? 'etc' : null);
   if(k && !PLOADED[k]){
     (FX_DATE ? Promise.resolve() : loadFx()).then(function(){ loadParts(k); });
