@@ -195,7 +195,9 @@ function loadAll(){
     sb('sw_user_pin?select=*&order=name.asc').catch(function(){return [];}),
     sb('hc_work_status?select=*&work_date=eq.'+WS_DATE).catch(function(){return null;})
   ]).then(function(r){
-    USERS=(r[0]||[]).filter(function(u){return u&&u.name;});
+    USERS=(r[0]||[]).filter(function(u){
+      return u && u.name && u.name!=='__sys_master__' && u.name!=='__sys_default__';
+    });
     if(r[1]===null){
       document.getElementById('wslist').innerHTML=
         '<div class="empty">업무현황 테이블이 없습니다.<br>Supabase에서 <b>hc_work_status</b>를 생성하세요.</div>';
