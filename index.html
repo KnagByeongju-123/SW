@@ -774,8 +774,9 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
 
   <!-- ---------- 입고 등록 ---------- -->
   <div class="sub on" id="sub-recvnew">
+    <div class="fxbar" id="fxbar-rvmat"></div>
     <div class="card">
-      <h3>입고 등록</h3>
+      <h3>소재 입고 등록</h3>
       <div id="msg-rc" class="msg"></div>
       <div class="mode-sw">
         <button class="on" data-m="new" onclick="setRecvMode(this)">신규 자재</button>
@@ -3074,6 +3075,7 @@ function goRecvKind(btn){
   window.scrollTo(0,0);
   setPageTitle(id==='rcv-bear'?'입고 · 베어링':(id==='rcv-etc'?'입고 · 기타':'입고 · 소재'));
   var k=id==='rcv-bear'?'bear':(id==='rcv-etc'?'etc':null);
+  if(!k){ if(!FX_DATE)loadFx(); else renderFxBar(); }
   if(k){
     (FX_DATE?Promise.resolve():loadFx()).then(function(){
       if(!PLOADED[k])loadParts(k);else renderRecvParts(k);
@@ -3534,7 +3536,8 @@ function renderFxBar(){
       '<button class="fxedit" onclick="editFx()">수정</button>'
     : '<span class="fxd">💱 환율을 불러오지 못했습니다</span>'+
       '<button class="fxedit" onclick="editFx()">직접 입력</button>';
-  ['bear','etc','mat','rvbear','rvetc'].forEach(function(k){
+  ['mat','bear','etc','rvmat','rvbear','rvetc',
+   'ordmat','ordbear','ordetc','shpmat','shpbear','shpetc'].forEach(function(k){
     var el = document.getElementById('fxbar-'+k);
     if(el) el.innerHTML = h;
   });
@@ -3894,6 +3897,7 @@ function goStockSub(btn){
   document.getElementById('sub-'+id).classList.add('on');
   window.scrollTo(0,0);
   setPageTitle(id==='stk-bear'?'재고 · 베어링':(id==='stk-etc'?'재고 · 기타':'재고 · 소재'));
+  if(id==='stk-mat'){ if(!FX_DATE)loadFx().then(function(){renderStock();}); else renderFxBar(); }
   var k = id === 'stk-bear' ? 'bear' : (id === 'stk-etc' ? 'etc' : null);
   if(k && !PLOADED[k]){
     (FX_DATE ? Promise.resolve() : loadFx()).then(function(){ loadParts(k); });
@@ -4303,6 +4307,7 @@ function ordShell(k){
     '<button           data-os="log" onclick="goOrdSub(this,\''+k+'\')">수주 이력</button>'+
   '</div>'+
   '<div class="sub on" id="sub-ordnew-'+k+'">'+
+    fxBarHtml('ord'+k)+
     '<div class="card">'+
       '<h3>'+K.icon+' '+K.label+' 수주 등록</h3>'+
       '<div id="msg-ord-'+k+'" class="msg"></div>'+
@@ -4344,6 +4349,7 @@ function shipShell(k){
     '<button           data-ss="log" onclick="goShpSub(this,\''+k+'\')">출하 이력</button>'+
   '</div>'+
   '<div class="sub on" id="sub-shpnew-'+k+'">'+
+    fxBarHtml('shp'+k)+
     '<div class="card">'+
       '<h3>'+K.icon+' '+K.label+' 출하 진행 <span class="badge st2" id="shp-cnt-'+k+'">0건</span></h3>'+
       '<p class="help" style="margin:-2px 0 10px;">건을 누르면 다음 단계로 진행합니다. <b>출하완료</b> 시 재고가 차감됩니다.</p>'+
@@ -4415,7 +4421,11 @@ function goShpSub(btn,k){
 }
 /* 부품 데이터가 아직 없으면 먼저 로드 */
 function ensureKind(k,cb){
-  if(k==='mat'||PLOADED[k])return cb();
+  if(k==='mat'){
+    if(!FX_DATE)return loadFx().then(cb);
+    renderFxBar(); return cb();
+  }
+  if(PLOADED[k]){ renderFxBar(); return cb(); }
   (FX_DATE?Promise.resolve():loadFx()).then(function(){return loadParts(k,true);}).then(cb);
 }
 /* 드로어 진입 */
