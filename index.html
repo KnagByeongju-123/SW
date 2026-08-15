@@ -458,6 +458,9 @@ body.locked{overflow:hidden;}
 .sheet-grid button .ic{font-size:16px;width:22px;text-align:center;flex:none;}
 .sheet-grid button:active{background:rgba(255,255,255,.05);color:var(--ink);}
 .sheet-grid button.on{background:var(--goldbg);color:var(--gold);}
+.sheet-sec{font-size:10.5px;font-weight:800;color:var(--sub);opacity:.75;letter-spacing:.09em;
+  padding:13px 12px 4px;border-top:1px solid var(--line);margin-top:5px;}
+.sheet-sec:first-of-type{margin-top:2px;}
 .sheet-foot{margin-top:14px;font-size:10.5px;color:var(--sub);opacity:.6;padding:10px 18px calc(10px + env(safe-area-inset-bottom));line-height:1.5;}
 
 /* ===== QR 스캔 플로팅 버튼 ===== */
@@ -1317,19 +1320,28 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   </div>
   <div class="sheet-grid">
     <button data-pg="dash" onclick="go(this)"><span class="ic">&#127968;</span><span>대시보드</span></button>
-    <button data-pg="stock" onclick="go(this)"><span class="ic">&#128230;</span><span>재고</span></button>
+
+    <div class="sheet-sec">구매 · 입고</div>
     <button data-pg="recv" onclick="go(this)"><span class="ic">&#128229;</span><span>입고</span></button>
-    <button data-pg="qr" onclick="go(this)"><span class="ic">&#128307;</span><span>QR 스캔·라벨</span></button>
+    <button data-pg="mtc" onclick="go(this)"><span class="ic">&#128196;</span><span>밀시트</span></button>
+
+    <div class="sheet-sec">보관 · 가공</div>
+    <button data-pg="stock" onclick="go(this)"><span class="ic">&#128230;</span><span>재고</span></button>
     <button data-pg="cut" onclick="go(this)"><span class="ic">&#9986;&#65039;</span><span>절단·잔재</span></button>
+    <button data-pg="qr" onclick="go(this)"><span class="ic">&#128307;</span><span>QR 스캔·라벨</span></button>
+
+    <div class="sheet-sec">영업 · 출하</div>
     <button data-pg="order" onclick="goOrder()"><span class="ic">&#128221;</span><span>수주</span></button>
     <button data-pg="ship" onclick="goShip()"><span class="ic">&#128666;</span><span>출하</span></button>
-    <button data-pg="mtc" onclick="go(this)"><span class="ic">&#128196;</span><span>밀시트</span></button>
     <button data-pg="doc" onclick="go(this)"><span class="ic">&#129534;</span><span>거래명세서</span></button>
+
+    <div class="sheet-sec">지원</div>
     <button data-pg="board" onclick="go(this)"><span class="ic">&#128203;</span><span>게시판</span></button>
-    <button data-pg="master" onclick="go(this)"><span class="ic">&#128274;</span><span>마스터</span></button>
     <button data-pg="guide" onclick="go(this)"><span class="ic">&#10067;</span><span>사용안내</span></button>
+    <button data-pg="master" onclick="go(this)"><span class="ic">&#128274;</span><span>마스터</span></button>
     <button onclick="logout()"><span class="ic">&#128682;</span><span>로그아웃</span></button>
   </div>
+  
   <div class="sheet-foot">신우 스마트 자재관리 시스템<br>ShinWoo Smart Materials System</div>
 </nav>
 
@@ -3600,6 +3612,7 @@ function partShell(k){
       '<button class="btn btn-o btn-sm" onclick="exportPartCSV(\''+k+'\')">엑셀 내려받기</button>'+
       '<button class="btn btn-g btn-sm" onclick="loadParts(\''+k+'\',true)">새로고침</button>'+
     '</div>'+
+    '<p class="help" style="margin:-2px 0 10px;">품목을 누르면 정보를 수정합니다. 수량 변경은 <b>입고</b> · <b>출하</b> 메뉴에서 처리됩니다.</p>'+
     '<div id="plist-'+k+'"><div class="pempty">불러오는 중…</div></div>'+
   '</div>'+
   '<div class="card">'+
@@ -3991,10 +4004,7 @@ function renderParts(k){
       '</div>'+
       '<div class="pqty"><div class="q'+(low?' low':'')+'">'+fmt(it.stock)+'</div>'+
         '<div class="m">'+esc(it.unit||'EA')+(Number(it.min_stock)?' · 안전 '+fmt(it.min_stock):'')+'</div></div>'+
-      '<div class="pbtns">'+
-        '<button class="in" onclick="openPartIO(\''+k+'\','+it.id+',\'in\')">입고</button>'+
-        '<button class="out" onclick="openPartIO(\''+k+'\','+it.id+',\'out\')">출고</button>'+
-      '</div></div>';
+      '</div>';
   }
   document.getElementById('plist-'+k).innerHTML = h ||
     '<div class="pempty">품목이 없습니다. [＋ 품목 등록]으로 시작하세요.</div>';
