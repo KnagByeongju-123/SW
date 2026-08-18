@@ -1040,6 +1040,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
       </div>
 
       <label>입고 수량</label><input id="rc-qty" type="number" min="0" step="0.01" placeholder="0">
+      <div id="wc-rc" style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;"></div>
 
       <div class="grid2">
         <div><label>공급처</label><input id="rc-supplier" placeholder="밀 또는 상사명"></div>
@@ -1153,6 +1154,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
         <div><label>절단 손실</label><input id="c-loss" type="number" min="0" step="0.01" value="0" oninput="calcRemain()"></div>
         <div><label>절단 후 잔량</label><input id="c-remain" readonly style="background:#f2f5f8;font-weight:700;"></div>
       </div>
+      <div id="wc-cut" style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;"></div>
       <div class="grid2">
         <div><label>연계 수주 (선택)</label><select id="c-order"></select></div>
         <div><label>작업자</label><select id="c-worker"></select></div>
@@ -1660,6 +1662,7 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   <div class="subtab">
     <button class="on" data-sub="pin" onclick="goSub(this)">PIN 관리</button>
     <button data-sub="mat" onclick="goSub(this)">소재 마스터</button>
+    <button data-sub="matdb" onclick="goSub(this)">재질 DB</button>
     <button data-sub="set" onclick="goSub(this)">설정</button>
   </div>
 
@@ -1758,6 +1761,28 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
           <tbody id="tb-mat"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+
+  <!-- ---------- 재질 DB ---------- -->
+  <div class="sub" id="sub-matdb">
+    <div class="card">
+      <h3>재질 DB <span class="badge b-blue" id="matdb-cnt">0건</span></h3>
+      <p style="font-size:12px;color:var(--sub);margin-bottom:8px;">회사소개서 Handling Material 기준 · UNS / DIN / ASTM 규격 및 비중. 행을 누르면 상세가 열립니다.</p>
+      <div class="grid2">
+        <div><label>검색</label><input id="q-matdb" placeholder="재질명·UNS·DIN 검색" oninput="renderMatDb()"></div>
+        <div><label>계열</label><select id="f-matdbgrp" onchange="renderMatDb()"><option value="">전체</option></select></div>
+      </div>
+      <div class="tbl-wrap" style="margin-top:10px;">
+        <table class="tbl">
+          <thead><tr><th>재질명</th><th>UNS</th><th>DIN</th><th>비중</th></tr></thead>
+          <tbody id="tb-matdb"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>중량 계산기</h3>
+      <div id="wc-mat"></div>
     </div>
   </div>
 
@@ -1890,6 +1915,7 @@ function sb(path,opt){
 }
 
 var STOCK=[], ORDERS=[], STOCK_BY_ID={};
+var MATDB=[], MATDB_BY_NAME={};
 var ST_NAMES=['수주','출하지시','출하준비','출하완료'];
 function stBadge(st){
   var i=Number(st)||0;
@@ -1905,7 +1931,8 @@ function loadData(){
     sb('sw_board?select=*&order=id.desc'),
     sb('sw_receipt?select=*&order=id.desc'),
     sb('sw_ship?select=*&order=id.desc').catch(function(){return [];}),
-    sb('sw_po?select=*&order=eta.asc').catch(function(){return [];})
+    sb('sw_po?select=*&order=eta.asc').catch(function(){return [];}),
+    sb('sw_material?select=*&order=mat_name.asc').catch(function(){return [];})
   ]).then(function(r){
     STOCK=r[0]||[];
     ORDERS=r[1]||[];
@@ -1914,6 +1941,9 @@ function loadData(){
     RECV=r[4]||[];
     SHIPS=r[5]||[];
     POS=r[6]||[];
+    MATDB=r[7]||[];
+    MATDB_BY_NAME={};
+    for(var mq=0;mq<MATDB.length;mq++)MATDB_BY_NAME[MATDB[mq].mat_name]=MATDB[mq];
     STOCK_BY_ID={};
     for(var i=0;i<STOCK.length;i++)STOCK_BY_ID[STOCK[i].id]=STOCK[i];
     renderAll();
@@ -7203,6 +7233,224 @@ function delAppr(id){
     .catch(function(e){ toast('실패: '+e.message); });
 }
 
+
+/* ================= 재질 DB (sw_material) ================= */
+function renderMatDb(){
+  var tb=document.getElementById('tb-matdb');
+  if(!tb)return;
+  /* 계열 필터 옵션 */
+  var gs=document.getElementById('f-matdbgrp');
+  var pg=gs.value;
+  var seen={}, glist=[];
+  for(var g=0;g<MATDB.length;g++){
+    var gv=MATDB[g].grp||'';
+    if(gv&&!seen[gv]){seen[gv]=1;glist.push(gv);}
+  }
+  glist.sort();
+  gs.innerHTML='<option value="">전체</option>';
+  for(var g2=0;g2<glist.length;g2++){
+    var op=document.createElement('option');
+    op.value=glist[g2];op.textContent=glist[g2];
+    gs.appendChild(op);
+  }
+  if(pg&&seen[pg])gs.value=pg;
+
+  var q=(document.getElementById('q-matdb').value||'').toLowerCase();
+  var fg=gs.value;
+  tb.innerHTML='';
+  var shown=0;
+  for(var i=0;i<MATDB.length;i++){
+    var m=MATDB[i];
+    if(m.use_yn===false)continue;
+    if(fg&&(m.grp||'')!==fg)continue;
+    var hay=((m.mat_name||'')+' '+(m.uns||'')+' '+(m.din||'')+' '+(m.grp||'')+' '+(m.alias||'')+' '+
+             (m.std_plate||'')+' '+(m.std_pipe||'')+' '+(m.std_bar||'')).toLowerCase();
+    if(q&&hay.indexOf(q)<0)continue;
+    shown++;
+    var tr=document.createElement('tr');
+    tr.style.cursor='pointer';
+    tr.innerHTML='<td><b>'+esc(m.mat_name)+'</b><br><span style="font-size:11.5px;color:var(--sub);">'+esc(m.grp||'-')+(m.alias?' · '+esc(m.alias):'')+'</span></td>'+
+      '<td><span class="heat">'+esc(m.uns||'-')+'</span></td>'+
+      '<td style="font-size:13px;">'+esc(m.din||'-')+'</td>'+
+      '<td style="font-size:13px;font-weight:700;">'+(m.density?Number(m.density).toFixed(2):'-')+'</td>';
+    (function(item){tr.addEventListener('click',function(){showMatDbDetail(item);});})(m);
+    tb.appendChild(tr);
+  }
+  document.getElementById('matdb-cnt').textContent=MATDB.length+'건';
+  if(!shown)tb.innerHTML='<tr><td colspan="4" style="color:var(--sub);text-align:center;">검색 결과가 없습니다.</td></tr>';
+
+  rebuildAlloyList();
+  wcFillMat('wc-mat');wcFillMat('wc-rc');wcFillMat('wc-cut');
+}
+function rebuildAlloyList(){
+  var dl=document.getElementById('dl-alloy');
+  if(!dl||!MATDB.length)return;
+  dl.innerHTML='';
+  for(var i=0;i<MATDB.length;i++){
+    var o=document.createElement('option');
+    o.value=MATDB[i].mat_name;
+    dl.appendChild(o);
+  }
+}
+function showMatDbDetail(m){
+  function row(k,v){return '<tr><th style="text-align:left;width:34%;color:var(--sub);font-weight:600;padding:6px 4px;">'+k+'</th><td style="padding:6px 4px;">'+esc(v||'-')+'</td></tr>';}
+  var mech='';
+  if(m.tensile||m.yield_str||m.elong){
+    mech=row('인장강도 Rm',m.tensile?m.tensile+' N/mm²':'')+
+         row('항복강도 Rp0.2',m.yield_str?m.yield_str+' N/mm²':'')+
+         row('연신율 A5',m.elong?m.elong+' %':'');
+  }
+  var h='<table style="width:100%;border-collapse:collapse;font-size:13.5px;">'+
+    row('계열',m.grp)+row('UNS (GRADE)',m.uns)+row('DIN (W.Nr)',m.din)+
+    (m.alias?row('별칭 / 대응등급',m.alias):'')+
+    row('비중 (g/cm³)',m.density?Number(m.density).toFixed(2):'')+
+    row('규격 · Plate',m.std_plate)+row('규격 · Pipe',m.std_pipe)+row('규격 · Bar',m.std_bar)+
+    mech+
+    (m.memo?row('비고',m.memo):'')+
+    '</table>';
+  if(m.density){
+    h+='<div class="krwpv" style="margin-top:10px;">파이프 kg/M = (OD−t)×t×0.0031416×'+Number(m.density).toFixed(2)+
+       '<br>환봉 kg/M = D²×0.0007854×'+Number(m.density).toFixed(2)+'</div>';
+  }
+  openModal(m.mat_name,h);
+}
+
+/* ================= 치수 → 중량 자동계산 ================= */
+var WC_FORMS=[
+  {k:'pipe', n:'파이프 / 튜브', f:['od','th','len','ea'], u:'본'},
+  {k:'rbar', n:'환봉',         f:['od','len','ea'],      u:'본'},
+  {k:'sbar', n:'각봉',         f:['aa','len','ea'],      u:'본'},
+  {k:'hbar', n:'육각봉',       f:['aa','len','ea'],      u:'본'},
+  {k:'plate',n:'판 / 시트',    f:['wd','pl','th','ea'],  u:'매'},
+  {k:'wire', n:'와이어',       f:['od','len','ea'],      u:'본'}
+];
+var WC_LBL={od:'외경 OD (mm)',th:'두께 t (mm)',len:'길이 (M)',ea:'수량',
+            aa:'변 / 대변 (mm)',wd:'폭 W (mm)',pl:'길이 L (mm)'};
+var WC_LAST={};
+
+function wcHtml(pfx,applyTxt){
+  var os='';
+  for(var i=0;i<WC_FORMS.length;i++)os+='<option value="'+WC_FORMS[i].k+'">'+WC_FORMS[i].n+'</option>';
+  var h='<div style="font-weight:700;font-size:13.5px;color:var(--navy);margin-bottom:8px;">⚖ 치수 → 중량 자동계산</div>'+
+    '<div class="grid2">'+
+      '<div><label>재질</label><select id="'+pfx+'-mat"></select></div>'+
+      '<div><label>형상</label><select id="'+pfx+'-form">'+os+'</select></div>'+
+    '</div>'+
+    '<div class="grid3" id="'+pfx+'-dims"></div>'+
+    '<div class="krwpv" id="'+pfx+'-out"></div>';
+  if(applyTxt){
+    h+='<div style="margin-top:8px;"><button type="button" class="btn btn-o btn-sm" id="'+pfx+'-apply">'+applyTxt+'</button></div>';
+  }
+  return h;
+}
+function initWcalc(){
+  var defs=[['wc-mat',null],['wc-rc','입고 수량에 적용 (KG)'],['wc-cut','절단 출고량에 적용']];
+  for(var i=0;i<defs.length;i++){
+    var pfx=defs[i][0];
+    var box=document.getElementById(pfx);
+    if(!box)continue;
+    box.innerHTML=wcHtml(pfx,defs[i][1]);
+    (function(p){
+      document.getElementById(p+'-mat').addEventListener('change',function(){wcCalc(p);});
+      document.getElementById(p+'-form').addEventListener('change',function(){wcOnForm(p);});
+      var ab=document.getElementById(p+'-apply');
+      if(ab)ab.addEventListener('click',function(){wcApply(p);});
+    })(pfx);
+    wcOnForm(pfx);
+  }
+}
+function wcFillMat(pfx){
+  var sel=document.getElementById(pfx+'-mat');
+  if(!sel)return;
+  var prev=sel.value;
+  sel.innerHTML='<option value="">재질 선택</option>';
+  for(var i=0;i<MATDB.length;i++){
+    var m=MATDB[i];
+    if(!m.density)continue;
+    var op=document.createElement('option');
+    op.value=m.mat_name;
+    op.textContent=m.mat_name+' ('+Number(m.density).toFixed(2)+')';
+    sel.appendChild(op);
+  }
+  if(prev&&MATDB_BY_NAME[prev])sel.value=prev;
+  wcCalc(pfx);
+}
+function wcDef(pfx){
+  var k=document.getElementById(pfx+'-form').value;
+  for(var i=0;i<WC_FORMS.length;i++)if(WC_FORMS[i].k===k)return WC_FORMS[i];
+  return WC_FORMS[0];
+}
+function wcOnForm(pfx){
+  var def=wcDef(pfx);
+  var box=document.getElementById(pfx+'-dims');
+  box.innerHTML='';
+  for(var j=0;j<def.f.length;j++){
+    var f=def.f[j];
+    var d=document.createElement('div');
+    d.innerHTML='<label>'+WC_LBL[f]+'</label><input id="'+pfx+'-'+f+'" type="number" min="0" step="0.01" placeholder="0"'+
+                (f==='ea'?' value="1"':'')+'>';
+    box.appendChild(d);
+  }
+  var ins=box.querySelectorAll('input');
+  for(var n=0;n<ins.length;n++){
+    ins[n].addEventListener('input',(function(p){return function(){wcCalc(p);};})(pfx));
+  }
+  wcCalc(pfx);
+}
+function wcNum(pfx,f){
+  var el=document.getElementById(pfx+'-'+f);
+  return el?(parseFloat(el.value)||0):0;
+}
+function wcCalc(pfx){
+  var out=document.getElementById(pfx+'-out');
+  if(!out)return;
+  WC_LAST[pfx]=0;
+  var sel=document.getElementById(pfx+'-mat');
+  var m=sel?MATDB_BY_NAME[sel.value]:null;
+  if(!m||!m.density){out.textContent='재질을 선택하면 중량이 계산됩니다';return;}
+  var dens=Number(m.density);
+  var def=wcDef(pfx);
+  var od=wcNum(pfx,'od'),th=wcNum(pfx,'th'),len=wcNum(pfx,'len');
+  var aa=wcNum(pfx,'aa'),wd=wcNum(pfx,'wd'),pl=wcNum(pfx,'pl');
+  var ea=wcNum(pfx,'ea')||1;
+  var per=0;
+  if(def.k==='pipe')       per=(od-th)*th*0.0031416*dens*len;
+  else if(def.k==='rbar'||def.k==='wire') per=od*od*0.00078540*dens*len;
+  else if(def.k==='sbar')  per=aa*aa*0.001*dens*len;
+  else if(def.k==='hbar')  per=aa*aa*0.000866*dens*len;
+  else if(def.k==='plate') per=wd*pl*th*dens/1000000;
+  if(!(per>0))per=0;
+  var tot=Math.round(per*ea*100)/100;
+  WC_LAST[pfx]=tot;
+  out.innerHTML='비중 <b>'+dens.toFixed(2)+'</b> · 단위중량 <b>'+(Math.round(per*1000)/1000)+' kg/'+def.u+'</b>'+
+    ' · 총중량 <b style="color:var(--navy);font-size:15px;">'+fmt(tot)+' kg</b>';
+}
+function wcApply(pfx){
+  var tot=WC_LAST[pfx]||0;
+  if(tot<=0){alert('치수를 입력해 주세요.');return;}
+  var sel=document.getElementById(pfx+'-mat');
+  var m=sel?MATDB_BY_NAME[sel.value]:null;
+  if(pfx==='wc-rc'){
+    document.getElementById('rc-qty').value=tot;
+    var us=document.getElementById('rc-unit');
+    if(us)us.value='KG';
+    var al=document.getElementById('rc-alloy');
+    if(al&&!al.value&&m)al.value=m.mat_name;
+    var sd=document.getElementById('rc-std');
+    if(sd&&!sd.value&&m){
+      var k=wcDef(pfx).k;
+      var std=(k==='plate')?m.std_plate:((k==='pipe')?m.std_pipe:m.std_bar);
+      if(std)sd.value='ASTM '+String(std).split('/')[0];
+    }
+    if(typeof recvKrwPv==='function')recvKrwPv();
+    showMsg('msg-rc','✓ 입고 수량에 '+fmt(tot)+' KG 반영','ok');
+  }else if(pfx==='wc-cut'){
+    document.getElementById('c-qty').value=tot;
+    if(typeof calcRemain==='function')calcRemain();
+    showMsg('msg-cut','✓ 절단 출고량에 '+fmt(tot)+' KG 반영','ok');
+  }
+}
+
 /* renderAll 호환 래퍼 */
 function renderOrder(){
   ['mat','bear','etc'].forEach(function(k){
@@ -7225,6 +7473,7 @@ function renderAll(){
   renderMtc();
   renderDocSelect();
   renderMatList();
+  renderMatDb();
   renderPickList();
   renderCutForm();
   renderRemnant();
@@ -7235,6 +7484,7 @@ function renderAll(){
   renderRecvLog();
 }
 fillDeptSelect();
+initWcalc();
 var _lg=getLogin();
 if(_lg){ setLoginSession(_lg); document.getElementById('login').classList.add('off'); }
 updUbadge();
