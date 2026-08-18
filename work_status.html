@@ -86,6 +86,51 @@ label{font-size:12.5px;font-weight:700;color:var(--sub);display:block;margin:10p
   transition:opacity .22s;max-width:82vw;text-align:center;}
 .toast.on{opacity:1;}
 footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px;}
+
+/* ===== PC 화면 폭 조절 =====
+   - 상단 📐 버튼에서 720~1400px 조절
+   - 선택 폭은 브라우저 localStorage에 저장
+   - 모바일(760px 이하)에서는 기존 레이아웃 유지 */
+.pcwmenu{display:none;}
+@media(min-width:761px){
+  header{
+    padding-left:max(14px,calc((100vw - var(--pc-active-width,720px)) / 2 + 14px));
+    padding-right:max(14px,calc((100vw - var(--pc-active-width,720px)) / 2 + 14px));
+    transition:padding .18s ease;
+  }
+  main{
+    width:min(var(--pc-view-width,720px),calc(100vw - 28px));
+    max-width:none;
+    transition:width .12s ease;
+  }
+  .pcwmenu{display:block;position:relative;flex-shrink:0;}
+  .pcwbtn{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--card);
+    color:var(--sub);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;
+    font-family:inherit;transition:.15s;padding:0;}
+  .pcwbtn:hover,.pcwbtn.on{border-color:var(--goldbd);background:var(--goldbg);color:var(--gold);}
+  .pcwpopup{position:absolute;right:0;top:calc(100% + 10px);width:300px;padding:13px 14px 12px;
+    border:1px solid #4a5268;border-radius:13px;background:#171a24;box-shadow:0 14px 38px rgba(0,0,0,.55);
+    opacity:0;visibility:hidden;transform:translateY(-6px) scale(.98);transform-origin:top right;
+    transition:opacity .14s ease,transform .14s ease,visibility .14s;z-index:150;color:var(--ink);}
+  .pcwpopup.show{opacity:1;visibility:visible;transform:none;}
+  .pcwpopup:before{content:'';position:absolute;right:10px;top:-6px;width:10px;height:10px;background:#171a24;
+    border-left:1px solid #4a5268;border-top:1px solid #4a5268;transform:rotate(45deg);}
+  .pcwpophead{display:flex;align-items:center;gap:8px;padding-bottom:9px;margin-bottom:10px;border-bottom:1px solid var(--line);}
+  .pcwpophead b{font-size:12.5px;color:var(--gold);font-weight:800;}
+  .pcwclose{margin-left:auto;width:24px;height:24px;border:none;background:transparent;color:var(--sub);
+    font-size:17px;line-height:1;cursor:pointer;border-radius:6px;}
+  .pcwclose:hover{background:rgba(255,255,255,.06);color:var(--ink);}
+  .pcwrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;font-size:11.5px;color:var(--sub);}
+  .pcwrow b{font-family:var(--num);color:var(--gold-lt);font-size:14px;}
+  .pcwrange{width:100%;height:24px;accent-color:var(--gold);cursor:pointer;display:block;padding:0;border:none;box-shadow:none;background:transparent;}
+  .pcwrange:focus{box-shadow:none;}
+  .pcwscale{display:flex;justify-content:space-between;font-size:9.5px;color:var(--sub);font-family:var(--num);margin-top:-2px;}
+  .pcwfoot{display:flex;align-items:center;margin-top:10px;padding-top:9px;border-top:1px solid var(--line);}
+  .pcwsaved{font-size:10.5px;color:var(--ok);white-space:nowrap;}
+  .pcwreset{margin-left:auto;padding:6px 10px;border:1px solid var(--line);border-radius:7px;background:var(--card2);
+    color:var(--sub);font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .pcwreset:hover{border-color:var(--goldbd);color:var(--gold);}
+}
 </style>
 </head>
 <body>
@@ -94,6 +139,24 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px;}
   <span class="htitle">업무현황</span>
   <span class="badge b-blue" id="wsdate">-</span>
   <button class="hbtn" onclick="location.href='index.html'">자재관리 ↗</button>
+
+  <div class="pcwmenu" id="pcWidthMenu">
+    <button id="pcWidthBtn" class="pcwbtn" type="button" title="화면 폭 설정" aria-label="화면 폭 설정" aria-expanded="false" onclick="togglePCWidthPopup(event)">📐</button>
+    <div id="pcWidthPopup" class="pcwpopup" role="dialog" aria-label="PC 화면 폭 설정" onclick="event.stopPropagation()">
+      <div class="pcwpophead">
+        <b>업무현황 화면 설정</b>
+        <button class="pcwclose" type="button" aria-label="닫기" onclick="closePCWidthPopup()">×</button>
+      </div>
+      <div class="pcwrow"><span>화면 폭</span><b id="pcwValue">720px</b></div>
+      <input id="pcwRange" class="pcwrange" type="range" min="720" max="1400" step="20" value="720"
+        aria-label="PC 화면 폭 조절" oninput="previewPCWidth(this.value)" onchange="savePCWidth(this.value)">
+      <div class="pcwscale"><span>720px</span><span>1400px</span></div>
+      <div class="pcwfoot">
+        <span id="pcwSaved" class="pcwsaved">저장됨</span>
+        <button class="pcwreset" type="button" onclick="resetPCWidth()">기본값으로</button>
+      </div>
+    </div>
+  </div>
 </header>
 
 <main>
@@ -300,6 +363,70 @@ function saveWs(){
   p.then(function(){ closeModal(); toast('저장되었습니다'); return loadAll(); })
    .catch(function(e){ toast('저장 실패: '+e.message); });
 }
+
+
+
+/* ================= PC 화면 폭 조절 ================= */
+var PCW_KEY='sw_work_status_pc_width_v1';
+var PCW_MIN=720, PCW_MAX=1400, PCW_STEP=20, PCW_DEFAULT=720;
+var PCW_VALUE=PCW_DEFAULT;
+function pcwClamp(v){
+  var n=Number(v)||PCW_DEFAULT;
+  n=Math.round(n/PCW_STEP)*PCW_STEP;
+  return Math.max(PCW_MIN,Math.min(PCW_MAX,n));
+}
+function loadPCWidth(){
+  try{PCW_VALUE=pcwClamp(localStorage.getItem(PCW_KEY)||PCW_DEFAULT);}catch(e){PCW_VALUE=PCW_DEFAULT;}
+  applyPCWidth(PCW_VALUE,false);
+}
+function applyPCWidth(v,save){
+  var px=pcwClamp(v);
+  PCW_VALUE=px;
+  document.documentElement.style.setProperty('--pc-active-width',px+'px');
+  document.documentElement.style.setProperty('--pc-view-width',px+'px');
+  var rg=document.getElementById('pcwRange'); if(rg)rg.value=px;
+  var val=document.getElementById('pcwValue'); if(val)val.textContent=px+'px';
+  if(save){
+    try{localStorage.setItem(PCW_KEY,String(px));}catch(e){}
+    pcwSaved('저장됨');
+  }
+  return px;
+}
+function previewPCWidth(v){pcwSaved('조절중');applyPCWidth(v,false);}
+function savePCWidth(v){applyPCWidth(v,true);}
+function resetPCWidth(){
+  try{localStorage.removeItem(PCW_KEY);}catch(e){}
+  applyPCWidth(PCW_DEFAULT,false);
+  pcwSaved('기본값');
+}
+function pcwSaved(t){
+  var el=document.getElementById('pcwSaved'); if(!el)return;
+  el.textContent=t;
+  clearTimeout(pcwSaved._t);
+  if(t==='기본값')pcwSaved._t=setTimeout(function(){el.textContent='저장됨';},900);
+}
+function togglePCWidthPopup(e){
+  if(e)e.stopPropagation();
+  if(window.matchMedia('(max-width:760px)').matches)return;
+  var pop=document.getElementById('pcWidthPopup'),btn=document.getElementById('pcWidthBtn');
+  if(!pop||!btn)return;
+  var open=!pop.classList.contains('show');
+  pop.classList.toggle('show',open);
+  btn.classList.toggle('on',open);
+  btn.setAttribute('aria-expanded',open?'true':'false');
+  if(open){var rg=document.getElementById('pcwRange');if(rg)rg.focus({preventScroll:true});}
+}
+function closePCWidthPopup(){
+  var pop=document.getElementById('pcWidthPopup'),btn=document.getElementById('pcWidthBtn');
+  if(pop)pop.classList.remove('show');
+  if(btn){btn.classList.remove('on');btn.setAttribute('aria-expanded','false');}
+}
+document.addEventListener('click',function(e){
+  var menu=document.getElementById('pcWidthMenu');
+  if(menu&&!menu.contains(e.target))closePCWidthPopup();
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closePCWidthPopup();});
+loadPCWidth();
 
 /* ================= 시작 ================= */
 loadAll();

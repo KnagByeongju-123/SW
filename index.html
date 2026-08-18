@@ -557,6 +557,78 @@ label.lb1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .sheet-sec:first-of-type{margin-top:2px;}
 .sheet-foot{margin-top:14px;font-size:10.5px;color:var(--sub);opacity:.6;padding:10px 18px calc(10px + env(safe-area-inset-bottom));line-height:1.5;}
 
+
+/* ===== 상단 ☷ 메뉴 위치조절 ===== */
+.menuordbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--sub);
+  display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;font-family:inherit;transition:.15s;padding:0;flex-shrink:0;}
+.menuordbtn:hover,.menuordbtn.on{border-color:var(--goldbd);background:var(--goldbg);color:var(--gold);}
+.menueditnote{display:none;margin:0 10px 8px;padding:9px 10px;border:1px solid var(--goldbd);border-radius:9px;
+  background:var(--goldbg);color:var(--gold-lt);font-size:11.5px;line-height:1.45;}
+.menueditbar{display:none;gap:7px;margin:8px 10px 2px;padding-top:10px;border-top:1px solid var(--line);}
+.menueditbar button{flex:1;min-height:38px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--sub);
+  font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+.menueditbar .mreset{color:var(--danger);border-color:rgba(239,116,102,.45);}
+.menueditbar .mdone{color:#241a05;border-color:var(--gold);background:linear-gradient(160deg,var(--gold-lt),var(--gold));}
+.sheet.menu-editing .menueditnote,.sheet.menu-editing .menueditbar{display:flex;}
+.sheet.menu-editing .menueditnote{display:block;}
+.sheet-menu-group{position:relative;border-radius:11px;}
+.mordhandle{display:none;position:absolute;right:5px;top:5px;z-index:4;width:30px;height:30px;align-items:center;justify-content:center;
+  border-radius:7px;border:1px dashed var(--goldbd);background:#171a24;color:var(--gold);font-size:16px;font-weight:900;
+  line-height:1;cursor:grab;touch-action:none;box-shadow:0 2px 9px rgba(0,0,0,.35);}
+.sheet.menu-editing .sheet-menu-group>.mordhandle{display:flex;}
+.sheet.menu-editing .sheet-menu-group{outline:1px dashed transparent;user-select:none;-webkit-user-select:none;touch-action:pan-y;}
+.sheet.menu-editing .sheet-menu-group:active{outline-color:var(--goldbd);}
+.sheet.menu-editing .sheet-menu-group button{pointer-events:none;padding-right:45px;}
+.sheet-menu-group.menu-dragging{z-index:5;opacity:.94;transform:scale(1.018);filter:drop-shadow(0 8px 14px rgba(0,0,0,.38));
+  background:rgba(226,176,74,.07);box-shadow:inset 0 0 0 1px var(--goldbd);}
+.sheet-menu-group.menu-drop-before{box-shadow:0 -3px 0 var(--gold);}
+
+/* ===== 상단 📐 PC 화면별 폭 조절 =====
+   - 현재 페이지별 720~1400px 조절
+   - 브라우저 localStorage 자동 저장
+   - 모바일(760px 이하)에서는 기존 폭 유지 */
+.pcwmenu{display:none;}
+@media(min-width:761px){
+  header{
+    padding-left:max(16px,calc((100vw - var(--pc-active-width,760px)) / 2 + 16px));
+    padding-right:max(16px,calc((100vw - var(--pc-active-width,760px)) / 2 + 16px));
+    transition:padding .18s ease;
+  }
+  main{max-width:none;padding-left:0;padding-right:0;}
+  main>.page{
+    width:min(var(--pc-view-width,760px),calc(100vw - 26px));max-width:none;
+    position:relative;left:50%;transform:translateX(-50%);transition:width .12s ease;
+  }
+  .pcwmenu{display:block;position:relative;flex-shrink:0;}
+  .pcwbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--sub);
+    display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;font-family:inherit;transition:.15s;padding:0;}
+  .pcwbtn:hover,.pcwbtn.on{border-color:var(--goldbd);background:var(--goldbg);color:var(--gold);}
+  .pcwpopup{position:absolute;right:0;top:calc(100% + 10px);width:300px;padding:13px 14px 12px;border:1px solid #4a5268;
+    border-radius:13px;background:#171a24;box-shadow:0 14px 38px rgba(0,0,0,.55);opacity:0;visibility:hidden;
+    transform:translateY(-6px) scale(.98);transform-origin:top right;transition:opacity .14s ease,transform .14s ease,visibility .14s;
+    z-index:150;color:var(--ink);}
+  .pcwpopup.show{opacity:1;visibility:visible;transform:none;}
+  .pcwpopup:before{content:'';position:absolute;right:9px;top:-6px;width:10px;height:10px;background:#171a24;
+    border-left:1px solid #4a5268;border-top:1px solid #4a5268;transform:rotate(45deg);}
+  .pcwpophead{display:flex;align-items:center;gap:8px;padding-bottom:9px;margin-bottom:10px;border-bottom:1px solid var(--line);}
+  .pcwpophead b{font-size:12.5px;color:var(--gold);font-weight:800;}
+  .pcwclose{margin-left:auto;width:24px;height:24px;border:none;background:transparent;color:var(--sub);font-size:17px;line-height:1;cursor:pointer;border-radius:6px;padding:0;}
+  .pcwclose:hover{background:rgba(255,255,255,.06);color:var(--ink);}
+  .pcwrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;font-size:11.5px;color:var(--sub);}
+  .pcwrow b{font-family:var(--num);color:var(--gold);font-size:13px;}
+  .pcwrange{width:100%;height:24px;accent-color:var(--gold);cursor:pointer;display:block;padding:0;border:none;box-shadow:none;background:transparent;}
+  .pcwrange:focus{box-shadow:none;}
+  .pcwscale{display:flex;justify-content:space-between;font-size:9.5px;color:var(--sub);font-family:var(--num);margin-top:-2px;}
+  .pcwfoot{display:flex;align-items:center;margin-top:10px;padding-top:9px;border-top:1px solid var(--line);}
+  .pcwsaved{font-size:10.5px;color:var(--ok);white-space:nowrap;}
+  .pcwreset{margin-left:auto;padding:6px 10px;border:1px solid var(--line);border-radius:7px;background:var(--card2);color:var(--sub);
+    font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .pcwreset:hover{border-color:var(--goldbd);color:var(--gold);}
+}
+@media print{
+  main>.page{width:100% !important;left:auto !important;transform:none !important;}
+}
+
 /* ===== QR 스캔 플로팅 버튼 ===== */
 .qr-float{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:150;
   border:none;background:none;cursor:pointer;font-family:inherit;
@@ -730,6 +802,24 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
   <div class="hright">
     <span class="ubadge" id="ubadge" onclick="logout()" title="클릭 시 로그아웃" style="display:none;"></span>
     <span class="demo-badge">DEMO v3.1</span>
+    <button id="menuOrderBtn" class="menuordbtn" type="button" title="메뉴 구역 순서 편집" aria-label="메뉴 구역 순서 편집" aria-pressed="false" onclick="toggleMenuEdit(event)">☷</button>
+    <div class="pcwmenu" id="pcWidthMenu">
+      <button id="pcWidthBtn" class="pcwbtn" type="button" title="현재 화면 폭 설정" aria-label="현재 화면 폭 설정" aria-expanded="false" onclick="togglePCWidthPopup(event)">📐</button>
+      <div id="pcWidthPopup" class="pcwpopup" role="dialog" aria-label="PC 화면 폭 설정" onclick="event.stopPropagation()">
+        <div class="pcwpophead">
+          <b id="pcwViewName">대시보드 화면 설정</b>
+          <button class="pcwclose" type="button" aria-label="닫기" onclick="closePCWidthPopup()">×</button>
+        </div>
+        <div class="pcwrow"><span>화면 폭</span><b id="pcwValue">760px</b></div>
+        <input id="pcwRange" class="pcwrange" type="range" min="720" max="1400" step="20" value="760"
+          aria-label="PC 화면 폭 조절" oninput="previewPCWidth(this.value)" onchange="savePCWidth(this.value)">
+        <div class="pcwscale"><span>720px</span><span>1400px</span></div>
+        <div class="pcwfoot">
+          <span id="pcwSaved" class="pcwsaved">저장됨</span>
+          <button class="pcwreset" type="button" onclick="resetPCWidth()">기본값으로</button>
+        </div>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -1831,34 +1921,51 @@ footer{text-align:center;font-size:11.5px;color:#8a90a5;padding:14px 10px 8px;}
     <div><div class="dr-t">ShinWoo</div><div class="dr-s">스마트 자재관리</div></div>
     <button class="dr-x" onclick="closeSheet()" aria-label="닫기">&#10005;</button>
   </div>
-  <div class="sheet-grid">
-    <button data-pg="dash" onclick="go(this)"><span class="ic">&#127968;</span><span>대시보드</span></button>
+  <div class="menueditnote" id="menuEditNote">편집 중에는 오른쪽 ☰ 핸들을 잡아 메뉴 구역을 위·아래로 이동하세요. 변경 순서는 이 브라우저에 자동 저장됩니다.</div>
+  <div class="sheet-grid" id="sheetMenuGrid">
+    <div class="sheet-menu-group" data-menu-id="grp-dash">
+      <button data-pg="dash" onclick="go(this)"><span class="ic">&#127968;</span><span>대시보드</span></button>
+    </div>
 
-    <div class="sheet-sec">구매 · 입고</div>
-    <button data-pg="po" onclick="goPo()"><span class="ic">&#128667;</span><span>발주 · 입항</span></button>
-    <button data-pg="recv" onclick="go(this)"><span class="ic">&#128229;</span><span>입고</span></button>
-    <button data-pg="mtc" onclick="go(this)"><span class="ic">&#128196;</span><span>밀시트</span></button>
+    <div class="sheet-menu-group" data-menu-id="grp-buy">
+      <div class="sheet-sec">구매 · 입고</div>
+      <button data-pg="po" onclick="goPo()"><span class="ic">&#128667;</span><span>발주 · 입항</span></button>
+      <button data-pg="recv" onclick="go(this)"><span class="ic">&#128229;</span><span>입고</span></button>
+      <button data-pg="mtc" onclick="go(this)"><span class="ic">&#128196;</span><span>밀시트</span></button>
+    </div>
 
-    <div class="sheet-sec">보관 · 가공</div>
-    <button data-pg="stock" onclick="go(this)"><span class="ic">&#128230;</span><span>재고</span></button>
-    <button data-pg="cut" onclick="go(this)"><span class="ic">&#9986;&#65039;</span><span>절단·잔재</span></button>
-    <button data-pg="qr" onclick="go(this)"><span class="ic">&#128307;</span><span>QR 스캔·라벨</span></button>
+    <div class="sheet-menu-group" data-menu-id="grp-stock">
+      <div class="sheet-sec">보관 · 가공</div>
+      <button data-pg="stock" onclick="go(this)"><span class="ic">&#128230;</span><span>재고</span></button>
+      <button data-pg="cut" onclick="go(this)"><span class="ic">&#9986;&#65039;</span><span>절단·잔재</span></button>
+      <button data-pg="qr" onclick="go(this)"><span class="ic">&#128307;</span><span>QR 스캔·라벨</span></button>
+    </div>
 
-    <div class="sheet-sec">영업 · 출하</div>
-    <button data-pg="order" onclick="goOrder()"><span class="ic">&#128221;</span><span>수주</span></button>
-    <button data-pg="ship" onclick="goShip()"><span class="ic">&#128666;</span><span>출하</span></button>
-    <button data-pg="doc" onclick="go(this)"><span class="ic">&#129534;</span><span>거래명세서</span></button>
-    <button data-pg="pay" onclick="go(this)"><span class="ic">&#128176;</span><span>미수금 · 수금</span></button>
+    <div class="sheet-menu-group" data-menu-id="grp-sales">
+      <div class="sheet-sec">영업 · 출하</div>
+      <button data-pg="order" onclick="goOrder()"><span class="ic">&#128221;</span><span>수주</span></button>
+      <button data-pg="ship" onclick="goShip()"><span class="ic">&#128666;</span><span>출하</span></button>
+      <button data-pg="doc" onclick="go(this)"><span class="ic">&#129534;</span><span>거래명세서</span></button>
+      <button data-pg="pay" onclick="go(this)"><span class="ic">&#128176;</span><span>미수금 · 수금</span></button>
+    </div>
 
-    <div class="sheet-sec">협업 · 결재</div>
-    <button onclick="openWorkStatus()"><span class="ic">&#128101;</span><span>업무현황 ↗</span></button>
-    <button data-pg="appr" onclick="goAppr()"><span class="ic">&#9997;&#65039;</span><span>전자결재</span></button>
+    <div class="sheet-menu-group" data-menu-id="grp-collab">
+      <div class="sheet-sec">협업 · 결재</div>
+      <button onclick="openWorkStatus()"><span class="ic">&#128101;</span><span>업무현황 ↗</span></button>
+      <button data-pg="appr" onclick="goAppr()"><span class="ic">&#9997;&#65039;</span><span>전자결재</span></button>
+    </div>
 
-    <div class="sheet-sec">지원</div>
-    <button data-pg="board" onclick="go(this)"><span class="ic">&#128203;</span><span>게시판</span></button>
-    <button data-pg="guide" onclick="go(this)"><span class="ic">&#10067;</span><span>사용안내</span></button>
-    <button data-pg="master" onclick="go(this)"><span class="ic">&#128274;</span><span>마스터</span></button>
-    <button onclick="logout()"><span class="ic">&#128682;</span><span>로그아웃</span></button>
+    <div class="sheet-menu-group" data-menu-id="grp-support">
+      <div class="sheet-sec">지원</div>
+      <button data-pg="board" onclick="go(this)"><span class="ic">&#128203;</span><span>게시판</span></button>
+      <button data-pg="guide" onclick="go(this)"><span class="ic">&#10067;</span><span>사용안내</span></button>
+      <button data-pg="master" onclick="go(this)"><span class="ic">&#128274;</span><span>마스터</span></button>
+      <button onclick="logout()"><span class="ic">&#128682;</span><span>로그아웃</span></button>
+    </div>
+  </div>
+  <div class="menueditbar" id="menuEditBar">
+    <button class="mreset" type="button" onclick="resetMenuOrder(event)">기본 순서</button>
+    <button class="mdone" type="button" onclick="completeMenuEdit(event)">완료</button>
   </div>
   
   <div class="sheet-foot">신우 스마트 자재관리 시스템<br>ShinWoo Smart Materials System</div>
@@ -1967,6 +2074,7 @@ function go(btn){
   if(pg==='master'&&!isMasterAuthed()){prevTab=curTab;openMasterLock();return;}
   curTab=pg;
   setTitle(pg);
+  setPCWidthPage(pg);
   var tabs=document.querySelectorAll('nav button[data-pg]');
   for(var i=0;i<tabs.length;i++){
     tabs[i].classList.toggle('on',tabs[i].getAttribute('data-pg')===pg);
@@ -1989,6 +2097,215 @@ function closeSheet(){
   var bg=document.getElementById('sheet-bg');
   if(bg)bg.classList.remove('on');
 }
+
+
+/* ================= 상단 ☷ 메뉴 구역 위치조절 ================= */
+var MENU_ORDER_KEY='sw_menu_group_order_v1';
+var MENU_DEFAULT_ORDER=[];
+var MENU_EDIT=false;
+var MENU_DRAG=null;
+var MENU_BLOCK_CLICK_UNTIL=0;
+var MENU_AUTO_SCROLL_RAF=0;
+
+function menuSortItems(){
+  var g=document.getElementById('sheetMenuGrid');
+  return g?Array.prototype.slice.call(g.children).filter(function(el){return el.matches('.sheet-menu-group[data-menu-id]');}):[];
+}
+function menuOrderNow(){return menuSortItems().map(function(el){return el.getAttribute('data-menu-id');});}
+function applyMenuOrder(order){
+  var g=document.getElementById('sheetMenuGrid');
+  if(!g)return;
+  var items=menuSortItems(),byId={},used={};
+  for(var i=0;i<items.length;i++)byId[items[i].getAttribute('data-menu-id')]=items[i];
+  if(Array.isArray(order)){
+    for(var j=0;j<order.length;j++){
+      var id=order[j],el=byId[id];
+      if(el&&!used[id]){g.appendChild(el);used[id]=true;}
+    }
+  }
+  for(var k=0;k<items.length;k++){
+    var mid=items[k].getAttribute('data-menu-id');
+    if(!used[mid])g.appendChild(items[k]);
+  }
+}
+function saveMenuOrder(){
+  try{localStorage.setItem(MENU_ORDER_KEY,JSON.stringify(menuOrderNow()));}catch(e){}
+}
+function loadMenuOrder(){
+  var saved=[];
+  try{saved=JSON.parse(localStorage.getItem(MENU_ORDER_KEY)||'[]');}catch(e){saved=[];}
+  if(Array.isArray(saved)&&saved.length)applyMenuOrder(saved);
+}
+function addMenuDragHandles(){
+  var items=menuSortItems();
+  for(var i=0;i<items.length;i++){
+    if(items[i].querySelector(':scope > .mordhandle'))continue;
+    var h=document.createElement('span');
+    h.className='mordhandle';h.textContent='☰';h.setAttribute('aria-hidden','true');
+    items[i].appendChild(h);
+  }
+}
+function initMenuOrder(){
+  MENU_DEFAULT_ORDER=menuOrderNow();
+  loadMenuOrder();
+  addMenuDragHandles();
+  var grid=document.getElementById('sheetMenuGrid');
+  if(!grid)return;
+  grid.addEventListener('pointerdown',menuPointerDown,{passive:true});
+  grid.addEventListener('click',function(e){
+    if(MENU_EDIT||Date.now()<MENU_BLOCK_CLICK_UNTIL){
+      if(e.target.closest('.sheet-menu-group')){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();}
+    }
+  },true);
+  document.addEventListener('pointermove',menuPointerMove,{passive:false});
+  document.addEventListener('pointerup',menuPointerUp,{passive:false});
+  document.addEventListener('pointercancel',menuPointerUp,{passive:false});
+}
+function toggleMenuEdit(e){
+  if(e){e.preventDefault();e.stopPropagation();}
+  setMenuEdit(!MENU_EDIT,e);
+}
+function setMenuEdit(on,e){
+  if(e){e.preventDefault();e.stopPropagation();}
+  MENU_EDIT=!!on;
+  var sh=document.getElementById('sheet'),b=document.getElementById('menuOrderBtn');
+  if(sh)sh.classList.toggle('menu-editing',MENU_EDIT);
+  if(b){b.classList.toggle('on',MENU_EDIT);b.setAttribute('aria-pressed',MENU_EDIT?'true':'false');b.title=MENU_EDIT?'메뉴 구역 순서 편집 완료':'메뉴 구역 순서 편집';}
+  if(!MENU_EDIT)finishMenuDrag(false);
+  if(MENU_EDIT){
+    closePCWidthPopup();openSheet();
+    setTimeout(function(){var n=document.getElementById('menuEditNote');if(n)n.scrollIntoView({block:'nearest'});},30);
+  }
+}
+function completeMenuEdit(e){setMenuEdit(false,e);closeSheet();}
+function resetMenuOrder(e){
+  if(e){e.preventDefault();e.stopPropagation();}
+  if(!confirm('메뉴 구역 순서를 기본값으로 되돌릴까요?'))return;
+  try{localStorage.removeItem(MENU_ORDER_KEY);}catch(err){}
+  applyMenuOrder(MENU_DEFAULT_ORDER);saveMenuOrder();
+  toast('메뉴 순서를 기본값으로 복원했습니다');
+}
+function menuPointerDown(e){
+  if(!MENU_EDIT)return;
+  if(e.button!==undefined&&e.button!==0)return;
+  var handle=e.target.closest('.mordhandle');
+  if(!handle)return;
+  var item=handle.closest('.sheet-menu-group[data-menu-id]');
+  if(!item)return;
+  MENU_DRAG={item:item,pointerId:e.pointerId,lastY:e.clientY};
+  item.classList.add('menu-dragging');
+  try{handle.setPointerCapture(e.pointerId);}catch(err){}
+  startMenuAutoScroll();
+}
+function reorderMenuDragAt(clientY){
+  if(!MENU_DRAG)return;
+  var item=MENU_DRAG.item,g=document.getElementById('sheetMenuGrid');
+  if(!g)return;
+  var others=menuSortItems().filter(function(el){return el!==item;});
+  for(var i=0;i<others.length;i++)others[i].classList.remove('menu-drop-before');
+  var before=null;
+  for(var j=0;j<others.length;j++){
+    var r=others[j].getBoundingClientRect();
+    if(clientY<r.top+r.height/2){before=others[j];break;}
+  }
+  if(before){before.classList.add('menu-drop-before');g.insertBefore(item,before);}
+  else g.appendChild(item);
+}
+function startMenuAutoScroll(){
+  if(MENU_AUTO_SCROLL_RAF)return;
+  function tick(){
+    if(!MENU_DRAG){MENU_AUTO_SCROLL_RAF=0;return;}
+    var sh=document.getElementById('sheet');
+    if(!sh){MENU_AUTO_SCROLL_RAF=0;return;}
+    var r=sh.getBoundingClientRect(),y=MENU_DRAG.lastY;
+    var edge=Math.min(130,Math.max(90,r.height*.18)),delta=0;
+    if(y<r.top+edge){var p1=Math.min(1,Math.max(0,(r.top+edge-y)/edge));delta=-(4+Math.round(22*p1));}
+    else if(y>r.bottom-edge){var p2=Math.min(1,Math.max(0,(y-(r.bottom-edge))/edge));delta=4+Math.round(22*p2);}
+    if(delta){var before=sh.scrollTop;sh.scrollTop+=delta;if(sh.scrollTop!==before)reorderMenuDragAt(y);}
+    MENU_AUTO_SCROLL_RAF=requestAnimationFrame(tick);
+  }
+  MENU_AUTO_SCROLL_RAF=requestAnimationFrame(tick);
+}
+function stopMenuAutoScroll(){if(MENU_AUTO_SCROLL_RAF){cancelAnimationFrame(MENU_AUTO_SCROLL_RAF);MENU_AUTO_SCROLL_RAF=0;}}
+function menuPointerMove(e){
+  if(!MENU_DRAG||MENU_DRAG.pointerId!==e.pointerId)return;
+  e.preventDefault();MENU_BLOCK_CLICK_UNTIL=Date.now()+500;MENU_DRAG.lastY=e.clientY;reorderMenuDragAt(e.clientY);
+}
+function finishMenuDrag(save){
+  if(!MENU_DRAG){stopMenuAutoScroll();return;}
+  var item=MENU_DRAG.item;item.classList.remove('menu-dragging');
+  var items=menuSortItems();for(var i=0;i<items.length;i++)items[i].classList.remove('menu-drop-before');
+  MENU_DRAG=null;stopMenuAutoScroll();
+  if(save!==false){saveMenuOrder();toast('메뉴 순서가 저장되었습니다');}
+}
+function menuPointerUp(e){
+  if(MENU_DRAG&&MENU_DRAG.pointerId===e.pointerId){
+    e.preventDefault();MENU_BLOCK_CLICK_UNTIL=Date.now()+650;finishMenuDrag(true);
+  }
+}
+
+/* ================= 상단 📐 PC 화면별 폭 조절 ================= */
+var PCW_KEY='sw_pc_width_v1';
+var PCW_MIN=720,PCW_MAX=1400,PCW_STEP=20,PCW_DEFAULT=760;
+var PCW_VIEW='dash',PCW_DATA={};
+function pcwClamp(v){
+  var n=Number(v)||PCW_DEFAULT;
+  n=Math.round(n/PCW_STEP)*PCW_STEP;
+  return Math.max(PCW_MIN,Math.min(PCW_MAX,n));
+}
+function loadPCWidths(){
+  try{var x=JSON.parse(localStorage.getItem(PCW_KEY)||'{}');PCW_DATA=(x&&typeof x==='object')?x:{};}catch(e){PCW_DATA={};}
+}
+function pcwValue(pg){return pcwClamp(PCW_DATA[pg]!==undefined?PCW_DATA[pg]:PCW_DEFAULT);}
+function applyPCWidth(pg,w,save){
+  PCW_VIEW=pg||PCW_VIEW;
+  var px=pcwClamp(w!==undefined?w:pcwValue(PCW_VIEW));
+  var page=document.getElementById('pg-'+PCW_VIEW);
+  if(page)page.style.setProperty('--pc-view-width',px+'px');
+  document.documentElement.style.setProperty('--pc-active-width',px+'px');
+  var rg=document.getElementById('pcwRange');if(rg)rg.value=px;
+  var val=document.getElementById('pcwValue');if(val)val.textContent=px+'px';
+  var vn=document.getElementById('pcwViewName');if(vn)vn.textContent=(PAGE_TITLES[PCW_VIEW]||'현재')+' 화면 설정';
+  if(save){
+    PCW_DATA[PCW_VIEW]=px;
+    try{localStorage.setItem(PCW_KEY,JSON.stringify(PCW_DATA));}catch(e){}
+    pcwSaved('저장됨');
+  }
+  return px;
+}
+function previewPCWidth(v){pcwSaved('조절중');applyPCWidth(PCW_VIEW,v,false);}
+function savePCWidth(v){applyPCWidth(PCW_VIEW,v,true);}
+function resetPCWidth(){
+  delete PCW_DATA[PCW_VIEW];
+  try{localStorage.setItem(PCW_KEY,JSON.stringify(PCW_DATA));}catch(e){}
+  applyPCWidth(PCW_VIEW,PCW_DEFAULT,false);pcwSaved('기본값');
+}
+function pcwSaved(t){
+  var el=document.getElementById('pcwSaved');if(!el)return;
+  el.textContent=t;clearTimeout(pcwSaved._t);
+  if(t==='기본값')pcwSaved._t=setTimeout(function(){el.textContent='저장됨';},900);
+}
+function setPCWidthPage(pg){PCW_VIEW=pg||'dash';applyPCWidth(PCW_VIEW,pcwValue(PCW_VIEW),false);closePCWidthPopup();}
+function togglePCWidthPopup(e){
+  if(e)e.stopPropagation();
+  if(window.matchMedia('(max-width:760px)').matches)return;
+  var pop=document.getElementById('pcWidthPopup'),btn=document.getElementById('pcWidthBtn');if(!pop||!btn)return;
+  var open=!pop.classList.contains('show');pop.classList.toggle('show',open);btn.classList.toggle('on',open);
+  btn.setAttribute('aria-expanded',open?'true':'false');
+  if(open){
+    var vn=document.getElementById('pcwViewName');if(vn)vn.textContent=(PAGE_TITLES[PCW_VIEW]||'현재')+' 화면 설정';
+    var rg=document.getElementById('pcwRange');if(rg)try{rg.focus({preventScroll:true});}catch(err){rg.focus();}
+  }
+}
+function closePCWidthPopup(){
+  var pop=document.getElementById('pcWidthPopup'),btn=document.getElementById('pcWidthBtn');
+  if(pop)pop.classList.remove('show');if(btn){btn.classList.remove('on');btn.setAttribute('aria-expanded','false');}
+}
+document.addEventListener('click',function(e){var m=document.getElementById('pcWidthMenu');if(m&&!m.contains(e.target))closePCWidthPopup();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closePCWidthPopup();if(MENU_EDIT)setMenuEdit(false);}});
+loadPCWidths();
+initMenuOrder();
+setPCWidthPage('dash');
 function selectTab(pg){
   var tabs=document.querySelectorAll('nav button[data-pg]');
   for(var i=0;i<tabs.length;i++){
